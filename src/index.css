@@ -372,6 +372,27 @@ small {
   box-shadow: 3px 3px 0 rgba(10, 28, 26, 0.08);
 }
 
+.hero-trust-row {
+  @apply mt-1;
+}
+
+.hero-trust-list {
+  @apply grid grid-cols-2 gap-2 sm:flex sm:flex-wrap lg:flex-nowrap;
+}
+
+.hero-trust-item {
+  @apply flex min-h-10 min-w-0 items-center gap-2 rounded-md border border-forest/30 bg-white/45 px-3 py-2 text-xs font-extrabold leading-tight text-forest/75 backdrop-blur transition hover:border-forest/50 hover:bg-white/70 lg:flex-1;
+  box-shadow: 2px 2px 0 rgba(10, 28, 26, 0.06);
+}
+
+.hero-trust-item-wide {
+  @apply col-span-2 sm:col-span-1;
+}
+
+.hero-trust-icon {
+  @apply grid h-6 w-6 shrink-0 place-items-center rounded-sm border border-forest/35 bg-cream text-forest;
+}
+
 .feature-item {
   @apply grid gap-3 border-t border-forest/50 pt-5 text-sm font-semibold leading-6 text-forest/75 sm:grid-cols-[2.5rem_1fr];
   position: relative;

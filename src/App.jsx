@@ -27,10 +27,11 @@ const languages = [
 
 const timeSlots = ['08:30', '10:00', '11:30', '13:00', '14:30', '15:30'];
 
-const bookingTrustData = {
-  rating: '4.9/5',
-  clients: 127,
-  stars: 3,
+// Set real values from a verified source before rendering public review proof.
+const trustProofConfig = {
+  googleRating: null,
+  googleReviewCount: null,
+  googleStars: 3,
 };
 
 const content = {
@@ -64,6 +65,14 @@ const content = {
       body:
         'MINO Consulting KG vereinfacht Buchhaltung, Lohnverrechnung, Steuern und Reporting, damit Unternehmen in Österreich mit Klarheit und Sicherheit entscheiden können.',
       imageAlt: 'Beratungsgespräch zu Finanzplanung in einem hellen Büro',
+      trustLabel: 'Vertrauenssignale',
+      googleRatingLabel: 'Google Bewertung',
+      trustItems: [
+        { label: 'Wiener Kanzlei', icon: MapPin },
+        { label: 'Persönliche Betreuung', icon: ShieldCheck },
+        { label: 'Digitale Buchhaltung', icon: Smartphone },
+        { label: 'Für Gründer, Selbstständige & KMU', icon: BriefcaseBusiness },
+      ],
     },
     value: {
       statement:
@@ -281,7 +290,6 @@ const content = {
       close: 'Schließen',
       securityText: 'Ihre Daten sind 100% sicher - keine Weitergabe an Dritte',
       responseBadge: '⏱ Antwort in 24h',
-      ratingText: `${bookingTrustData.rating} von ${bookingTrustData.clients} Klienten`,
       required: 'Bitte füllen Sie Thema, Datum, Uhrzeit, Name und E-Mail aus.',
       successTitle: 'Ihre Terminanfrage ist vorbereitet.',
       successBody:
@@ -325,6 +333,14 @@ const content = {
       body:
         'MINO Consulting KG pojednostavljuje knjigovodstvo, obračun plata, poreze i izvještavanje, kako bi firme u Austriji donosile odluke sa sigurnošću.',
       imageAlt: 'Poslovni savjetnici razgovaraju o finansijskom planiranju u svijetloj kancelariji',
+      trustLabel: 'Signali povjerenja',
+      googleRatingLabel: 'Google ocjena',
+      trustItems: [
+        { label: 'Bečka kancelarija', icon: MapPin },
+        { label: 'Lična podrška', icon: ShieldCheck },
+        { label: 'Digitalno knjigovodstvo', icon: Smartphone },
+        { label: 'Za osnivače, samostalne djelatnike i KMU', icon: BriefcaseBusiness },
+      ],
     },
     value: {
       statement:
@@ -542,7 +558,6 @@ const content = {
       close: 'Zatvori',
       securityText: 'Vaši podaci su 100% sigurni - bez prosljeđivanja trećim stranama',
       responseBadge: '⏱ Odgovor u 24h',
-      ratingText: `${bookingTrustData.rating} od ${bookingTrustData.clients} klijenata`,
       required: 'Molimo unesite temu, datum, vrijeme, ime i e-mail.',
       successTitle: 'Vaš upit za termin je pripremljen.',
       successBody:
@@ -844,10 +859,55 @@ function DelayedStickyHeader({ t, language, setLanguage, onBook, isVisible }) {
   );
 }
 
+function getGoogleRatingText(language) {
+  if (!trustProofConfig.googleRating) return '';
+
+  const label = language === 'de' ? 'Google Bewertung' : 'Google ocjena';
+
+  if (!trustProofConfig.googleReviewCount) {
+    return `${label}: ${trustProofConfig.googleRating}`;
+  }
+
+  const reviewLabel = language === 'de' ? 'Bewertungen' : 'recenzija';
+  return `${label}: ${trustProofConfig.googleRating} (${trustProofConfig.googleReviewCount} ${reviewLabel})`;
+}
+
+function HeroTrustRow({ proof }) {
+  const googleRatingItem = trustProofConfig.googleRating
+    ? {
+        label: trustProofConfig.googleReviewCount
+          ? `${proof.googleRatingLabel}: ${trustProofConfig.googleRating} (${trustProofConfig.googleReviewCount})`
+          : `${proof.googleRatingLabel}: ${trustProofConfig.googleRating}`,
+        icon: Star,
+      }
+    : null;
+  const items = googleRatingItem ? [...proof.trustItems, googleRatingItem] : proof.trustItems;
+
+  return (
+    <section className="hero-trust-row" aria-label={proof.trustLabel}>
+      <ul className="hero-trust-list">
+        {items.map((item, index) => {
+          const Icon = item.icon;
+          const spansMobile = items.length % 2 === 1 && index === items.length - 1;
+
+          return (
+            <li key={item.label} className={`hero-trust-item ${spansMobile ? 'hero-trust-item-wide' : ''}`}>
+              <span className="hero-trust-icon">
+                <Icon size={14} aria-hidden="true" />
+              </span>
+              <span>{item.label}</span>
+            </li>
+          );
+        })}
+      </ul>
+    </section>
+  );
+}
+
 function Hero({ t, onBook }) {
   return (
     <section id="top" className="hero-section relative overflow-hidden">
-      <div className="section-shell grid items-center gap-8 sm:gap-10 lg:grid-cols-[0.92fr_1.08fr] lg:gap-16">
+      <div className="section-shell grid items-center gap-8 sm:gap-10 lg:grid-cols-[0.92fr_1.08fr] lg:gap-x-16 lg:gap-y-8">
         <div className="max-w-[20.5rem] sm:max-w-xl reveal">
           <small className="tag-pill">
             <BadgeIcon />
@@ -868,7 +928,11 @@ function Hero({ t, onBook }) {
           </div>
         </div>
 
-        <div className="relative reveal reveal-delay-1">
+        <div className="reveal reveal-delay-2 lg:col-span-2 lg:row-start-2">
+          <HeroTrustRow proof={t.hero} />
+        </div>
+
+        <div className="relative reveal reveal-delay-1 lg:col-start-2 lg:row-start-1">
           <div className="hero-image-frame">
             <img
               className="h-[11.75rem] w-full rounded-t-md object-cover sm:h-[31rem]"
@@ -1239,6 +1303,7 @@ function Contact({ t, onBook }) {
 
 function BookingModal({ t, language, isOpen, onClose }) {
   const today = useMemo(() => new Date().toISOString().split('T')[0], []);
+  const googleRatingText = getGoogleRatingText(language);
   const initialForm = useMemo(
     () => ({
       service: t.booking.services[0],
@@ -1461,14 +1526,16 @@ function BookingModal({ t, language, isOpen, onClose }) {
                 {t.booking.securityText}
               </span>
               <span className="booking-response-pill">{t.booking.responseBadge}</span>
-              <span className="booking-trust-item">
-                <span className="booking-stars" aria-hidden="true">
-                  {Array.from({ length: bookingTrustData.stars }).map((_, index) => (
-                    <Star key={index} size={13} />
-                  ))}
+              {googleRatingText && (
+                <span className="booking-trust-item">
+                  <span className="booking-stars" aria-hidden="true">
+                    {Array.from({ length: trustProofConfig.googleStars }).map((_, index) => (
+                      <Star key={index} size={13} />
+                    ))}
+                  </span>
+                  {googleRatingText}
                 </span>
-                {t.booking.ratingText}
-              </span>
+              )}
             </div>
           </form>
         )}

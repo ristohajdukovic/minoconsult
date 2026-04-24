@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://ristohajdukovic.github.io/minoconsult/sitemap.xml

@@ -19,6 +19,7 @@ import {
   Star,
   X,
 } from 'lucide-react';
+import { seoPages, seoPagesByPath } from './seoPages.js';
 
 const languages = [
   { code: 'de', label: 'DE' },
@@ -33,6 +34,76 @@ const trustProofConfig = {
   googleReviewCount: null,
   googleStars: 3,
 };
+
+const siteUrl = 'https://ristohajdukovic.github.io/minoconsult';
+const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
+
+function getRouteHref(path) {
+  if (path === '/') return `${basePath}/` || '/';
+  return `${basePath}${path}`;
+}
+
+function normalizeRoutePath(pathname) {
+  let path = pathname || '/';
+
+  if (basePath && path === basePath) return '/';
+  if (basePath && path.startsWith(`${basePath}/`)) {
+    path = path.slice(basePath.length);
+  }
+
+  path = path.replace(/\/+$/, '') || '/';
+  return path;
+}
+
+function getCanonicalUrl(path) {
+  return `${siteUrl}${path === '/' ? '/' : path}`;
+}
+
+function setMetaContent(selector, contentValue) {
+  let element = document.head.querySelector(selector);
+
+  if (!element) {
+    element = document.createElement('meta');
+    const nameMatch = selector.match(/meta\[name="([^"]+)"\]/);
+    const propertyMatch = selector.match(/meta\[property="([^"]+)"\]/);
+    if (nameMatch) element.setAttribute('name', nameMatch[1]);
+    if (propertyMatch) element.setAttribute('property', propertyMatch[1]);
+    document.head.appendChild(element);
+  }
+
+  element.setAttribute('content', contentValue);
+}
+
+function setCanonicalHref(url) {
+  let element = document.head.querySelector('link[rel="canonical"]');
+
+  if (!element) {
+    element = document.createElement('link');
+    element.setAttribute('rel', 'canonical');
+    document.head.appendChild(element);
+  }
+
+  element.setAttribute('href', url);
+}
+
+function useCurrentRoutePath() {
+  const [routePath, setRoutePath] = useState(() => normalizeRoutePath(window.location.pathname));
+
+  useEffect(() => {
+    const updateRoute = () => setRoutePath(normalizeRoutePath(window.location.pathname));
+    window.addEventListener('popstate', updateRoute);
+
+    return () => window.removeEventListener('popstate', updateRoute);
+  }, []);
+
+  return routePath;
+}
+
+function resolveNavHref(href, routePath) {
+  if (!href.startsWith('#')) return href;
+  if (routePath === '/' || href === '#contact' || href === '#top') return href;
+  return `${getRouteHref('/')}${href}`;
+}
 
 const content = {
   de: {
@@ -694,14 +765,14 @@ function LanguageSwitcher({ language, setLanguage, label }) {
   );
 }
 
-function Header({ t, language, setLanguage, onBook }) {
+function Header({ t, language, setLanguage, onBook, routePath }) {
   const [isOpen, setIsOpen] = useState(false);
   const closeMenu = () => setIsOpen(false);
 
   return (
     <header className="relative z-50 border-b border-forest/50 bg-white">
       <nav className="section-shell flex h-[4.5rem] items-center justify-between sm:h-[4.75rem]" aria-label="Main navigation">
-        <a href="#top" className="flex items-center gap-2.5 sm:gap-3" onClick={closeMenu}>
+        <a href={routePath === '/' ? '#top' : getRouteHref('/')} className="flex items-center gap-2.5 sm:gap-3" onClick={closeMenu}>
           <span className="grid h-9 w-9 place-items-center rounded border border-forest bg-forest text-[0.9rem] font-black text-white sm:h-10 sm:w-10 sm:text-sm">
             MC
           </span>
@@ -717,7 +788,7 @@ function Header({ t, language, setLanguage, onBook }) {
 
         <div className="hidden items-center gap-8 md:flex">
           {t.nav.map((item) => (
-            <a key={item.href} className="nav-link" href={item.href}>
+            <a key={item.href} className="nav-link" href={resolveNavHref(item.href, routePath)}>
               {item.label}
             </a>
           ))}
@@ -754,7 +825,7 @@ function Header({ t, language, setLanguage, onBook }) {
         <div className="mobile-menu-panel border-t border-forest/50 bg-white md:hidden">
           <div className="section-shell grid gap-3 py-5">
             {t.nav.map((item) => (
-              <a key={item.href} className="nav-link py-2" href={item.href} onClick={closeMenu}>
+              <a key={item.href} className="nav-link py-2" href={resolveNavHref(item.href, routePath)} onClick={closeMenu}>
                 {item.label}
               </a>
             ))}
@@ -775,7 +846,7 @@ function Header({ t, language, setLanguage, onBook }) {
   );
 }
 
-function DelayedStickyHeader({ t, language, setLanguage, onBook, isVisible }) {
+function DelayedStickyHeader({ t, language, setLanguage, onBook, isVisible, routePath }) {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
@@ -785,7 +856,7 @@ function DelayedStickyHeader({ t, language, setLanguage, onBook, isVisible }) {
   return (
     <header className={`delayed-sticky-header ${isVisible ? 'is-visible' : ''}`}>
       <nav className="section-shell flex h-[4.5rem] items-center justify-between sm:h-16" aria-label="Sticky navigation">
-        <a href="#top" className="flex items-center gap-2.5 sm:gap-3" onClick={() => setIsOpen(false)}>
+        <a href={routePath === '/' ? '#top' : getRouteHref('/')} className="flex items-center gap-2.5 sm:gap-3" onClick={() => setIsOpen(false)}>
           <span className="grid h-9 w-9 place-items-center rounded border border-forest bg-forest text-[0.9rem] font-black text-white sm:h-10 sm:w-10 sm:text-sm">
             MC
           </span>
@@ -801,7 +872,7 @@ function DelayedStickyHeader({ t, language, setLanguage, onBook, isVisible }) {
 
         <div className="hidden items-center gap-8 md:flex">
           {t.nav.map((item) => (
-            <a key={item.href} className="nav-link" href={item.href}>
+            <a key={item.href} className="nav-link" href={resolveNavHref(item.href, routePath)}>
               {item.label}
             </a>
           ))}
@@ -838,7 +909,7 @@ function DelayedStickyHeader({ t, language, setLanguage, onBook, isVisible }) {
         <div className="mobile-menu-panel border-t border-forest/50 bg-white md:hidden">
           <div className="section-shell grid gap-3 py-5">
             {t.nav.map((item) => (
-              <a key={item.href} className="nav-link py-2" href={item.href} onClick={() => setIsOpen(false)}>
+              <a key={item.href} className="nav-link py-2" href={resolveNavHref(item.href, routePath)} onClick={() => setIsOpen(false)}>
                 {item.label}
               </a>
             ))}
@@ -1060,6 +1131,18 @@ function Services({ t, onBook }) {
             );
           })}
         </div>
+
+        <nav className="service-page-nav reveal" aria-label="Lokale Leistungsseiten">
+          <small>Lokale Leistungsseiten</small>
+          <div className="service-page-link-grid">
+            {seoPages.map((page) => (
+              <a key={page.path} className="service-page-link" href={getRouteHref(page.path)}>
+                {page.eyebrow}
+                <ArrowUpRight size={14} aria-hidden="true" />
+              </a>
+            ))}
+          </div>
+        </nav>
       </div>
     </section>
   );
@@ -1158,9 +1241,50 @@ function FaqStructuredData({ items }) {
   return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: schema }} />;
 }
 
-function FaqSection({ t }) {
+function FaqAccordion({ items, idPrefix = 'faq' }) {
   const [openIndex, setOpenIndex] = useState(0);
 
+  return (
+    <div className="faq-list reveal reveal-delay-1">
+      {items.map((item, index) => {
+        const isOpen = openIndex === index;
+        const panelId = `${idPrefix}-panel-${index}`;
+
+        return (
+          <article key={item.question} className="faq-item" data-open={isOpen ? 'true' : 'false'}>
+            <h3>
+              <button
+                className="faq-trigger"
+                type="button"
+                aria-expanded={isOpen}
+                aria-controls={panelId}
+                onClick={() => setOpenIndex((currentIndex) => (currentIndex === index ? null : index))}
+              >
+                <span className="faq-question">{item.question}</span>
+                <span className="faq-icon" aria-hidden="true">
+                  <Plus size={18} />
+                </span>
+              </button>
+            </h3>
+
+            <div
+              id={panelId}
+              className="faq-panel"
+              data-open={isOpen ? 'true' : 'false'}
+              aria-hidden={!isOpen}
+            >
+              <div className="faq-panel-inner">
+                <p>{item.answer}</p>
+              </div>
+            </div>
+          </article>
+        );
+      })}
+    </div>
+  );
+}
+
+function FaqSection({ t }) {
   return (
     <>
       <FaqStructuredData items={t.faq.items} />
@@ -1173,49 +1297,195 @@ function FaqSection({ t }) {
             <p className="mt-5 text-forest/70">{t.faq.body}</p>
           </div>
 
-          <div className="faq-list reveal reveal-delay-1">
-            {t.faq.items.map((item, index) => {
-              const isOpen = openIndex === index;
-              const panelId = `faq-panel-${index}`;
-
-              return (
-                <article key={item.question} className="faq-item" data-open={isOpen ? 'true' : 'false'}>
-                  <h3>
-                    <button
-                      className="faq-trigger"
-                      type="button"
-                      aria-expanded={isOpen}
-                      aria-controls={panelId}
-                      onClick={() => setOpenIndex((currentIndex) => (currentIndex === index ? null : index))}
-                    >
-                      <span className="faq-question">{item.question}</span>
-                      <span className="faq-icon" aria-hidden="true">
-                        <Plus size={18} />
-                      </span>
-                    </button>
-                  </h3>
-
-                  <div
-                    id={panelId}
-                    className="faq-panel"
-                    data-open={isOpen ? 'true' : 'false'}
-                    aria-hidden={!isOpen}
-                  >
-                    <div className="faq-panel-inner">
-                      <p>{item.answer}</p>
-                    </div>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
+          <FaqAccordion items={t.faq.items} idPrefix="home-faq" />
         </div>
       </section>
     </>
   );
 }
 
-function Contact({ t, onBook }) {
+function AccountingServiceStructuredData({ routePath }) {
+  const schema = useMemo(
+    () =>
+      JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'AccountingService',
+        name: 'MINO Consulting KG',
+        url: getCanonicalUrl(routePath),
+        address: {
+          '@type': 'PostalAddress',
+          streetAddress: 'Geblergasse 95/8',
+          postalCode: '1170',
+          addressLocality: 'Wien',
+          addressCountry: 'AT',
+        },
+        areaServed: {
+          '@type': 'City',
+          name: 'Wien',
+        },
+      }),
+    [routePath],
+  );
+
+  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: schema }} />;
+}
+
+function SeoLandingPageStructuredData({ page }) {
+  const schema = useMemo(
+    () =>
+      JSON.stringify({
+        '@context': 'https://schema.org',
+        '@type': 'WebPage',
+        name: page.title,
+        description: page.metaDescription,
+        url: getCanonicalUrl(page.path),
+        isPartOf: {
+          '@type': 'WebSite',
+          name: 'MINO Consulting KG',
+          url: getCanonicalUrl('/'),
+        },
+        about: {
+          '@type': 'AccountingService',
+          name: 'MINO Consulting KG',
+        },
+      }),
+    [page],
+  );
+
+  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: schema }} />;
+}
+
+function SeoLandingPage({ page, onBook }) {
+  const relatedPages = page.related.map((path) => seoPagesByPath[path]).filter(Boolean);
+
+  return (
+    <>
+      <SeoLandingPageStructuredData page={page} />
+      <FaqStructuredData items={page.faq} />
+
+      <section id="top" className="seo-hero-section section-surface-warm">
+        <div className="section-shell seo-hero-layout">
+          <div className="reveal">
+            <small className="tag-pill">
+              <MapPin size={14} aria-hidden="true" />
+              {page.eyebrow}
+            </small>
+            <h1 className="mt-5">{page.h1}</h1>
+            <p className="mt-5 max-w-2xl text-forest/75">{page.intro}</p>
+            <div className="mt-7 flex flex-col gap-3 sm:flex-row" data-hero-cta>
+              <button className="button-primary" type="button" onClick={onBook}>
+                Erstgespräch vereinbaren
+                <ArrowRight size={16} aria-hidden="true" />
+              </button>
+              <a className="button-secondary" href="#contact">
+                Kontakt aufnehmen
+              </a>
+            </div>
+          </div>
+
+          <aside className="seo-hero-note reveal reveal-delay-1" aria-label="Lokaler Fokus">
+            <small>Fokus</small>
+            <p>Beratung für Wien, Gründer, Selbstständige und KMU mit klaren Abläufen und persönlicher Abstimmung.</p>
+          </aside>
+        </div>
+      </section>
+
+      <section className="section-spacious section-surface-light">
+        <div className="section-shell seo-two-column">
+          <article className="seo-info-block reveal">
+            <small>{page.whoForTitle}</small>
+            <ul className="seo-check-list">
+              {page.whoFor.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </article>
+
+          <article className="seo-info-block reveal reveal-delay-1">
+            <small>{page.includedTitle}</small>
+            <ul className="seo-check-list">
+              {page.included.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <section className="section-spacious section-surface-cream">
+        <div className="section-shell">
+          <div className="max-w-3xl reveal">
+            <small>Prozess</small>
+            <h2 className="mt-4">{page.processTitle}</h2>
+          </div>
+
+          <ol className="seo-process-list">
+            {page.process.map((step, index) => (
+              <li key={step.title} className="seo-process-item reveal">
+                <span>{String(index + 1).padStart(2, '0')}</span>
+                <div>
+                  <h3>{step.title}</h3>
+                  <p>{step.body}</p>
+                </div>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </section>
+
+      <section className="section-spacious section-surface-light">
+        <div className="section-shell faq-layout">
+          <div className="faq-intro reveal">
+            <small>FAQ</small>
+            <h2 className="mt-4">Häufige Fragen zu {page.eyebrow}</h2>
+            <p className="mt-5 text-forest/70">Konkrete Antworten für Unternehmen und Selbstständige in Wien.</p>
+          </div>
+
+          <FaqAccordion items={page.faq} idPrefix={`seo-${page.path.slice(1)}`} />
+        </div>
+      </section>
+
+      <section className="section-spacious section-surface-warm">
+        <div className="section-shell">
+          <div className="seo-cta-panel reveal">
+            <div>
+              <small>Nächster Schritt</small>
+              <h2 className="mt-4">{page.ctaTitle}</h2>
+              <p className="mt-5 text-forest/75">{page.ctaBody}</p>
+            </div>
+            <div className="seo-cta-actions">
+              <button className="button-primary" type="button" onClick={onBook}>
+                Erstgespräch vereinbaren
+                <ArrowRight size={16} aria-hidden="true" />
+              </button>
+              <a className="button-secondary" href="#contact">
+                Kontaktdaten ansehen
+              </a>
+            </div>
+          </div>
+
+          <nav className="seo-related-links reveal" aria-label="Verwandte lokale Leistungsseiten">
+            <small>Verwandte Seiten</small>
+            <div className="seo-related-grid">
+              <a className="seo-related-link" href={getRouteHref('/')}>
+                Startseite
+                <ArrowUpRight size={14} aria-hidden="true" />
+              </a>
+              {relatedPages.map((relatedPage) => (
+                <a key={relatedPage.path} className="seo-related-link" href={getRouteHref(relatedPage.path)}>
+                  {relatedPage.eyebrow}
+                  <ArrowUpRight size={14} aria-hidden="true" />
+                </a>
+              ))}
+            </div>
+          </nav>
+        </div>
+      </section>
+    </>
+  );
+}
+
+function Contact({ t, onBook, routePath }) {
   const contactDetails = t.contact.cards.filter((item) => item.icon !== CalendarDays);
 
   return (
@@ -1287,7 +1557,7 @@ function Contact({ t, onBook }) {
           </p>
           <div className="footer-bottom-links">
             {t.nav.map((item) => (
-              <a className="hover:text-white" href={item.href} key={item.href}>
+              <a className="hover:text-white" href={resolveNavHref(item.href, routePath)} key={item.href}>
                 {item.label}
               </a>
             ))}
@@ -1547,39 +1817,67 @@ function BookingModal({ t, language, isOpen, onClose }) {
 export default function App() {
   const [language, setLanguage] = useState('de');
   const [bookingOpen, setBookingOpen] = useState(false);
-  const t = content[language];
+  const routePath = useCurrentRoutePath();
+  const seoPage = seoPagesByPath[routePath];
+  const activeLanguage = seoPage ? 'de' : language;
+  const t = content[activeLanguage];
+  const currentTitle = seoPage ? seoPage.title : t.pageTitle;
+  const currentDescription = seoPage
+    ? seoPage.metaDescription
+    : 'MINO Consulting KG bietet Buchhaltung, Lohnverrechnung, Steuerberatung, Auswertungen und Unternehmensberatung in Wien.';
+  const canonicalPath = seoPage ? seoPage.path : '/';
   const showDelayedStickyHeader = useDelayedStickyHeader();
 
   useScrollReveal();
 
   useEffect(() => {
-    document.documentElement.lang = language === 'de' ? 'de' : 'bs';
-    document.title = t.pageTitle;
-  }, [language, t.pageTitle]);
+    document.documentElement.lang = activeLanguage === 'de' ? 'de' : 'bs';
+    document.title = currentTitle;
+    setMetaContent('meta[name="description"]', currentDescription);
+    setMetaContent('meta[property="og:title"]', currentTitle);
+    setMetaContent('meta[property="og:description"]', currentDescription);
+    setMetaContent('meta[property="og:type"]', 'website');
+    setMetaContent('meta[property="og:url"]', getCanonicalUrl(canonicalPath));
+    setCanonicalHref(getCanonicalUrl(canonicalPath));
+  }, [activeLanguage, canonicalPath, currentDescription, currentTitle]);
 
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-cream text-forest">
       <div className="architect-grid" aria-hidden="true" />
       <div className="relative z-10">
-        <Header t={t} language={language} setLanguage={setLanguage} onBook={() => setBookingOpen(true)} />
+        <AccountingServiceStructuredData routePath={canonicalPath} />
+        <Header
+          t={t}
+          language={activeLanguage}
+          setLanguage={setLanguage}
+          onBook={() => setBookingOpen(true)}
+          routePath={routePath}
+        />
         <DelayedStickyHeader
           t={t}
-          language={language}
+          language={activeLanguage}
           setLanguage={setLanguage}
           onBook={() => setBookingOpen(true)}
           isVisible={showDelayedStickyHeader}
+          routePath={routePath}
         />
         <main>
-          <Hero t={t} onBook={() => setBookingOpen(true)} />
-          <ValueProposition t={t} />
-          <Services t={t} onBook={() => setBookingOpen(true)} />
-          <TrustMarquee t={t} />
-          <About t={t} />
-          <FaqSection t={t} />
+          {seoPage ? (
+            <SeoLandingPage page={seoPage} onBook={() => setBookingOpen(true)} />
+          ) : (
+            <>
+              <Hero t={t} onBook={() => setBookingOpen(true)} />
+              <ValueProposition t={t} />
+              <Services t={t} onBook={() => setBookingOpen(true)} />
+              <TrustMarquee t={t} />
+              <About t={t} />
+              <FaqSection t={t} />
+            </>
+          )}
         </main>
-        <Contact t={t} onBook={() => setBookingOpen(true)} />
+        <Contact t={t} onBook={() => setBookingOpen(true)} routePath={routePath} />
       </div>
-      <BookingModal t={t} language={language} isOpen={bookingOpen} onClose={() => setBookingOpen(false)} />
+      <BookingModal t={t} language={activeLanguage} isOpen={bookingOpen} onClose={() => setBookingOpen(false)} />
     </div>
   );
 }

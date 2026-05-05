@@ -931,7 +931,18 @@ function getGoogleRatingText(language) {
   return `${label}: ${trustProofConfig.googleRating} (${trustProofConfig.googleReviewCount} ${reviewLabel})`;
 }
 
+function getOfficePhone(t) {
+  return t.contact.cards.find((item) => item.icon === Phone)?.value ?? '';
+}
+
+function getPhoneHref(phoneNumber) {
+  return `tel:${phoneNumber.replace(/[^\d+]/g, '')}`;
+}
+
 function Hero({ t, onBook }) {
+  const officePhone = getOfficePhone(t);
+  const phoneHref = getPhoneHref(officePhone);
+
   return (
     <section id="top" className="hero-section relative overflow-hidden">
       <div className="section-shell grid items-center gap-8 sm:gap-10 lg:grid-cols-[0.92fr_1.08fr] lg:gap-16">
@@ -945,13 +956,17 @@ function Hero({ t, onBook }) {
           </h1>
           <p className="mt-4 max-w-lg text-forest/75 sm:mt-5">{t.hero.body}</p>
 
-          <div className="mt-5 flex flex-col gap-3 sm:mt-7 sm:flex-row" data-hero-cta>
-            <a className="button-secondary" href="tel:+4312345678">
-              {t.cta.call}
-            </a>
-            <button className="button-primary" type="button" onClick={onBook}>
+          <div className="mt-5 flex flex-col gap-3 sm:mt-7 md:flex-row" data-hero-cta>
+            <button className="button-primary w-full md:w-auto" type="button" onClick={onBook}>
               {t.cta.book}
             </button>
+            <a
+              className="button-secondary hero-call-link w-full md:w-auto"
+              href={phoneHref}
+              aria-label={`MINO Consulting anrufen: ${officePhone}`}
+            >
+              {t.cta.call}
+            </a>
           </div>
         </div>
 

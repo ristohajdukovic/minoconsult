@@ -311,6 +311,16 @@ small {
   transform: translate(2px, 2px);
 }
 
+.button-secondary.hero-call-link,
+.button-secondary.hero-call-link:hover,
+.button-secondary.hero-call-link:active {
+  box-shadow: none;
+}
+
+.button-secondary.hero-call-link:active {
+  transform: none;
+}
+
 .hamburger-button {
   @apply grid h-11 w-11 min-h-11 min-w-11 place-items-center rounded-md border border-forest bg-transparent text-forest transition hover:bg-taupe;
   box-shadow: 3px 3px 0 rgba(10, 28, 26, 0.08);

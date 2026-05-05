@@ -136,14 +136,6 @@ const content = {
       body:
         'MINO Consulting KG vereinfacht Buchhaltung, Lohnverrechnung, Steuern und Reporting, damit Unternehmen in Österreich mit Klarheit und Sicherheit entscheiden können.',
       imageAlt: 'Beratungsgespräch zu Finanzplanung in einem hellen Büro',
-      trustLabel: 'Vertrauenssignale',
-      googleRatingLabel: 'Google Bewertung',
-      trustItems: [
-        { label: 'Wiener Kanzlei', icon: MapPin },
-        { label: 'Persönliche Betreuung', icon: ShieldCheck },
-        { label: 'Digitale Buchhaltung', icon: Smartphone },
-        { label: 'Für Gründer, Selbstständige & KMU', icon: BriefcaseBusiness },
-      ],
     },
     value: {
       statement:
@@ -404,14 +396,6 @@ const content = {
       body:
         'MINO Consulting KG pojednostavljuje knjigovodstvo, obračun plata, poreze i izvještavanje, kako bi firme u Austriji donosile odluke sa sigurnošću.',
       imageAlt: 'Poslovni savjetnici razgovaraju o finansijskom planiranju u svijetloj kancelariji',
-      trustLabel: 'Signali povjerenja',
-      googleRatingLabel: 'Google ocjena',
-      trustItems: [
-        { label: 'Bečka kancelarija', icon: MapPin },
-        { label: 'Lična podrška', icon: ShieldCheck },
-        { label: 'Digitalno knjigovodstvo', icon: Smartphone },
-        { label: 'Za osnivače, samostalne djelatnike i KMU', icon: BriefcaseBusiness },
-      ],
     },
     value: {
       statement:
@@ -765,7 +749,7 @@ function LanguageSwitcher({ language, setLanguage, label }) {
   );
 }
 
-function Header({ t, language, setLanguage, onBook, routePath }) {
+function Header({ t, language, setLanguage, onBook, routePath, showLanguageSwitcher = true }) {
   const [isOpen, setIsOpen] = useState(false);
   const closeMenu = () => setIsOpen(false);
 
@@ -795,7 +779,9 @@ function Header({ t, language, setLanguage, onBook, routePath }) {
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3">
-          <LanguageSwitcher language={language} setLanguage={setLanguage} label={t.meta.languageLabel} />
+          {showLanguageSwitcher && (
+            <LanguageSwitcher language={language} setLanguage={setLanguage} label={t.meta.languageLabel} />
+          )}
           <div className="hidden sm:block">
             <button className="button-primary" type="button" onClick={onBook}>
               {t.cta.book}
@@ -846,7 +832,7 @@ function Header({ t, language, setLanguage, onBook, routePath }) {
   );
 }
 
-function DelayedStickyHeader({ t, language, setLanguage, onBook, isVisible, routePath }) {
+function DelayedStickyHeader({ t, language, setLanguage, onBook, isVisible, routePath, showLanguageSwitcher = true }) {
   const [isOpen, setIsOpen] = useState(false);
 
   useEffect(() => {
@@ -879,7 +865,9 @@ function DelayedStickyHeader({ t, language, setLanguage, onBook, isVisible, rout
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3">
-          <LanguageSwitcher language={language} setLanguage={setLanguage} label={t.meta.languageLabel} />
+          {showLanguageSwitcher && (
+            <LanguageSwitcher language={language} setLanguage={setLanguage} label={t.meta.languageLabel} />
+          )}
           <div className="hidden sm:block">
             <button className="button-primary py-2.5" type="button" onClick={onBook}>
               {t.cta.book}
@@ -943,42 +931,10 @@ function getGoogleRatingText(language) {
   return `${label}: ${trustProofConfig.googleRating} (${trustProofConfig.googleReviewCount} ${reviewLabel})`;
 }
 
-function HeroTrustRow({ proof }) {
-  const googleRatingItem = trustProofConfig.googleRating
-    ? {
-        label: trustProofConfig.googleReviewCount
-          ? `${proof.googleRatingLabel}: ${trustProofConfig.googleRating} (${trustProofConfig.googleReviewCount})`
-          : `${proof.googleRatingLabel}: ${trustProofConfig.googleRating}`,
-        icon: Star,
-      }
-    : null;
-  const items = googleRatingItem ? [...proof.trustItems, googleRatingItem] : proof.trustItems;
-
-  return (
-    <section className="hero-trust-row" aria-label={proof.trustLabel}>
-      <ul className="hero-trust-list">
-        {items.map((item, index) => {
-          const Icon = item.icon;
-          const spansMobile = items.length % 2 === 1 && index === items.length - 1;
-
-          return (
-            <li key={item.label} className={`hero-trust-item ${spansMobile ? 'hero-trust-item-wide' : ''}`}>
-              <span className="hero-trust-icon">
-                <Icon size={14} aria-hidden="true" />
-              </span>
-              <span>{item.label}</span>
-            </li>
-          );
-        })}
-      </ul>
-    </section>
-  );
-}
-
 function Hero({ t, onBook }) {
   return (
     <section id="top" className="hero-section relative overflow-hidden">
-      <div className="section-shell grid items-center gap-8 sm:gap-10 lg:grid-cols-[0.92fr_1.08fr] lg:gap-x-16 lg:gap-y-8">
+      <div className="section-shell grid items-center gap-8 sm:gap-10 lg:grid-cols-[0.92fr_1.08fr] lg:gap-16">
         <div className="max-w-[20.5rem] sm:max-w-xl reveal">
           <small className="tag-pill">
             <BadgeIcon />
@@ -999,11 +955,7 @@ function Hero({ t, onBook }) {
           </div>
         </div>
 
-        <div className="reveal reveal-delay-2 lg:col-span-2 lg:row-start-2">
-          <HeroTrustRow proof={t.hero} />
-        </div>
-
-        <div className="relative reveal reveal-delay-1 lg:col-start-2 lg:row-start-1">
+        <div className="relative reveal reveal-delay-1">
           <div className="hero-image-frame">
             <img
               className="h-[11.75rem] w-full rounded-t-md object-cover sm:h-[31rem]"
@@ -1852,6 +1804,7 @@ export default function App() {
           setLanguage={setLanguage}
           onBook={() => setBookingOpen(true)}
           routePath={routePath}
+          showLanguageSwitcher={!seoPage}
         />
         <DelayedStickyHeader
           t={t}
@@ -1860,6 +1813,7 @@ export default function App() {
           onBook={() => setBookingOpen(true)}
           isVisible={showDelayedStickyHeader}
           routePath={routePath}
+          showLanguageSwitcher={!seoPage}
         />
         <main>
           {seoPage ? (

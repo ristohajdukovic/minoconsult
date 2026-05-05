@@ -399,36 +399,110 @@ export const legalPages = [
       'Impressum von MINO Consulting KG in Wien mit Kontakt, Unternehmensdaten und rechtlichen Pflichtangaben.',
     h1: 'Impressum',
     intro:
-      'Pflichtangaben nach österreichischem Unternehmens- und E-Commerce-Recht. Die folgenden Felder sind vor dem Launch mit den geprüften Unternehmensdaten zu ersetzen.',
+      'Offenlegung gemäß § 5 E-Commerce-Gesetz (ECG), § 14 UGB und § 25 Mediengesetz.',
     sections: [
       {
-        title: 'Unternehmen',
+        title: 'Diensteanbieter / Medieninhaber',
         items: [
           'MINO Consulting KG',
-          'Geblergasse 95/8, 1170 Wien, Österreich',
-          'E-Mail: office@mino-consulting.at',
-          'Telefon: +43 1 234 5678',
+          'Geblergasse 95/8',
+          '1170 Wien',
+          'Österreich',
         ],
       },
       {
-        title: 'Registerdaten',
+        title: 'Kontakt',
         items: [
-          // TODO: Replace with verified Firmenbuchnummer before launch.
-          'Firmenbuchnummer: FN [Firmenbuchnummer]',
-          // TODO: Replace with verified UID before launch.
-          'UID: ATU[Nummer]',
-          // TODO: Confirm Firmenbuchgericht before launch.
-          'Firmenbuchgericht: [Firmenbuchgericht ergänzen]',
+          'Telefon: +43 1 90 680 200',
+          'Mobil: +43 660 21 99 444',
+          'E-Mail: office@mino-consulting.at',
+          'Web: www.mino-consulting.at',
         ],
+      },
+      {
+        title: 'Firmenbuch',
+        items: [
+          'Firmenbuchnummer: FN 157894y',
+          'Firmenbuchgericht: Handelsgericht Wien',
+          'Rechtsform: Kommanditgesellschaft',
+          'Sitz: Wien',
+          'Eingetragen seit: 14. Juni 1997',
+        ],
+      },
+      {
+        title: 'Umsatzsteuer-Identifikationsnummer',
+        items: ['UID-Nr.: ATU10543606'],
+      },
+      {
+        title: 'Unbeschränkt haftende Gesellschafter',
+        items: ['Rulas GmbH (eingetragen am 28.04.2022)', 'Mag. Tomislav Siketic'],
       },
       {
         title: 'Berufsrechtliche Angaben',
         items: [
-          // TODO: Confirm professional title, authority and chamber wording before launch.
-          'Berufsbezeichnung / zuständige Kammer: [KSW-Angaben ergänzen]',
-          // TODO: Add applicable professional regulations link before launch.
-          'Anwendbare berufsrechtliche Vorschriften: [Link oder Hinweis ergänzen]',
+          'Berufsbezeichnung: Steuerberater',
+          'Verleihungsstaat: Österreich',
+          'Berufsgruppe: Steuerberater:in nach dem Wirtschaftstreuhandberufsgesetz 2017 (WTBG 2017)',
         ],
+      },
+      {
+        title: 'Mitgliedschaft',
+        items: [
+          'Kammer der Steuerberater:innen und Wirtschaftsprüfer:innen (KSW)',
+          'Schönbrunner Straße 222-228 / Stiege 1 / 6. OG',
+          '1120 Wien',
+          'www.ksw.or.at',
+          '[TODO: KSW-Mitgliedsnummer vor Launch eintragen]',
+        ],
+      },
+      {
+        title: 'Aufsichtsbehörde',
+        items: ['Kammer der Steuerberater:innen und Wirtschaftsprüfer:innen (KSW)'],
+      },
+      {
+        title: 'Anwendbare berufsrechtliche Vorschriften',
+        items: [
+          'Wirtschaftstreuhandberufsgesetz 2017 (WTBG 2017)',
+          'Wirtschaftstreuhandberufs-Ausübungsrichtlinie (WT-ARL)',
+          'Berufsordnung der KSW',
+          'Abrufbar unter: www.ksw.or.at',
+        ],
+      },
+      {
+        title: 'Berufshaftpflichtversicherung',
+        items: [
+          '[TODO: Name der Versicherung vor Launch eintragen]',
+          '[TODO: Räumlicher Geltungsbereich, typisch Österreich/EU, vor Launch bestätigen]',
+        ],
+      },
+      {
+        title: 'Online-Streitbeilegung gemäß Art. 14 Abs. 1 ODR-VO',
+        items: [
+          'Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit: https://ec.europa.eu/consumers/odr',
+          'Unsere E-Mail-Adresse finden Sie oben in diesem Impressum.',
+        ],
+      },
+      {
+        title: 'Verbraucherstreitbeilegung',
+        items: [
+          'Wir sind nicht bereit oder verpflichtet, an Streitbeilegungsverfahren vor einer Verbraucherschlichtungsstelle teilzunehmen.',
+        ],
+      },
+      {
+        title: 'Urheberrecht',
+        items: [
+          'Inhalte und Gestaltung dieser Website sind urheberrechtlich geschützt. Eine Verwendung außerhalb der Grenzen des Urheberrechtsgesetzes bedarf der vorherigen schriftlichen Zustimmung der MINO Consulting KG.',
+        ],
+      },
+      {
+        title: 'Haftungsausschluss',
+        items: [
+          'Trotz sorgfältiger inhaltlicher Kontrolle übernehmen wir keine Haftung für die Inhalte externer Links. Für den Inhalt verlinkter Seiten sind ausschließlich deren Betreiber verantwortlich.',
+        ],
+      },
+      {
+        title: 'Stand',
+        items: ['Mai 2026'],
       },
     ],
   },
@@ -439,7 +513,7 @@ export const legalPages = [
       'Datenschutzerklärung von MINO Consulting KG mit Informationen zu Kontaktaufnahme, Website-Nutzung und Datenverarbeitung.',
     h1: 'Datenschutzerklärung',
     intro:
-      'Diese Platzhalterseite muss vor dem Launch mit einer geprüften Datenschutzerklärung ersetzt werden. Die Inhalte unten markieren die Mindestbereiche, die noch fachlich geprüft werden müssen.',
+      'Diese Platzhalterseite muss vor dem Launch mit einer geprüften Datenschutzerklärung ersetzt werden.',
     sections: [
       {
         title: 'Verantwortlicher',
@@ -447,24 +521,13 @@ export const legalPages = [
           'MINO Consulting KG',
           'Geblergasse 95/8, 1170 Wien, Österreich',
           'office@mino-consulting.at',
+          '+43 1 90 680 200',
         ],
       },
       {
-        title: 'Kontakt und Terminformular',
+        title: 'Noch zu prüfen',
         items: [
-          // TODO: Confirm exact booking form fields and retention periods before launch.
-          'Bei Kontaktaufnahme werden die eingegebenen Daten zur Bearbeitung der Anfrage verwendet.',
-          // TODO: Confirm legal basis under GDPR before launch.
-          'Rechtsgrundlage, Speicherdauer und Empfänger sind vor Veröffentlichung zu ergänzen.',
-        ],
-      },
-      {
-        title: 'Website und externe Dienste',
-        items: [
-          // TODO: Confirm hosting provider, analytics status and Google Maps consent handling before launch.
-          'Angaben zu Hosting, Server-Logs, Google Maps und optionalen Analyse-Tools ergänzen.',
-          // TODO: Add data subject rights and complaint authority wording before launch.
-          'Betroffenenrechte, Kontaktweg und Beschwerderecht bei der Datenschutzbehörde ergänzen.',
+          '[TODO: Geprüfte Datenschutzerklärung vor Launch einfügen]',
         ],
       },
     ],

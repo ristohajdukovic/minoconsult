@@ -331,9 +331,21 @@ small {
   line-height: 1.5;
 }
 
+.hero-founded-line {
+  @apply my-3 text-center text-forest/60 md:text-left;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: 0.875rem;
+  font-style: italic;
+  line-height: 1.35;
+}
+
 @media (min-width: 768px) {
   .hero-reassurance {
     font-size: 0.9375rem;
+  }
+
+  .hero-founded-line {
+    font-size: 1rem;
   }
 }
 
@@ -374,6 +386,17 @@ small {
 
 .language-switcher button.is-active {
   @apply bg-forest text-white hover:bg-forest hover:text-white;
+}
+
+.brand-logo {
+  @apply inline-flex min-h-11 items-center rounded-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-rose focus-visible:ring-offset-4 focus-visible:ring-offset-white;
+}
+
+.brand-logo img {
+  display: block;
+  width: clamp(6.75rem, 30vw, 9.75rem);
+  height: auto;
+  max-height: 3rem;
 }
 
 .hero-image-frame {

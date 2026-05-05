@@ -1,5 +1,8 @@
-/* TODO: Confirm with [Principal] which 3 industries to feature.
-   Defaults below are best guesses - replace before launch. */
+/* NOTE: Firmenbuch Geschäftszweig is currently registered as
+   "Unternehmensberatung". Steuerberatung services are legally
+   provided based on the principal's KSW credential. Consider
+   updating the Firmenbuch entry to add Steuerberatung at next
+   Notar appointment. Not blocking for website launch. */
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   ArrowRight,
@@ -140,6 +143,7 @@ const content = {
       ],
       body:
         'MINO Consulting KG organisiert Belege, UVA-Fristen, Lohnverrechnung und Reporting, damit Unternehmen in Österreich mit aktuellen Zahlen und sauber dokumentierten Pflichten arbeiten.',
+      foundedLine: 'Seit 1997 in Wien.',
       reassurance: 'Erstgespräch kostenlos · Antwort innerhalb von 24 Stunden werktags',
       imageAlt: 'Beratungsgespräch zu Finanzplanung in einem hellen Büro',
     },
@@ -267,15 +271,16 @@ const content = {
     about: {
       badge: 'Über MINO',
       founderImageAlt: 'Professioneller Berater im Anzug',
-      principalName: 'Mag./Dr. Vorname Nachname',
+      principalName: 'Mag. Tomislav Siketic',
       principalRole: 'Steuerberater · Geschäftsführer',
-      principalRegistration: 'Mitglied der KSW · Berufsanwärter-Nr. / Registrierung ergänzen',
+      principalRegistration: 'Mitglied der KSW',
       title: [
         { text: 'Finanzielle Klarheit für Wiener Unternehmen, von einem Team, das die ' },
         { text: 'österreichische Steuerlandschaft', em: true },
         { text: ' kennt.' },
       ],
       paragraphs: [
+        'Seit 1997 begleitet MINO Consulting Wiener Unternehmen durch Buchhaltung, Lohnverrechnung und Steuerangelegenheiten.',
         'MINO Consulting KG verbindet lokales Know-how in Wien mit direkter Abstimmung zu FinanzOnline, UVA-Fristen, SVS-Themen und laufender Buchhaltung.',
         'Wir begleiten Buchhaltung, Lohnverrechnung, Steuererklärungen, Jahresabschlüsse und Gründungsthemen mit Fokus auf Klarheit, Reaktionsfähigkeit und verlässliche Compliance.',
       ],
@@ -338,8 +343,8 @@ const content = {
       cards: [
         { icon: Clock3, label: 'Öffnungszeiten', value: 'Mo-Fr: 8:00-16:00' },
         { icon: Mail, label: 'E-Mail', value: 'office@mino-consulting.at' },
-        { icon: Phone, label: 'Büro', value: '+43 1 234 5678' },
-        { icon: Smartphone, label: 'Mobil', value: '+43 660 123 4567' },
+        { icon: Phone, label: 'Büro', value: '+43 1 90 680 200' },
+        { icon: Smartphone, label: 'Mobil', value: '+43 660 21 99 444' },
         { icon: MapPin, label: 'Adresse', value: 'Geblergasse 95/8, 1170 Wien' },
         { icon: CalendarDays, label: 'Beratung', value: 'Vor Ort oder online nach Termin' },
       ],
@@ -409,6 +414,7 @@ const content = {
       ],
       body:
         'MINO Consulting KG organizuje dokumentaciju, PDV rokove, obračun plata i izvještavanje, kako bi firme u Austriji radile sa ažurnim brojkama i urednim obavezama.',
+      foundedLine: 'U Beču od 1997.',
       reassurance: 'Prvi razgovor je besplatan · Odgovor u roku od 24 sata radnim danima',
       imageAlt: 'Poslovni savjetnici razgovaraju o finansijskom planiranju u svijetloj kancelariji',
     },
@@ -536,15 +542,16 @@ const content = {
     about: {
       badge: 'O MINO',
       founderImageAlt: 'Profesionalni savjetnik u odijelu',
-      principalName: 'Mag./Dr. Ime Prezime',
+      principalName: 'Mag. Tomislav Siketic',
       principalRole: 'Porezni savjetnik · direktor',
-      principalRegistration: 'Član KSW · broj kandidata / registraciju dopuniti',
+      principalRegistration: 'Član KSW',
       title: [
         { text: 'Finansijski pregled za firme u Beču, uz tim koji poznaje ' },
         { text: 'austrijski porezni sistem', em: true },
         { text: '.' },
       ],
       paragraphs: [
+        'Od 1997. godine MINO Consulting prati bečka preduzeća kroz računovodstvo, obračun plaća i porezne poslove.',
         'MINO Consulting KG spaja lokalno iskustvo u Beču sa direktnom koordinacijom oko FinanzOnline, PDV rokova, SVS tema i tekućeg knjigovodstva.',
         'Podržavamo knjigovodstvo, obračun plata, porezne prijave, godišnje završne račune i osnivanje firme uz fokus na jasnoću, brz odgovor i pouzdan compliance.',
       ],
@@ -607,13 +614,13 @@ const content = {
       cards: [
         { icon: Clock3, label: 'Radno vrijeme', value: 'Pon-Pet: 8:00-16:00' },
         { icon: Mail, label: 'E-mail', value: 'office@mino-consulting.at' },
-        { icon: Phone, label: 'Telefon', value: '+43 1 234 5678' },
-        { icon: Smartphone, label: 'Mobilni', value: '+43 660 123 4567' },
-        { icon: MapPin, label: 'Adresa', value: 'Geblergasse 95/8, 1170 Beč' },
+        { icon: Phone, label: 'Telefon', value: '+43 1 90 680 200' },
+        { icon: Smartphone, label: 'Mobilni', value: '+43 660 21 99 444' },
+        { icon: MapPin, label: 'Adresa', value: 'Geblergasse 95/8, 1170 Wien' },
         { icon: CalendarDays, label: 'Konsultacije', value: 'U kancelariji ili online po dogovoru' },
       ],
       mapTitle: 'Lokacija u Beču',
-      mapAddress: 'Geblergasse 95/8, 1170 Beč',
+      mapAddress: 'Geblergasse 95/8, 1170 Wien',
       backTop: 'Na vrh',
     },
     booking: {
@@ -772,6 +779,14 @@ function LanguageSwitcher({ language, setLanguage, label }) {
   );
 }
 
+function BrandLogo({ routePath, onClick }) {
+  return (
+    <a href={routePath === '/' ? '#top' : getRouteHref('/')} className="brand-logo" onClick={onClick} aria-label="MINO Consulting KG">
+      <img src={`${import.meta.env.BASE_URL}mino-logo.svg`} alt="MINO Consulting KG" />
+    </a>
+  );
+}
+
 function Header({ t, language, setLanguage, onBook, routePath, showLanguageSwitcher = true }) {
   const [isOpen, setIsOpen] = useState(false);
   const closeMenu = () => setIsOpen(false);
@@ -779,19 +794,7 @@ function Header({ t, language, setLanguage, onBook, routePath, showLanguageSwitc
   return (
     <header className="relative z-50 border-b border-forest/50 bg-white">
       <nav className="section-shell flex h-[4.5rem] items-center justify-between sm:h-[4.75rem]" aria-label="Main navigation">
-        <a href={routePath === '/' ? '#top' : getRouteHref('/')} className="flex items-center gap-2.5 sm:gap-3" onClick={closeMenu}>
-          <span className="grid h-9 w-9 place-items-center rounded border border-forest bg-forest text-[0.9rem] font-black text-white sm:h-10 sm:w-10 sm:text-sm">
-            MC
-          </span>
-          <span className="leading-tight">
-            <span className="block text-[0.78rem] font-extrabold uppercase tracking-[0.1em] text-forest sm:text-sm sm:tracking-[0.12em]">
-              MINO Consulting
-            </span>
-            <span className="block text-[0.6rem] font-medium uppercase tracking-[0.16em] text-forest/50 sm:text-[0.68rem]">
-              KG
-            </span>
-          </span>
-        </a>
+        <BrandLogo routePath={routePath} onClick={closeMenu} />
 
         <div className="hidden items-center gap-8 md:flex">
           {t.nav.map((item) => (
@@ -865,19 +868,7 @@ function DelayedStickyHeader({ t, language, setLanguage, onBook, isVisible, rout
   return (
     <header className={`delayed-sticky-header ${isVisible ? 'is-visible' : ''}`}>
       <nav className="section-shell flex h-[4.5rem] items-center justify-between sm:h-16" aria-label="Sticky navigation">
-        <a href={routePath === '/' ? '#top' : getRouteHref('/')} className="flex items-center gap-2.5 sm:gap-3" onClick={() => setIsOpen(false)}>
-          <span className="grid h-9 w-9 place-items-center rounded border border-forest bg-forest text-[0.9rem] font-black text-white sm:h-10 sm:w-10 sm:text-sm">
-            MC
-          </span>
-          <span className="leading-tight">
-            <span className="block text-[0.78rem] font-extrabold uppercase tracking-[0.1em] text-forest sm:text-sm sm:tracking-[0.12em]">
-              MINO Consulting
-            </span>
-            <span className="block text-[0.6rem] font-medium uppercase tracking-[0.16em] text-forest/50 sm:text-[0.68rem]">
-              KG
-            </span>
-          </span>
-        </a>
+        <BrandLogo routePath={routePath} onClick={() => setIsOpen(false)} />
 
         <div className="hidden items-center gap-8 md:flex">
           {t.nav.map((item) => (
@@ -970,7 +961,11 @@ function getContactHref(item) {
 
 function renderLegalItem(item) {
   const emailMatch = item.match(/office@mino-consulting\.at/);
-  const phoneMatch = item.match(/\+43\s1\s234\s5678/);
+  const officePhoneMatch = item.match(/\+43\s1\s90\s680\s200/);
+  const mobilePhoneMatch = item.match(/\+43\s660\s21\s99\s444/);
+  const kswMatch = item.match(/www\.ksw\.or\.at/);
+  const odrMatch = item.match(/https:\/\/ec\.europa\.eu\/consumers\/odr/);
+  const websiteMatch = item.match(/www\.mino-consulting\.at/);
 
   if (emailMatch) {
     const [before, after] = item.split(emailMatch[0]);
@@ -983,12 +978,29 @@ function renderLegalItem(item) {
     );
   }
 
-  if (phoneMatch) {
-    const [before, after] = item.split(phoneMatch[0]);
+  if (officePhoneMatch || mobilePhoneMatch) {
+    const phone = officePhoneMatch?.[0] ?? mobilePhoneMatch[0];
+    const [before, after] = item.split(phone);
     return (
       <>
         {before}
-        <a href={getPhoneHref(phoneMatch[0])}>{phoneMatch[0]}</a>
+        <a href={getPhoneHref(phone)}>{phone}</a>
+        {after}
+      </>
+    );
+  }
+
+  if (kswMatch || odrMatch || websiteMatch) {
+    const matchedLink = kswMatch?.[0] ?? odrMatch?.[0] ?? websiteMatch[0];
+    const href = matchedLink.startsWith('http') ? matchedLink : `https://${matchedLink}`;
+    const [before, after] = item.split(matchedLink);
+
+    return (
+      <>
+        {before}
+        <a href={href} target="_blank" rel="noopener noreferrer">
+          {matchedLink}
+        </a>
         {after}
       </>
     );
@@ -1031,6 +1043,7 @@ function Hero({ t, onBook }) {
             <RichText parts={t.hero.title} />
           </h1>
           <p className="mt-4 max-w-lg text-forest/75 sm:mt-5">{t.hero.body}</p>
+          <p className="hero-founded-line">{t.hero.foundedLine}</p>
 
           <HeroImage t={t} className="mt-4 lg:hidden" />
 
@@ -1240,11 +1253,10 @@ function About({ t }) {
             <RichText parts={t.about.title} />
           </h2>
           <div className="principal-block">
-            {/* TODO: Confirm principal name before launch. */}
+            {/* TODO: Confirm academic title with Tomislav before launch.
+                Currently set to "Mag." - verify it's not Dr., MMag., or other. */}
             <p className="principal-name">{t.about.principalName}</p>
-            {/* TODO: Confirm exact title and role before launch. */}
             <p className="principal-role">{t.about.principalRole}</p>
-            {/* TODO: Confirm KSW membership wording and registration field before launch. */}
             <p className="principal-registration">{t.about.principalRegistration}</p>
           </div>
           <div className="mt-6 space-y-5 text-forest/75">
@@ -1357,6 +1369,8 @@ function AccountingServiceStructuredData({ routePath }) {
           addressLocality: 'Wien',
           addressCountry: 'AT',
         },
+        telephone: '+43 1 90 680 200',
+        email: 'office@mino-consulting.at',
         areaServed: {
           '@type': 'City',
           name: 'Wien',
@@ -1629,10 +1643,8 @@ function Contact({ t, onBook, routePath }) {
         </div>
 
         <div className="footer-bottom-bar">
-          {/* TODO: Replace FN placeholder with verified Firmenbuchnummer before launch. */}
-          {/* TODO: Replace UID placeholder with verified UID number before launch. */}
           <p>
-            © {new Date().getFullYear()} MINO Consulting KG · Geblergasse 95/8 · 1170 Wien · FN [Firmenbuchnummer] · UID ATU[Nummer]
+            © {new Date().getFullYear()} MINO Consulting KG · Geblergasse 95/8 · 1170 Wien · FN 157894y (HG Wien) · UID ATU10543606 · Mitglied der KSW
           </p>
           <div className="footer-bottom-links">
             {t.nav.map((item) => (

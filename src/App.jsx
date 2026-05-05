@@ -1,26 +1,31 @@
+/* TODO: Confirm with [Principal] which 3 industries to feature.
+   Defaults below are best guesses - replace before launch. */
 import React, { useEffect, useMemo, useState } from 'react';
 import {
   ArrowRight,
   ArrowUpRight,
+  BookOpen,
   BriefcaseBusiness,
   CalendarDays,
   CheckCircle2,
   ChevronDown,
   ChevronsDown,
   Clock3,
+  FileCheck2,
   FileText,
   Lock,
   Mail,
   MapPin,
   Phone,
   Plus,
+  Scale,
   ShieldCheck,
   Smartphone,
+  Sprout,
   Star,
   X,
 } from 'lucide-react';
-import { seoPages, seoPagesByPath } from './seoPages.js';
-
+import { legalPages, legalPagesByPath, seoPages, seoPagesByPath } from './seoPages.js';
 const languages = [
   { code: 'de', label: 'DE' },
   { code: 'bks', label: 'BKS' },
@@ -134,7 +139,8 @@ const content = {
         { text: 'Steuerberatung', em: true },
       ],
       body:
-        'MINO Consulting KG vereinfacht Buchhaltung, Lohnverrechnung, Steuern und Reporting, damit Unternehmen in Österreich mit Klarheit und Sicherheit entscheiden können.',
+        'MINO Consulting KG organisiert Belege, UVA-Fristen, Lohnverrechnung und Reporting, damit Unternehmen in Österreich mit aktuellen Zahlen und sauber dokumentierten Pflichten arbeiten.',
+      reassurance: 'Erstgespräch kostenlos · Antwort innerhalb von 24 Stunden werktags',
       imageAlt: 'Beratungsgespräch zu Finanzplanung in einem hellen Büro',
     },
     value: {
@@ -147,7 +153,7 @@ const content = {
         },
         {
           icon: ShieldCheck,
-          text: 'Wir übersetzen steuerliche Pflichten, Fristen und Meldeanforderungen in klare nächste Schritte.',
+          text: 'Wir führen UVA-Termine, FinanzOnline-Fristen und Meldeanforderungen in einer nachvollziehbaren Fristenliste zusammen.',
         },
         {
           icon: FileText,
@@ -155,7 +161,7 @@ const content = {
         },
         {
           icon: CheckCircle2,
-          text: 'Proaktive Betreuung, saubere Dokumentation und praxisnahe Beratung halten Ihre Compliance im Blick.',
+          text: 'Saubere Dokumentation, monatliche Abstimmungen und konkrete Hinweise zu SVS, Umsatzsteuer und Finanzamt halten Ihre Compliance im Blick.',
         },
       ],
     },
@@ -165,11 +171,12 @@ const content = {
         { text: 'Rechnungswesen und Steuerleistungen', em: true },
       ],
       body:
-        'Individuelle Lösungen, die Ihre Finanzen vereinfachen und Ihre nächsten Schritte planbar machen.',
+        'Individuelle Lösungen für Belegfluss, UVA, Lohnabrechnung und Jahresabschluss.',
     },
     services: [
       {
-        number: '01',
+        id: 'buchhaltung-lohnverrechnung',
+        icon: BookOpen,
         title: [
           { text: 'Buchhaltung & ' },
           { text: 'Lohnverrechnung', em: true },
@@ -186,11 +193,9 @@ const content = {
         price: 'Ab €290/Monat',
       },
       {
-        number: '02',
-        title: [
-          { text: 'Steuerberatung & ' },
-          { text: 'Vertretung', em: true },
-        ],
+        id: 'steuerberatung-vertretung',
+        icon: Scale,
+        title: [{ text: 'Steuerberatung & Vertretung' }],
         subtitle: 'Finanzamt & Erklärungen',
         body:
           'Einkommensteuer- und Körperschaftsteuererklärungen, Steuerplanung und Vertretung gegenüber dem österreichischen Finanzamt.',
@@ -203,11 +208,9 @@ const content = {
         price: 'Ab €180/Monat',
       },
       {
-        number: '03',
-        title: [
-          { text: 'Jahresabschluss & ' },
-          { text: 'Reporting', em: true },
-        ],
+        id: 'jahresabschluss-reporting',
+        icon: FileCheck2,
+        title: [{ text: 'Jahresabschluss & Reporting' }],
         subtitle: 'Abschluss & Auswertung',
         body:
           'Jahresabschluss, Finanzberichte, prüfungsbereite Unterlagen, Managementauswertungen und entscheidungsorientierte Prognosen.',
@@ -220,11 +223,9 @@ const content = {
         price: 'Ab €690/Jahr',
       },
       {
-        number: '04',
-        title: [
-          { text: 'Gründung & ' },
-          { text: 'Unternehmensberatung', em: true },
-        ],
+        id: 'gruendung-unternehmensberatung',
+        icon: Sprout,
+        title: [{ text: 'Gründung & Unternehmensberatung' }],
         subtitle: 'Start in Österreich',
         body:
           'Strategische Planung, Unterstützung bei der Gründung und finanzielle Grundlagen für neue Unternehmen und operative Entscheidungen.',
@@ -237,32 +238,45 @@ const content = {
         price: 'Ab €490 einmalig',
       },
     ],
-    industries: [
-      'Immobilien',
-      'Hausverwaltung',
-      'Bau',
-      'Hotellerie',
-      'Transport',
-      'Autohandel',
-      'Technologie',
-      'Gastronomie',
-      'Freie Berufe',
-      'Handel',
-    ],
-    trustTitle: [
-      { text: 'Vertraut von Unternehmen ' },
-      { text: 'aus vielen Branchen', em: true },
-    ],
+    specialization: {
+      title: 'Spezialisierung auf ausgewählte Branchen',
+      body: 'Wir kennen die steuerlichen Eigenheiten Ihrer Branche.',
+      cards: [
+        {
+          title: 'Immobilien & Hausverwaltung',
+          body:
+            'Vorsteuerabzug bei Vermietung, Liebhaberei-Beurteilung, WEG-Abrechnung und Hausverwalter-Reporting.',
+        },
+        {
+          title: 'Gastronomie & Hotellerie',
+          body:
+            'Trinkgeld-Aufzeichnung, Pauschalierung, Registrierkassenpflicht und touristische Saisonbuchhaltung.',
+        },
+        {
+          title: 'Gründer & Selbstständige',
+          body:
+            'Rechtsformwahl, Sozialversicherung (SVS), Kleinunternehmer-Regelung und Förderberatung vor der ersten UVA-Meldung.',
+        },
+      ],
+    },
+    localServices: {
+      title: 'Beratung in Ihrer Nähe',
+      body: 'Lokale Schwerpunktseiten für Wien.',
+      label: 'Lokale Leistungsseiten',
+    },
     about: {
       badge: 'Über MINO',
       founderImageAlt: 'Professioneller Berater im Anzug',
+      principalName: 'Mag./Dr. Vorname Nachname',
+      principalRole: 'Steuerberater · Geschäftsführer',
+      principalRegistration: 'Mitglied der KSW · Berufsanwärter-Nr. / Registrierung ergänzen',
       title: [
-        { text: 'Wir vereinfachen finanzielle Komplexität, damit Sie sich auf Ihre ' },
-        { text: 'Ziele', em: true },
-        { text: ' konzentrieren können.' },
+        { text: 'Finanzielle Klarheit für Wiener Unternehmen, von einem Team, das die ' },
+        { text: 'österreichische Steuerlandschaft', em: true },
+        { text: ' kennt.' },
       ],
       paragraphs: [
-        'MINO Consulting KG verbindet lokales Know-how in Wien mit direkter, praxisnaher Beratung für Unternehmerinnen und Unternehmer.',
+        'MINO Consulting KG verbindet lokales Know-how in Wien mit direkter Abstimmung zu FinanzOnline, UVA-Fristen, SVS-Themen und laufender Buchhaltung.',
         'Wir begleiten Buchhaltung, Lohnverrechnung, Steuererklärungen, Jahresabschlüsse und Gründungsthemen mit Fokus auf Klarheit, Reaktionsfähigkeit und verlässliche Compliance.',
       ],
     },
@@ -319,6 +333,7 @@ const content = {
       ],
       body:
         'Senden Sie uns eine Anfrage, und wir klären gemeinsam, welche Unterlagen, Fristen und Entscheidungen als Nächstes anstehen.',
+      reassurance: 'Das Erstgespräch ist kostenlos und unverbindlich.',
       button: 'Termin anfragen',
       cards: [
         { icon: Clock3, label: 'Öffnungszeiten', value: 'Mo-Fr: 8:00-16:00' },
@@ -330,7 +345,6 @@ const content = {
       ],
       mapTitle: 'Standort in Wien',
       mapAddress: 'Geblergasse 95/8, 1170 Wien',
-      copyright: 'Alle Rechte vorbehalten.',
       backTop: 'Nach oben',
     },
     booking: {
@@ -394,7 +408,8 @@ const content = {
         { text: ' u Beču' },
       ],
       body:
-        'MINO Consulting KG pojednostavljuje knjigovodstvo, obračun plata, poreze i izvještavanje, kako bi firme u Austriji donosile odluke sa sigurnošću.',
+        'MINO Consulting KG organizuje dokumentaciju, PDV rokove, obračun plata i izvještavanje, kako bi firme u Austriji radile sa ažurnim brojkama i urednim obavezama.',
+      reassurance: 'Prvi razgovor je besplatan · Odgovor u roku od 24 sata radnim danima',
       imageAlt: 'Poslovni savjetnici razgovaraju o finansijskom planiranju u svijetloj kancelariji',
     },
     value: {
@@ -407,7 +422,7 @@ const content = {
         },
         {
           icon: ShieldCheck,
-          text: 'Porezne obaveze, rokove i prijave pretvaramo u jasne korake.',
+          text: 'PDV rokove, FinanzOnline obaveze i prijave vodimo kroz preglednu listu rokova.',
         },
         {
           icon: FileText,
@@ -415,7 +430,7 @@ const content = {
         },
         {
           icon: CheckCircle2,
-          text: 'Proaktivna podrška, čista dokumentacija i praktično savjetovanje drže compliance pod kontrolom.',
+          text: 'Uredna dokumentacija, mjesečna usklađivanja i konkretne napomene za SVS, PDV i Finanzamt drže compliance pod kontrolom.',
         },
       ],
     },
@@ -425,11 +440,12 @@ const content = {
         { text: 'računovodstvenih i poreznih usluga', em: true },
       ],
       body:
-        'Individualna rješenja koja pojednostavljuju vaše finansije i čine sljedeće korake preglednim.',
+        'Individualna rješenja za dokumentaciju, PDV, obračun plata i godišnji završni račun.',
     },
     services: [
       {
-        number: '01',
+        id: 'knjigovodstvo-obracun-plata',
+        icon: BookOpen,
         title: [
           { text: 'Knjigovodstvo & ' },
           { text: 'obračun plata', em: true },
@@ -446,11 +462,9 @@ const content = {
         price: 'Od €290/mjesec',
       },
       {
-        number: '02',
-        title: [
-          { text: 'Porezno savjetovanje & ' },
-          { text: 'zastupanje', em: true },
-        ],
+        id: 'porezno-savjetovanje-zastupanje',
+        icon: Scale,
+        title: [{ text: 'Porezno savjetovanje & zastupanje' }],
         subtitle: 'Finanzamt & prijave',
         body:
           'Porezne prijave za fizička i pravna lica, porezno planiranje i zastupanje pred austrijskim Finanzamtom.',
@@ -463,11 +477,9 @@ const content = {
         price: 'Od €180/mjesec',
       },
       {
-        number: '03',
-        title: [
-          { text: 'Godišnji obračun & ' },
-          { text: 'reporting', em: true },
-        ],
+        id: 'godisnji-obracun-reporting',
+        icon: FileCheck2,
+        title: [{ text: 'Godišnji obračun & reporting' }],
         subtitle: 'Izvještaji & analiza',
         body:
           'Godišnji završni računi, finansijski izvještaji, dokumentacija spremna za kontrolu, menadžerski izvještaji i prognoze.',
@@ -480,11 +492,9 @@ const content = {
         price: 'Od €690/godina',
       },
       {
-        number: '04',
-        title: [
-          { text: 'Osnivanje firme & ' },
-          { text: 'savjetovanje', em: true },
-        ],
+        id: 'osnivanje-firme-savjetovanje',
+        icon: Sprout,
+        title: [{ text: 'Osnivanje firme & savjetovanje' }],
         subtitle: 'Početak u Austriji',
         body:
           'Strateško planiranje, podrška pri osnivanju i finansijske osnove za nove firme i operativne odluke.',
@@ -497,32 +507,45 @@ const content = {
         price: 'Od €490 jednokratno',
       },
     ],
-    industries: [
-      'Nekretnine',
-      'Upravljanje objektima',
-      'Građevina',
-      'Hotelijerstvo',
-      'Transport',
-      'Auto prodaja',
-      'Tehnologija',
-      'Ugostiteljstvo',
-      'Profesionalne usluge',
-      'Trgovina',
-    ],
-    trustTitle: [
-      { text: 'Povjerenje firmi ' },
-      { text: 'iz različitih industrija', em: true },
-    ],
+    specialization: {
+      title: 'Specijalizacija za odabrane branše',
+      body: 'Poznajemo porezne specifičnosti vaše djelatnosti.',
+      cards: [
+        {
+          title: 'Nekretnine & upravljanje objektima',
+          body:
+            'Odbitak pretporeza kod najma, procjena Liebhaberei rizika, WEG obračuni i izvještaji za upravitelje zgrada.',
+        },
+        {
+          title: 'Gastronomija & hotelijerstvo',
+          body:
+            'Evidencija napojnica, paušaliranje, obaveze registracione kase i sezonsko knjigovodstvo za turizam.',
+        },
+        {
+          title: 'Osnivači & samozaposleni',
+          body:
+            'Izbor pravne forme, socijalno osiguranje (SVS), Kleinunternehmer regulativa i savjetovanje prije prve PDV prijave.',
+        },
+      ],
+    },
+    localServices: {
+      title: 'Savjetovanje u vašoj blizini',
+      body: 'Lokalne fokus stranice za Beč.',
+      label: 'Lokalne usluge',
+    },
     about: {
       badge: 'O MINO',
       founderImageAlt: 'Profesionalni savjetnik u odijelu',
+      principalName: 'Mag./Dr. Ime Prezime',
+      principalRole: 'Porezni savjetnik · direktor',
+      principalRegistration: 'Član KSW · broj kandidata / registraciju dopuniti',
       title: [
-        { text: 'Pojednostavljujemo finansijsku kompleksnost, da se možete fokusirati na svoje ' },
-        { text: 'ciljeve', em: true },
+        { text: 'Finansijski pregled za firme u Beču, uz tim koji poznaje ' },
+        { text: 'austrijski porezni sistem', em: true },
         { text: '.' },
       ],
       paragraphs: [
-        'MINO Consulting KG spaja lokalno iskustvo u Beču sa praktičnim i direktnim savjetovanjem za vlasnike firmi.',
+        'MINO Consulting KG spaja lokalno iskustvo u Beču sa direktnom koordinacijom oko FinanzOnline, PDV rokova, SVS tema i tekućeg knjigovodstva.',
         'Podržavamo knjigovodstvo, obračun plata, porezne prijave, godišnje završne račune i osnivanje firme uz fokus na jasnoću, brz odgovor i pouzdan compliance.',
       ],
     },
@@ -579,6 +602,7 @@ const content = {
       ],
       body:
         'Pošaljite nam upit i zajedno ćemo razjasniti dokumente, rokove i odluke koje su vam sada najvažnije.',
+      reassurance: 'Prvi razgovor je besplatan i neobavezan.',
       button: 'Pošalji upit',
       cards: [
         { icon: Clock3, label: 'Radno vrijeme', value: 'Pon-Pet: 8:00-16:00' },
@@ -590,7 +614,6 @@ const content = {
       ],
       mapTitle: 'Lokacija u Beču',
       mapAddress: 'Geblergasse 95/8, 1170 Beč',
-      copyright: 'Sva prava zadržana.',
       backTop: 'Na vrh',
     },
     booking: {
@@ -939,6 +962,59 @@ function getPhoneHref(phoneNumber) {
   return `tel:${phoneNumber.replace(/[^\d+]/g, '')}`;
 }
 
+function getContactHref(item) {
+  if (item.icon === Mail) return `mailto:${item.value}`;
+  if (item.icon === Phone || item.icon === Smartphone) return getPhoneHref(item.value);
+  return null;
+}
+
+function renderLegalItem(item) {
+  const emailMatch = item.match(/office@mino-consulting\.at/);
+  const phoneMatch = item.match(/\+43\s1\s234\s5678/);
+
+  if (emailMatch) {
+    const [before, after] = item.split(emailMatch[0]);
+    return (
+      <>
+        {before}
+        <a href={`mailto:${emailMatch[0]}`}>{emailMatch[0]}</a>
+        {after}
+      </>
+    );
+  }
+
+  if (phoneMatch) {
+    const [before, after] = item.split(phoneMatch[0]);
+    return (
+      <>
+        {before}
+        <a href={getPhoneHref(phoneMatch[0])}>{phoneMatch[0]}</a>
+        {after}
+      </>
+    );
+  }
+
+  return item;
+}
+
+function HeroImage({ t, className = '' }) {
+  return (
+    <div className={className}>
+      <div className="hero-image-frame">
+        <img
+          className="h-32 w-full rounded-t-md object-cover sm:h-[31rem]"
+          src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=1400&q=82"
+          alt={t.hero.imageAlt}
+        />
+        <a className="scroll-badge" href="#value">
+          {t.cta.scroll}
+          <ChevronsDown size={15} aria-hidden="true" />
+        </a>
+      </div>
+    </div>
+  );
+}
+
 function Hero({ t, onBook }) {
   const officePhone = getOfficePhone(t);
   const phoneHref = getPhoneHref(officePhone);
@@ -956,7 +1032,9 @@ function Hero({ t, onBook }) {
           </h1>
           <p className="mt-4 max-w-lg text-forest/75 sm:mt-5">{t.hero.body}</p>
 
-          <div className="mt-5 flex flex-col gap-3 sm:mt-7 md:flex-row" data-hero-cta>
+          <HeroImage t={t} className="mt-4 lg:hidden" />
+
+          <div className="mt-4 flex flex-col gap-3 sm:mt-7 md:flex-row lg:mt-7" data-hero-cta>
             <button className="button-primary w-full md:w-auto" type="button" onClick={onBook}>
               {t.cta.book}
             </button>
@@ -968,21 +1046,10 @@ function Hero({ t, onBook }) {
               {t.cta.call}
             </a>
           </div>
+          <p className="hero-reassurance">{t.hero.reassurance}</p>
         </div>
 
-        <div className="relative reveal reveal-delay-1">
-          <div className="hero-image-frame">
-            <img
-              className="h-[11.75rem] w-full rounded-t-md object-cover sm:h-[31rem]"
-              src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=1400&q=82"
-              alt={t.hero.imageAlt}
-            />
-            <a className="scroll-badge" href="#value">
-              {t.cta.scroll}
-              <ChevronsDown size={15} aria-hidden="true" />
-            </a>
-          </div>
-        </div>
+        <HeroImage t={t} className="relative hidden lg:block reveal reveal-delay-1" />
       </div>
     </section>
   );
@@ -1038,21 +1105,29 @@ function Services({ t, onBook }) {
 
         <div className="mx-auto mt-10 max-w-4xl">
           {t.services.map((service) => {
-            const isOpen = openService === service.number;
-            const panelId = `service-panel-${service.number}`;
-            const headingId = `service-heading-${service.number}`;
+            const isOpen = openService === service.id;
+            const panelId = `service-panel-${service.id}`;
+            const headingId = `service-heading-${service.id}`;
+            const ServiceIcon = service.icon;
 
             return (
-              <article key={service.number} className="service-row reveal" data-open={isOpen ? 'true' : 'false'}>
+              <article
+                key={service.id}
+                className="service-row reveal"
+                data-open={isOpen ? 'true' : 'false'}
+                onClick={() => toggleService(service.id)}
+              >
                 <div className="service-meta">
-                  <small className="service-number">{service.number}</small>
                   <small className="service-label">{service.subtitle}</small>
                 </div>
 
                 <div className="service-main">
-                  <h3 id={headingId}>
-                    <RichText parts={service.title} />
-                  </h3>
+                  <div className="service-title-row">
+                    <ServiceIcon className="service-title-icon" size={20} aria-hidden="true" />
+                    <h3 id={headingId}>
+                      <RichText parts={service.title} />
+                    </h3>
+                  </div>
                   <p className="service-body">{service.body}</p>
 
                   <div
@@ -1060,6 +1135,7 @@ function Services({ t, onBook }) {
                     className="service-accordion-panel"
                     data-open={isOpen ? 'true' : 'false'}
                     aria-hidden={!isOpen}
+                    onClick={(event) => event.stopPropagation()}
                   >
                     <div className="service-accordion-inner">
                       <ul className="service-detail-list">
@@ -1073,7 +1149,10 @@ function Services({ t, onBook }) {
                           className="button-primary px-4 py-2.5 text-xs"
                           type="button"
                           tabIndex={isOpen ? 0 : -1}
-                          onClick={onBook}
+                          onClick={(event) => {
+                            event.stopPropagation();
+                            onBook();
+                          }}
                         >
                           {t.cta.consultation}
                         </button>
@@ -1088,7 +1167,6 @@ function Services({ t, onBook }) {
                   aria-expanded={isOpen}
                   aria-controls={panelId}
                   aria-labelledby={headingId}
-                  onClick={() => toggleService(service.number)}
                 >
                   <span className="service-toggle-icon" aria-hidden="true">
                     <ChevronDown size={18} />
@@ -1100,7 +1178,11 @@ function Services({ t, onBook }) {
         </div>
 
         <nav className="service-page-nav reveal" aria-label="Lokale Leistungsseiten">
-          <small>Lokale Leistungsseiten</small>
+          <div className="service-page-nav-heading">
+            <h3>{t.localServices.title}</h3>
+            <p>{t.localServices.body}</p>
+          </div>
+          <small>{t.localServices.label}</small>
           <div className="service-page-link-grid">
             {seoPages.map((page) => (
               <a key={page.path} className="service-page-link" href={getRouteHref(page.path)}>
@@ -1115,41 +1197,22 @@ function Services({ t, onBook }) {
   );
 }
 
-function TrustMarquee({ t }) {
-  const repeatedItems = [...t.industries, ...t.industries];
-  const splitIndex = Math.ceil(t.industries.length / 2);
-  const offsetItems = [...t.industries.slice(splitIndex), ...t.industries.slice(0, splitIndex), ...t.industries.slice(splitIndex), ...t.industries.slice(0, splitIndex)];
-
+function Specialization({ t }) {
   return (
-    <section className="section-spacious section-surface-cream overflow-hidden">
-      <div className="section-shell text-center reveal">
-        <h2>
-          <RichText parts={t.trustTitle} />
-        </h2>
-      </div>
+    <section className="section-spacious section-surface-cream">
+      <div className="section-shell">
+        <div className="mx-auto max-w-3xl text-center reveal">
+          <h2>{t.specialization.title}</h2>
+          <p className="mt-4 text-forest/60">{t.specialization.body}</p>
+        </div>
 
-      <div className="marquee-shell reveal">
-        <div className="marquee-stack">
-          <div className="marquee-row">
-            <div className="marquee-track">
-              {repeatedItems.map((item, index) => (
-                <span className="industry-pill" key={`top-${item}-${index}`}>
-                  <span />
-                  {item}
-                </span>
-              ))}
-            </div>
-          </div>
-          <div className="marquee-row">
-            <div className="marquee-track marquee-track-reverse">
-              {offsetItems.map((item, index) => (
-                <span className="industry-pill" key={`bottom-${item}-${index}`}>
-                  <span />
-                  {item}
-                </span>
-              ))}
-            </div>
-          </div>
+        <div className="specialization-grid reveal reveal-delay-1">
+          {t.specialization.cards.map((card) => (
+            <article className="specialization-card" key={card.title}>
+              <h3>{card.title}</h3>
+              <p>{card.body}</p>
+            </article>
+          ))}
         </div>
       </div>
     </section>
@@ -1176,6 +1239,14 @@ function About({ t }) {
           <h2 className="mt-5">
             <RichText parts={t.about.title} />
           </h2>
+          <div className="principal-block">
+            {/* TODO: Confirm principal name before launch. */}
+            <p className="principal-name">{t.about.principalName}</p>
+            {/* TODO: Confirm exact title and role before launch. */}
+            <p className="principal-role">{t.about.principalRole}</p>
+            {/* TODO: Confirm KSW membership wording and registration field before launch. */}
+            <p className="principal-registration">{t.about.principalRegistration}</p>
+          </div>
           <div className="mt-6 space-y-5 text-forest/75">
             {t.about.paragraphs.map((paragraph) => (
               <p key={paragraph}>{paragraph}</p>
@@ -1452,6 +1523,37 @@ function SeoLandingPage({ page, onBook }) {
   );
 }
 
+function LegalPage({ page }) {
+  return (
+    <section id="top" className="section-spacious section-surface-light">
+      <div className="section-shell legal-page">
+        <div className="max-w-3xl reveal">
+          <small className="tag-pill">Rechtliches</small>
+          <h1 className="mt-5">{page.h1}</h1>
+          <p className="mt-5 text-forest/70">{page.intro}</p>
+        </div>
+
+        <div className="legal-section-grid reveal reveal-delay-1">
+          {page.sections.map((section) => {
+            const sectionId = `legal-${section.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+
+            return (
+              <section className="legal-section" key={section.title} aria-labelledby={sectionId}>
+                <h2 id={sectionId}>{section.title}</h2>
+                <ul>
+                  {section.items.map((item) => (
+                    <li key={item}>{renderLegalItem(item)}</li>
+                  ))}
+                </ul>
+              </section>
+            );
+          })}
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function Contact({ t, onBook, routePath }) {
   const contactDetails = t.contact.cards.filter((item) => item.icon !== CalendarDays);
 
@@ -1465,6 +1567,7 @@ function Contact({ t, onBook, routePath }) {
               <RichText parts={t.contact.title} />
             </h2>
             <p className="footer-contact-copy mt-6">{t.contact.body}</p>
+            <p className="footer-contact-copy mt-3">{t.contact.reassurance}</p>
             <button
               className="footer-cta-button mt-9"
               type="button"
@@ -1478,12 +1581,19 @@ function Contact({ t, onBook, routePath }) {
           <div className="footer-contact-list reveal reveal-delay-1">
             {contactDetails.map((item) => {
               const Icon = item.icon;
+              const href = getContactHref(item);
               return (
                 <div key={item.label} className="footer-contact-item">
                   <Icon size={21} aria-hidden="true" />
                   <div>
                     <small>{item.label}</small>
-                    <p>{item.value}</p>
+                    <p>
+                      {href ? (
+                        <a href={href}>{item.value}</a>
+                      ) : (
+                        item.value
+                      )}
+                    </p>
                   </div>
                 </div>
               );
@@ -1519,8 +1629,10 @@ function Contact({ t, onBook, routePath }) {
         </div>
 
         <div className="footer-bottom-bar">
+          {/* TODO: Replace FN placeholder with verified Firmenbuchnummer before launch. */}
+          {/* TODO: Replace UID placeholder with verified UID number before launch. */}
           <p>
-            Copyright {new Date().getFullYear()} MINO Consulting KG. {t.contact.copyright}
+            © {new Date().getFullYear()} MINO Consulting KG · Geblergasse 95/8 · 1170 Wien · FN [Firmenbuchnummer] · UID ATU[Nummer]
           </p>
           <div className="footer-bottom-links">
             {t.nav.map((item) => (
@@ -1528,6 +1640,12 @@ function Contact({ t, onBook, routePath }) {
                 {item.label}
               </a>
             ))}
+            <a className="hover:text-white" href={getRouteHref('/impressum')}>
+              Impressum
+            </a>
+            <a className="hover:text-white" href={getRouteHref('/datenschutzerklaerung')}>
+              Datenschutz
+            </a>
             <a className="hover:text-white" href="#top">
               {t.contact.backTop}
             </a>
@@ -1786,13 +1904,16 @@ export default function App() {
   const [bookingOpen, setBookingOpen] = useState(false);
   const routePath = useCurrentRoutePath();
   const seoPage = seoPagesByPath[routePath];
-  const activeLanguage = seoPage ? 'de' : language;
+  const legalPage = legalPagesByPath[routePath];
+  const activeLanguage = seoPage || legalPage ? 'de' : language;
   const t = content[activeLanguage];
-  const currentTitle = seoPage ? seoPage.title : t.pageTitle;
+  const currentTitle = seoPage ? seoPage.title : legalPage ? legalPage.title : t.pageTitle;
   const currentDescription = seoPage
     ? seoPage.metaDescription
+    : legalPage
+      ? legalPage.metaDescription
     : 'MINO Consulting KG bietet Buchhaltung, Lohnverrechnung, Steuerberatung, Auswertungen und Unternehmensberatung in Wien.';
-  const canonicalPath = seoPage ? seoPage.path : '/';
+  const canonicalPath = seoPage ? seoPage.path : legalPage ? legalPage.path : '/';
   const showDelayedStickyHeader = useDelayedStickyHeader();
 
   useScrollReveal();
@@ -1819,7 +1940,7 @@ export default function App() {
           setLanguage={setLanguage}
           onBook={() => setBookingOpen(true)}
           routePath={routePath}
-          showLanguageSwitcher={!seoPage}
+          showLanguageSwitcher={!seoPage && !legalPage}
         />
         <DelayedStickyHeader
           t={t}
@@ -1828,17 +1949,19 @@ export default function App() {
           onBook={() => setBookingOpen(true)}
           isVisible={showDelayedStickyHeader}
           routePath={routePath}
-          showLanguageSwitcher={!seoPage}
+          showLanguageSwitcher={!seoPage && !legalPage}
         />
         <main>
-          {seoPage ? (
+          {legalPage ? (
+            <LegalPage page={legalPage} />
+          ) : seoPage ? (
             <SeoLandingPage page={seoPage} onBook={() => setBookingOpen(true)} />
           ) : (
             <>
               <Hero t={t} onBook={() => setBookingOpen(true)} />
               <ValueProposition t={t} />
               <Services t={t} onBook={() => setBookingOpen(true)} />
-              <TrustMarquee t={t} />
+              <Specialization t={t} />
               <About t={t} />
               <FaqSection t={t} />
             </>

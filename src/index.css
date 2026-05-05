@@ -102,7 +102,7 @@ small {
 }
 
 .hero-section {
-  @apply py-9 sm:py-24 lg:py-28;
+  @apply py-4 sm:py-24 lg:py-28;
   position: relative;
 }
 
@@ -203,11 +203,11 @@ small {
 }
 
 .footer-contact-list {
-  @apply grid gap-6 lg:pt-2;
+  @apply grid gap-7 lg:pt-2;
 }
 
 .footer-contact-item {
-  @apply grid grid-cols-[1.75rem_minmax(0,1fr)] gap-x-4 border-b pb-6;
+  @apply grid grid-cols-[1.75rem_minmax(0,1fr)] gap-x-4 border-b pb-7;
   border-color: rgba(255, 255, 255, 0.12);
 }
 
@@ -225,6 +225,10 @@ small {
 
 .footer-contact-item p {
   @apply mt-2 text-white;
+}
+
+.footer-contact-item a {
+  @apply transition hover:text-taupe focus:outline-none focus-visible:ring-2 focus-visible:ring-white/40 focus-visible:ring-offset-4 focus-visible:ring-offset-forest;
 }
 
 .section-surface-light {
@@ -319,6 +323,18 @@ small {
 
 .button-secondary.hero-call-link:active {
   transform: none;
+}
+
+.hero-reassurance {
+  @apply mt-3 text-center text-forest/60 md:text-left;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+@media (min-width: 768px) {
+  .hero-reassurance {
+    font-size: 0.9375rem;
+  }
 }
 
 .hamburger-button {
@@ -420,7 +436,7 @@ small {
 }
 
 .service-row {
-  @apply grid grid-cols-[minmax(0,1fr)_auto] items-start gap-x-7 gap-y-5 border-b border-forest py-10 transition hover:bg-white/40 sm:px-4 sm:py-12 md:grid-cols-[10.5rem_minmax(0,1fr)_3.75rem] md:gap-x-10;
+  @apply grid cursor-pointer grid-cols-[minmax(0,1fr)_auto] items-start gap-x-7 gap-y-5 border-b border-forest py-6 transition hover:bg-white/40 sm:px-4 sm:py-10 md:grid-cols-[10.5rem_minmax(0,1fr)_3.75rem] md:gap-x-10;
   position: relative;
 }
 
@@ -431,13 +447,6 @@ small {
 
 .service-meta {
   @apply col-span-2 grid gap-2 md:col-span-1 md:max-w-[9.5rem];
-}
-
-.service-number {
-  @apply text-forest/80;
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.18em;
 }
 
 .service-label {
@@ -451,6 +460,14 @@ small {
 
 .service-main h3 {
   max-width: 38rem;
+}
+
+.service-title-row {
+  @apply flex items-center gap-3;
+}
+
+.service-title-icon {
+  @apply mt-0.5 shrink-0 text-forest/65;
 }
 
 .service-body {
@@ -474,7 +491,7 @@ small {
 .service-accordion-panel {
   max-height: 0;
   overflow: hidden;
-  transition: max-height 300ms ease;
+  transition: max-height 280ms ease-out;
 }
 
 .service-accordion-panel[data-open='true'] {
@@ -512,86 +529,65 @@ small {
 }
 
 .service-page-nav {
-  @apply mx-auto mt-12 max-w-4xl border-t border-forest/50 pt-7;
+  @apply mx-auto mt-12 max-w-4xl border-t border-forest/30 pt-7;
 }
 
 .service-page-link-grid {
-  @apply mt-4 grid gap-2 sm:grid-cols-2 lg:grid-cols-3;
+  @apply mt-5 grid gap-0 sm:grid-cols-2 lg:grid-cols-3;
 }
 
-.service-page-link,
+.service-page-nav-heading {
+  @apply mb-6 max-w-xl;
+}
+
+.service-page-nav-heading p {
+  @apply mt-2 text-forest/60;
+}
+
+.service-page-link {
+  @apply inline-flex min-h-11 items-center justify-between gap-3 border-b border-forest/20 px-0 py-3 text-sm font-bold text-forest/65 transition hover:text-forest focus:outline-none focus-visible:ring-2 focus-visible:ring-rose focus-visible:ring-offset-4 focus-visible:ring-offset-cream;
+}
+
 .seo-related-link {
   @apply inline-flex min-h-11 items-center justify-between gap-3 rounded-md border border-forest/30 bg-white/45 px-4 py-3 text-sm font-extrabold text-forest transition hover:border-forest/60 hover:bg-white/80 focus:outline-none focus-visible:ring-2 focus-visible:ring-rose focus-visible:ring-offset-4 focus-visible:ring-offset-cream;
   box-shadow: 2px 2px 0 rgba(10, 28, 26, 0.06);
 }
 
-.industry-pill {
-  @apply inline-flex shrink-0 items-center gap-2 rounded-full bg-taupe/70 px-4 py-2 text-xs font-semibold text-forest;
-  border: 1px solid rgba(10, 28, 26, 0.12);
-  box-shadow: 2px 2px 0 rgba(10, 28, 26, 0.06);
+.legal-page a {
+  @apply font-bold text-forest underline decoration-forest/30 underline-offset-4 transition hover:decoration-forest focus:outline-none focus-visible:ring-2 focus-visible:ring-rose focus-visible:ring-offset-4 focus-visible:ring-offset-cream;
 }
 
-.industry-pill span {
-  @apply h-2 w-2 rounded-full bg-forest/30;
+.legal-section-grid {
+  @apply mt-12 grid gap-6;
 }
 
-.marquee-shell {
-  @apply relative mx-auto mt-8 max-w-[96rem] px-4 sm:px-6 lg:px-10;
+.legal-section {
+  @apply rounded-md border border-forest/30 bg-white/55 p-6;
 }
 
-.marquee-shell::before,
-.marquee-shell::after {
-  content: '';
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: clamp(1.5rem, 6vw, 5.5rem);
-  pointer-events: none;
-  z-index: 2;
+.legal-section h2 {
+  font-size: clamp(1.75rem, 5vw, 2rem);
 }
 
-.marquee-shell::before {
-  left: 0;
-  background: linear-gradient(to right, #f6f5f2 0%, rgba(246, 245, 242, 0) 100%);
+.legal-section ul {
+  @apply mt-5 grid gap-3 text-forest/75;
 }
 
-.marquee-shell::after {
-  right: 0;
-  background: linear-gradient(to left, #f6f5f2 0%, rgba(246, 245, 242, 0) 100%);
+.specialization-grid {
+  @apply mt-10 grid gap-4 md:grid-cols-3;
 }
 
-.marquee-stack {
-  @apply grid gap-4 sm:gap-5;
+.specialization-card {
+  @apply rounded-md border border-forest/50 bg-white/55 p-6 transition hover:bg-white/80;
+  box-shadow: var(--brutal-shadow);
 }
 
-.marquee-row {
-  @apply flex overflow-hidden;
-  -webkit-mask-image: linear-gradient(
-    to right,
-    transparent 0,
-    black clamp(1rem, 5vw, 4rem),
-    black calc(100% - clamp(1rem, 5vw, 4rem)),
-    transparent 100%
-  );
-  mask-image: linear-gradient(
-    to right,
-    transparent 0,
-    black clamp(1rem, 5vw, 4rem),
-    black calc(100% - clamp(1rem, 5vw, 4rem)),
-    transparent 100%
-  );
-  -webkit-mask-repeat: no-repeat;
-  mask-repeat: no-repeat;
+.specialization-card h3 {
+  @apply max-w-xs;
 }
 
-.marquee-track {
-  @apply flex min-w-max gap-3;
-  animation: marquee 34s linear infinite;
-}
-
-.marquee-track-reverse {
-  animation-direction: reverse;
-  animation-delay: -17s;
+.specialization-card p {
+  @apply mt-4 text-forest/70;
 }
 
 .founder-placeholder {
@@ -604,6 +600,25 @@ small {
 .founder-placeholder > img {
   @apply absolute inset-0 h-full w-full object-cover;
   object-position: center 18%;
+}
+
+.principal-block {
+  @apply mt-6 border-l border-forest/50 pl-5;
+}
+
+.principal-name {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: clamp(1.625rem, 5vw, 2rem);
+  font-weight: 600;
+  line-height: 1.05;
+}
+
+.principal-role {
+  @apply mt-2 text-sm font-bold text-forest;
+}
+
+.principal-registration {
+  @apply mt-1 text-sm text-forest/60;
 }
 
 .faq-layout {
@@ -916,8 +931,8 @@ em {
   }
 
   .hero-section {
-    padding-top: 2.5rem;
-    padding-bottom: 3.5rem;
+    padding-top: 1rem;
+    padding-bottom: 2.5rem;
   }
 
   .hero-section::after {
@@ -974,16 +989,6 @@ em {
 
 }
 
-@keyframes marquee {
-  from {
-    transform: translateX(0);
-  }
-
-  to {
-    transform: translateX(-50%);
-  }
-}
-
 @keyframes mobile-menu-slide {
   from {
     opacity: 0;
@@ -997,10 +1002,6 @@ em {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .marquee-track {
-    animation: none;
-  }
-
   .reveal {
     opacity: 1;
     transform: none;

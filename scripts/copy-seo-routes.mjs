@@ -1,6 +1,6 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
-import { seoPages } from '../src/seoPages.js';
+import { legalPages, seoPages } from '../src/seoPages.js';
 
 const distDir = resolve('dist');
 const indexFile = resolve(distDir, 'index.html');
@@ -81,7 +81,7 @@ const baseHtml = await readFile(indexFile, 'utf8');
 await writeFile(indexFile, applyPageMetadata(baseHtml, homePage));
 
 await Promise.all(
-  seoPages.map(async (page) => {
+  [...seoPages, ...legalPages].map(async (page) => {
     const routeDir = resolve(distDir, page.path.replace(/^\//, ''));
     await mkdir(routeDir, { recursive: true });
     await writeFile(resolve(routeDir, 'index.html'), applyPageMetadata(baseHtml, page));

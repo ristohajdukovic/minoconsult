@@ -70,9 +70,9 @@ export const seoPages = [
     metaDescription:
       'Steuerberatung in Wien für Gründer, Selbstständige und KMU. MINO Consulting KG unterstützt bei Steuerfragen, Planung, Erklärungen und Finanzamt-Kommunikation.',
     eyebrow: 'Steuerberatung Wien',
-    h1: 'Steuerberatung in Wien mit klaren nächsten Schritten',
+    h1: 'Steuerberatung in Wien mit Fristenplan und Finanzamt-Begleitung',
     intro:
-      'Steuern sind leichter zu steuern, wenn Fristen, Pflichten und Gestaltungsmöglichkeiten verständlich aufbereitet sind. Wir begleiten Unternehmen in Wien mit praxisnaher steuerlicher Beratung.',
+      'Steuern werden planbarer, wenn UVA-Termine, Vorauszahlungen und Gestaltungsmöglichkeiten nachvollziehbar dokumentiert sind. Wir begleiten Unternehmen in Wien bei Erklärungen, FinanzOnline-Fristen und Rückfragen des Finanzamts.',
     whoForTitle: 'Für wen steuerliche Beratung sinnvoll ist',
     whoFor: [
       'Selbstständige mit Fragen zu Einkommensteuer, Umsatzsteuer oder Vorauszahlungen',
@@ -391,4 +391,85 @@ export const seoPages = [
   },
 ];
 
+export const legalPages = [
+  {
+    path: '/impressum',
+    title: 'Impressum | MINO Consulting KG',
+    metaDescription:
+      'Impressum von MINO Consulting KG in Wien mit Kontakt, Unternehmensdaten und rechtlichen Pflichtangaben.',
+    h1: 'Impressum',
+    intro:
+      'Pflichtangaben nach österreichischem Unternehmens- und E-Commerce-Recht. Die folgenden Felder sind vor dem Launch mit den geprüften Unternehmensdaten zu ersetzen.',
+    sections: [
+      {
+        title: 'Unternehmen',
+        items: [
+          'MINO Consulting KG',
+          'Geblergasse 95/8, 1170 Wien, Österreich',
+          'E-Mail: office@mino-consulting.at',
+          'Telefon: +43 1 234 5678',
+        ],
+      },
+      {
+        title: 'Registerdaten',
+        items: [
+          // TODO: Replace with verified Firmenbuchnummer before launch.
+          'Firmenbuchnummer: FN [Firmenbuchnummer]',
+          // TODO: Replace with verified UID before launch.
+          'UID: ATU[Nummer]',
+          // TODO: Confirm Firmenbuchgericht before launch.
+          'Firmenbuchgericht: [Firmenbuchgericht ergänzen]',
+        ],
+      },
+      {
+        title: 'Berufsrechtliche Angaben',
+        items: [
+          // TODO: Confirm professional title, authority and chamber wording before launch.
+          'Berufsbezeichnung / zuständige Kammer: [KSW-Angaben ergänzen]',
+          // TODO: Add applicable professional regulations link before launch.
+          'Anwendbare berufsrechtliche Vorschriften: [Link oder Hinweis ergänzen]',
+        ],
+      },
+    ],
+  },
+  {
+    path: '/datenschutzerklaerung',
+    title: 'Datenschutzerklärung | MINO Consulting KG',
+    metaDescription:
+      'Datenschutzerklärung von MINO Consulting KG mit Informationen zu Kontaktaufnahme, Website-Nutzung und Datenverarbeitung.',
+    h1: 'Datenschutzerklärung',
+    intro:
+      'Diese Platzhalterseite muss vor dem Launch mit einer geprüften Datenschutzerklärung ersetzt werden. Die Inhalte unten markieren die Mindestbereiche, die noch fachlich geprüft werden müssen.',
+    sections: [
+      {
+        title: 'Verantwortlicher',
+        items: [
+          'MINO Consulting KG',
+          'Geblergasse 95/8, 1170 Wien, Österreich',
+          'office@mino-consulting.at',
+        ],
+      },
+      {
+        title: 'Kontakt und Terminformular',
+        items: [
+          // TODO: Confirm exact booking form fields and retention periods before launch.
+          'Bei Kontaktaufnahme werden die eingegebenen Daten zur Bearbeitung der Anfrage verwendet.',
+          // TODO: Confirm legal basis under GDPR before launch.
+          'Rechtsgrundlage, Speicherdauer und Empfänger sind vor Veröffentlichung zu ergänzen.',
+        ],
+      },
+      {
+        title: 'Website und externe Dienste',
+        items: [
+          // TODO: Confirm hosting provider, analytics status and Google Maps consent handling before launch.
+          'Angaben zu Hosting, Server-Logs, Google Maps und optionalen Analyse-Tools ergänzen.',
+          // TODO: Add data subject rights and complaint authority wording before launch.
+          'Betroffenenrechte, Kontaktweg und Beschwerderecht bei der Datenschutzbehörde ergänzen.',
+        ],
+      },
+    ],
+  },
+];
+
 export const seoPagesByPath = Object.fromEntries(seoPages.map((page) => [page.path, page]));
+export const legalPagesByPath = Object.fromEntries(legalPages.map((page) => [page.path, page]));

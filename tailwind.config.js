@@ -4,7 +4,7 @@ export default {
   theme: {
     extend: {
       colors: {
-        cream: '#F6F5F2',
+        cream: '#deece6',
         forest: '#0A1C1A',
         rose: '#B86A64',
         'rose-light': '#F4E5E3',
@@ -12,8 +12,8 @@ export default {
         ink: '#0A1C1A',
       },
       fontFamily: {
-        sans: ['"Nunito Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        display: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+        sans: ['"Euclid Circular B"', '"Nunito Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        display: ['ivypresto-display', '"Cormorant Garamond"', 'Georgia', 'serif'],
       },
       boxShadow: {
         soft: '0 18px 50px rgba(10, 28, 26, 0.10)',

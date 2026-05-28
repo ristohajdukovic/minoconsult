@@ -3,35 +3,64 @@
    provided based on the principal's KSW credential. Consider
    updating the Firmenbuch entry to add Steuerberatung at next
    Notar appointment. Not blocking for website launch. */
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { HugeiconsIcon } from '@hugeicons/react';
 import {
-  ArrowRight,
-  ArrowUpRight,
-  BookOpen,
-  BriefcaseBusiness,
-  CalendarDays,
-  CheckCircle2,
-  ChevronDown,
-  ChevronsDown,
-  Clock3,
-  FileCheck2,
-  FileText,
-  Lock,
-  Mail,
-  MapPin,
-  Phone,
-  Plus,
-  Scale,
-  ShieldCheck,
-  Smartphone,
-  Sprout,
-  Star,
-  X,
-} from 'lucide-react';
+  ArrowDownDoubleIcon,
+  ArrowRight02Icon,
+  ArrowUpRight02Icon,
+  BookOpen02Icon,
+  Briefcase02Icon,
+  Calendar03Icon,
+  Call02Icon,
+  Cancel01Icon,
+  CheckmarkCircle02Icon,
+  Clock03Icon,
+  DocumentValidationIcon,
+  File02Icon,
+  JusticeScale01Icon,
+  LockIcon,
+  Mail01Icon,
+  MapPinIcon,
+  Plant01Icon,
+  PlusSignIcon,
+  ShieldUserIcon,
+  SmartPhone01Icon,
+  StarIcon,
+} from '@hugeicons/core-free-icons';
 import { legalPages, legalPagesByPath, seoPages, seoPagesByPath } from './seoPages.js';
+
+function createHugeIcon(icon) {
+  return function HugeIconAdapter({ size = 24, color = 'currentColor', strokeWidth = 1.65, ...props }) {
+    return <HugeiconsIcon icon={icon} size={size} color={color} strokeWidth={strokeWidth} {...props} />;
+  };
+}
+
+const ArrowRight = createHugeIcon(ArrowRight02Icon);
+const ArrowUpRight = createHugeIcon(ArrowUpRight02Icon);
+const BookOpen = createHugeIcon(BookOpen02Icon);
+const BriefcaseBusiness = createHugeIcon(Briefcase02Icon);
+const CalendarDays = createHugeIcon(Calendar03Icon);
+const CheckCircle2 = createHugeIcon(CheckmarkCircle02Icon);
+const ChevronsDown = createHugeIcon(ArrowDownDoubleIcon);
+const Clock3 = createHugeIcon(Clock03Icon);
+const FileCheck2 = createHugeIcon(DocumentValidationIcon);
+const FileText = createHugeIcon(File02Icon);
+const Lock = createHugeIcon(LockIcon);
+const Mail = createHugeIcon(Mail01Icon);
+const MapPin = createHugeIcon(MapPinIcon);
+const Phone = createHugeIcon(Call02Icon);
+const Plus = createHugeIcon(PlusSignIcon);
+const Scale = createHugeIcon(JusticeScale01Icon);
+const ShieldCheck = createHugeIcon(ShieldUserIcon);
+const Smartphone = createHugeIcon(SmartPhone01Icon);
+const Sprout = createHugeIcon(Plant01Icon);
+const Star = createHugeIcon(StarIcon);
+const X = createHugeIcon(Cancel01Icon);
+
 const languages = [
   { code: 'de', label: 'DE' },
-  { code: 'bks', label: 'BKS' },
+  { code: 'hr', label: 'HR' },
 ];
 
 const timeSlots = ['08:30', '10:00', '11:30', '13:00', '14:30', '15:30'];
@@ -132,6 +161,7 @@ const content = {
       call: 'Anrufen',
       consultation: 'Erstgespräch vereinbaren',
       scroll: 'Scrollen',
+      learnMore: 'Mehr erfahren',
     },
     hero: {
       badge: 'Steuerberatung in Wien',
@@ -143,8 +173,6 @@ const content = {
       ],
       body:
         'MINO Consulting KG organisiert Belege, UVA-Fristen, Lohnverrechnung und Reporting, damit Unternehmen in Österreich mit aktuellen Zahlen und sauber dokumentierten Pflichten arbeiten.',
-      foundedLine: 'Seit 1997 in Wien.',
-      reassurance: 'Erstgespräch kostenlos · Antwort innerhalb von 24 Stunden werktags',
       imageAlt: 'Beratungsgespräch zu Finanzplanung in einem hellen Büro',
     },
     value: {
@@ -210,6 +238,21 @@ const content = {
           'Praktische Optimierung laufender Steuerlasten',
         ],
         price: 'Ab €180/Monat',
+      },
+      {
+        id: 'steuererklaerung-kleinunternehmer',
+        icon: FileText,
+        title: [{ text: 'Steuererklärung & Kleinunternehmer' }],
+        subtitle: 'Private & kleine Betriebe',
+        body:
+          'Einkommensteuererklärung, Arbeitnehmerveranlagung, Steuererklärung und Kleinunternehmer-Regelung für Personen und kleine Unternehmen in Österreich.',
+        details: [
+          'Einkommensteuererklärung für Selbstständige und Unternehmer',
+          'Arbeitnehmerveranlagung inklusive Beleg- und Absetzbetragsprüfung',
+          'Steuererklärung mit FinanzOnline-Fristen und Unterlagencheck',
+          'Kleinunternehmer-Regelung, Umsatzgrenzen und Wechsel zur Umsatzsteuerpflicht',
+        ],
+        price: 'Nach Aufwand',
       },
       {
         id: 'jahresabschluss-reporting',
@@ -381,12 +424,16 @@ const content = {
         'Erstgespräch',
         'Buchhaltung & Lohnverrechnung',
         'Steuerberatung',
+        'Einkommensteuererklärung',
+        'Arbeitnehmerveranlagung',
+        'Steuererklärung',
+        'Kleinunternehmer',
         'Jahresabschluss & Reporting',
         'Gründung & Beratung',
       ],
     },
   },
-  bks: {
+  hr: {
     pageTitle: 'MINO Consulting KG | Računovodstvo i porezno savjetovanje u Beču',
     meta: {
       languageLabel: 'Jezik',
@@ -404,6 +451,7 @@ const content = {
       call: 'Pozovite nas',
       consultation: 'Zakaži prvi razgovor',
       scroll: 'Skroluj',
+      learnMore: 'Saznaj više',
     },
     hero: {
       badge: 'Računovodstvo u Beču',
@@ -414,8 +462,6 @@ const content = {
       ],
       body:
         'MINO Consulting KG organizuje dokumentaciju, PDV rokove, obračun plata i izvještavanje, kako bi firme u Austriji radile sa ažurnim brojkama i urednim obavezama.',
-      foundedLine: 'U Beču od 1997.',
-      reassurance: 'Prvi razgovor je besplatan · Odgovor u roku od 24 sata radnim danima',
       imageAlt: 'Poslovni savjetnici razgovaraju o finansijskom planiranju u svijetloj kancelariji',
     },
     value: {
@@ -481,6 +527,21 @@ const content = {
           'Praktična optimizacija poreznih obaveza',
         ],
         price: 'Od €180/mjesec',
+      },
+      {
+        id: 'porezne-prijave-kleinunternehmer',
+        icon: FileText,
+        title: [{ text: 'Porezne prijave & Kleinunternehmer' }],
+        subtitle: 'Privatno & mali biznisi',
+        body:
+          'Einkommensteuererklärung, Arbeitnehmerveranlagung, Steuererklärung i Kleinunternehmer pravila za osobe i male firme u Austriji.',
+        details: [
+          'Einkommensteuererklärung za samozaposlene i vlasnike firmi',
+          'Arbeitnehmerveranlagung uz pregled dokumenata i odbitnih stavki',
+          'Steuererklärung sa FinanzOnline rokovima i provjerom dokumentacije',
+          'Kleinunternehmer regulativa, pragovi prometa i prelazak u PDV obavezu',
+        ],
+        price: 'Prema obimu posla',
       },
       {
         id: 'godisnji-obracun-reporting',
@@ -652,6 +713,10 @@ const content = {
         'Prvi razgovor',
         'Knjigovodstvo & obračun plata',
         'Porezno savjetovanje',
+        'Einkommensteuererklärung',
+        'Arbeitnehmerveranlagung',
+        'Steuererklärung',
+        'Kleinunternehmer',
         'Godišnji obračun & reporting',
         'Osnivanje firme & savjetovanje',
       ],
@@ -669,25 +734,56 @@ function RichText({ parts }) {
   );
 }
 
-function BadgeIcon() {
+function ScrollHighlightText({ text }) {
+  const headingRef = useRef(null);
+  const words = useMemo(() => text.trim().split(/\s+/), [text]);
+  const [activeWordCount, setActiveWordCount] = useState(1);
+
+  useEffect(() => {
+    const heading = headingRef.current;
+    if (!heading) return undefined;
+
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    if (reduceMotion.matches) {
+      setActiveWordCount(words.length);
+      return undefined;
+    }
+
+    let frameId = 0;
+
+    const updateHighlight = () => {
+      window.cancelAnimationFrame(frameId);
+      frameId = window.requestAnimationFrame(() => {
+        const rect = heading.getBoundingClientRect();
+        const start = window.innerHeight * 0.86;
+        const end = window.innerHeight * 0.2;
+        const progress = Math.min(1, Math.max(0, (start - rect.top) / (start - end + rect.height * 0.5)));
+        setActiveWordCount(Math.max(1, Math.ceil(progress * words.length)));
+      });
+    };
+
+    updateHighlight();
+    window.addEventListener('scroll', updateHighlight, { passive: true });
+    window.addEventListener('resize', updateHighlight);
+
+    return () => {
+      window.cancelAnimationFrame(frameId);
+      window.removeEventListener('scroll', updateHighlight);
+      window.removeEventListener('resize', updateHighlight);
+    };
+  }, [words.length]);
+
   return (
-    <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-      <path
-        d="M7 12.5h3.3c.8 0 1.5.6 1.5 1.4v.2H8.6"
-        stroke="currentColor"
-        strokeWidth="1.7"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M3.8 13.2 7 11.4l4.4 3.2h2.4l5.7-3.2c.5-.3 1.1-.1 1.4.4.2.5.1 1-.4 1.3l-6.3 4.3H9.5l-3.1-1.7-2.6 1.5"
-        stroke="currentColor"
-        strokeWidth="1.7"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <circle cx="14.2" cy="7.2" r="2.7" stroke="currentColor" strokeWidth="1.7" />
-    </svg>
+    <h2 ref={headingRef} className="value-highlight-heading reveal">
+      {words.map((word, index) => (
+        <span
+          key={`${word}-${index}`}
+          className={`value-highlight-word ${index < activeWordCount ? 'is-active' : ''}`}
+        >
+          {word}
+        </span>
+      ))}
+    </h2>
   );
 }
 
@@ -792,7 +888,7 @@ function Header({ t, language, setLanguage, onBook, routePath, showLanguageSwitc
   const closeMenu = () => setIsOpen(false);
 
   return (
-    <header className="relative z-50 border-b border-forest/50 bg-white">
+    <header className="site-header relative z-50 border-b border-forest/50 bg-white">
       <nav className="section-shell flex h-[4.5rem] items-center justify-between sm:h-[4.75rem]" aria-label="Main navigation">
         <BrandLogo routePath={routePath} onClick={closeMenu} />
 
@@ -1033,36 +1129,30 @@ function Hero({ t, onBook }) {
 
   return (
     <section id="top" className="hero-section relative overflow-hidden">
-      <div className="section-shell grid items-center gap-8 sm:gap-10 lg:grid-cols-[0.92fr_1.08fr] lg:gap-16">
-        <div className="max-w-[20.5rem] sm:max-w-xl reveal">
-          <small className="tag-pill">
-            <BadgeIcon />
-            {t.hero.badge}
-          </small>
-          <h1 className="mt-4 sm:mt-5">
+      <div className="section-shell hero-layout">
+        <div className="hero-copy reveal">
+          <h1>
             <RichText parts={t.hero.title} />
           </h1>
           <p className="mt-4 max-w-lg text-forest/75 sm:mt-5">{t.hero.body}</p>
-          <p className="hero-founded-line">{t.hero.foundedLine}</p>
 
-          <HeroImage t={t} className="mt-4 lg:hidden" />
-
-          <div className="mt-4 flex flex-col gap-3 sm:mt-7 md:flex-row lg:mt-7" data-hero-cta>
-            <button className="button-primary w-full md:w-auto" type="button" onClick={onBook}>
+          <div className="hero-actions reveal reveal-delay-2" data-hero-cta>
+            <button className="button-primary w-full sm:w-auto" type="button" onClick={onBook}>
               {t.cta.book}
             </button>
             <a
-              className="button-secondary hero-call-link w-full md:w-auto"
+              className="button-secondary w-full sm:w-auto"
               href={phoneHref}
               aria-label={`MINO Consulting anrufen: ${officePhone}`}
             >
               {t.cta.call}
             </a>
           </div>
-          <p className="hero-reassurance">{t.hero.reassurance}</p>
+
+          <HeroImage t={t} className="mt-6 lg:hidden" />
         </div>
 
-        <HeroImage t={t} className="relative hidden lg:block reveal reveal-delay-1" />
+        <HeroImage t={t} className="hero-visual relative hidden lg:block reveal reveal-delay-1" />
       </div>
     </section>
   );
@@ -1070,13 +1160,11 @@ function Hero({ t, onBook }) {
 
 function ValueProposition({ t }) {
   return (
-    <section id="value" className="section-spacious section-surface-light relative">
-      <div className="section-shell">
-        <h2 className="max-w-5xl reveal">
-          {t.value.statement}
-        </h2>
+    <section id="value" className="section-spacious value-section section-surface-light relative">
+      <div className="section-shell value-section-shell">
+        <ScrollHighlightText text={t.value.statement} />
 
-        <div className="mt-12 grid gap-8 md:grid-cols-2">
+        <div className="value-feature-grid">
           {t.value.features.map((item, index) => {
             const Icon = item.icon;
             return (
@@ -1094,17 +1182,66 @@ function ValueProposition({ t }) {
   );
 }
 
-function Services({ t, onBook }) {
-  const [openService, setOpenService] = useState(null);
+const servicePageById = {
+  'buchhaltung-lohnverrechnung': '/buchhaltung-wien',
+  'steuerberatung-vertretung': '/steuerberatung-wien',
+  'steuererklaerung-kleinunternehmer': '/steuerberatung-wien',
+  'jahresabschluss-reporting': '/jahresabschluss-wien',
+  'gruendung-unternehmensberatung': '/unternehmensgruendung-wien',
+  'porezno-savjetovanje-zastupanje': '/steuerberatung-wien',
+  'porezne-prijave-kleinunternehmer': '/steuerberatung-wien',
+  'godisnji-obracun-reporting': '/jahresabschluss-wien',
+  'osnivanje-poslovno-savjetovanje': '/unternehmensgruendung-wien',
+};
 
-  const toggleService = (serviceNumber) => {
-    setOpenService((currentService) => (currentService === serviceNumber ? null : serviceNumber));
-  };
+function Services({ t }) {
+  const servicesListRef = useRef(null);
+  const [activeServiceIndex, setActiveServiceIndex] = useState(0);
+
+  useEffect(() => {
+    const list = servicesListRef.current;
+    if (!list) return undefined;
+
+    let frameId = 0;
+
+    const updateActiveService = () => {
+      window.cancelAnimationFrame(frameId);
+      frameId = window.requestAnimationFrame(() => {
+        const items = Array.from(list.querySelectorAll('.service-editorial-item'));
+        const readingLine = window.innerHeight * 0.36;
+        let nextIndex = 0;
+        let closestDistance = Number.POSITIVE_INFINITY;
+
+        items.forEach((item, index) => {
+          const rect = item.getBoundingClientRect();
+          const anchor = rect.top + rect.height * 0.28;
+          const distance = Math.abs(anchor - readingLine);
+
+          if (distance < closestDistance) {
+            closestDistance = distance;
+            nextIndex = index;
+          }
+        });
+
+        setActiveServiceIndex(nextIndex);
+      });
+    };
+
+    updateActiveService();
+    window.addEventListener('scroll', updateActiveService, { passive: true });
+    window.addEventListener('resize', updateActiveService);
+
+    return () => {
+      window.cancelAnimationFrame(frameId);
+      window.removeEventListener('scroll', updateActiveService);
+      window.removeEventListener('resize', updateActiveService);
+    };
+  }, [t.services.length]);
 
   return (
-    <section id="services" className="section-spacious section-surface-warm">
-      <div className="section-shell">
-        <div className="mx-auto max-w-3xl text-center reveal">
+    <section id="services" className="services-editorial-section section-surface-warm">
+      <div className="section-shell services-editorial-shell">
+        <div className="services-editorial-intro reveal">
           <h2>
             <RichText parts={t.servicesIntro.title} />
           </h2>
@@ -1112,82 +1249,56 @@ function Services({ t, onBook }) {
 
         <div className="services-intro-rule reveal" aria-hidden="true" />
 
-        <p className="mx-auto mt-6 max-w-2xl text-center text-forest/70 reveal">
+        <p className="services-editorial-lede reveal">
           {t.servicesIntro.body}
         </p>
 
-        <div className="mx-auto mt-10 max-w-4xl">
-          {t.services.map((service) => {
-            const isOpen = openService === service.id;
-            const panelId = `service-panel-${service.id}`;
-            const headingId = `service-heading-${service.id}`;
-            const ServiceIcon = service.icon;
+        <div
+          className="services-editorial-list"
+          ref={servicesListRef}
+          style={{ '--service-index': activeServiceIndex }}
+        >
+          <div className="service-number-rail" aria-hidden="true">
+            <div className="service-number-sticky">
+              <div className="service-number-stack">
+                {t.services.map((service, index) => (
+                  <span key={service.id}>{String(index + 1).padStart(2, '0')}</span>
+                ))}
+              </div>
+            </div>
+          </div>
 
-            return (
-              <article
-                key={service.id}
-                className="service-row reveal"
-                data-open={isOpen ? 'true' : 'false'}
-                onClick={() => toggleService(service.id)}
-              >
-                <div className="service-meta">
-                  <small className="service-label">{service.subtitle}</small>
-                </div>
+          <div className="service-editorial-items">
+            {t.services.map((service, index) => {
+              const serviceHref = getRouteHref(servicePageById[service.id] ?? '/steuerberatung-wien');
 
-                <div className="service-main">
-                  <div className="service-title-row">
-                    <ServiceIcon className="service-title-icon" size={20} aria-hidden="true" />
-                    <h3 id={headingId}>
-                      <RichText parts={service.title} />
-                    </h3>
-                  </div>
-                  <p className="service-body">{service.body}</p>
-
-                  <div
-                    id={panelId}
-                    className="service-accordion-panel"
-                    data-open={isOpen ? 'true' : 'false'}
-                    aria-hidden={!isOpen}
-                    onClick={(event) => event.stopPropagation()}
-                  >
-                    <div className="service-accordion-inner">
-                      <ul className="service-detail-list">
-                        {service.details.map((detail) => (
-                          <li key={detail}>{detail}</li>
-                        ))}
-                      </ul>
-                      <div className="service-price-row">
-                        <span className="service-price">{service.price}</span>
-                        <button
-                          className="button-primary px-4 py-2.5 text-xs"
-                          type="button"
-                          tabIndex={isOpen ? 0 : -1}
-                          onClick={(event) => {
-                            event.stopPropagation();
-                            onBook();
-                          }}
-                        >
-                          {t.cta.consultation}
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <button
-                  className="service-toggle-button"
-                  type="button"
-                  aria-expanded={isOpen}
-                  aria-controls={panelId}
-                  aria-labelledby={headingId}
+              return (
+                <article
+                  key={service.id}
+                  className="service-editorial-item reveal"
+                  data-active={activeServiceIndex === index ? 'true' : 'false'}
                 >
-                  <span className="service-toggle-icon" aria-hidden="true">
-                    <ChevronDown size={18} />
-                  </span>
-                </button>
-              </article>
-            );
-          })}
+                  <div className="service-editorial-content">
+                    <small className="service-editorial-label">{service.subtitle}</small>
+                    <div className="service-editorial-heading-row">
+                      <span className="service-editorial-mobile-number" aria-hidden="true">
+                        {String(index + 1).padStart(2, '0')}
+                      </span>
+                      <h3>
+                        <RichText parts={service.title} />
+                      </h3>
+                    </div>
+                    <p>{service.body}</p>
+
+                    <a className="service-editorial-link" href={serviceHref}>
+                      {t.cta.learnMore}
+                      <ArrowRight size={17} aria-hidden="true" />
+                    </a>
+                  </div>
+                </article>
+              );
+            })}
+          </div>
         </div>
 
         <nav className="service-page-nav reveal" aria-label="Lokale Leistungsseiten">
@@ -1292,7 +1403,7 @@ function FaqStructuredData({ items }) {
 }
 
 function FaqAccordion({ items, idPrefix = 'faq' }) {
-  const [openIndex, setOpenIndex] = useState(0);
+  const [openIndex, setOpenIndex] = useState(null);
 
   return (
     <div className="faq-list reveal reveal-delay-1">
@@ -1931,7 +2042,7 @@ export default function App() {
   useScrollReveal();
 
   useEffect(() => {
-    document.documentElement.lang = activeLanguage === 'de' ? 'de' : 'bs';
+    document.documentElement.lang = activeLanguage === 'de' ? 'de' : 'hr';
     document.title = currentTitle;
     setMetaContent('meta[name="description"]', currentDescription);
     setMetaContent('meta[property="og:title"]', currentTitle);
@@ -1942,7 +2053,7 @@ export default function App() {
   }, [activeLanguage, canonicalPath, currentDescription, currentTitle]);
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden bg-cream text-forest">
+    <div className="relative min-h-screen overflow-x-clip bg-cream text-forest">
       <div className="architect-grid" aria-hidden="true" />
       <div className="relative z-10">
         <AccountingServiceStructuredData routePath={canonicalPath} />

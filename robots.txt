@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://www.mino.co.at/sitemap.xml
+Sitemap: https://ristohajdukovic.github.io/minoconsult/sitemap.xml

@@ -1567,6 +1567,10 @@ a.booking-trust-item {
   overflow-wrap: anywhere;
 }
 
+.footer-bottom-bar p {
+  color: white;
+}
+
 .footer-privacy-settings {
   @apply text-left hover:text-white focus-visible:ring-2 focus-visible:ring-taupe;
 }

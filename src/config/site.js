@@ -21,7 +21,7 @@ export function resolveSiteUrl(env = {}, { production = Boolean(env.PROD) } = {}
 
   if (!configuredUrl && production) {
     throw new Error(
-      'Missing VITE_SITE_URL. Set it to the public production origin before building (for example https://www.mino.co.at).',
+      'Missing VITE_SITE_URL. Set it to the public production origin before building (for example https://example.com).',
     );
   }
 

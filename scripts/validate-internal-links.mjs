@@ -6,13 +6,16 @@ const distDir = resolve('dist');
 const routePaths = new Set(allPages.map((page) => page.path));
 const inboundRoutes = new Set();
 const failures = [];
+const deploymentBase = '/minoconsult';
 
 function routeFile(path) {
   return path === '/' ? resolve(distDir, 'index.html') : resolve(distDir, path.replace(/^\//, ''), 'index.html');
 }
 
 function normalizePath(href) {
-  const pathname = href.split('#')[0].split('?')[0] || '/';
+  let pathname = href.split('#')[0].split('?')[0] || '/';
+  if (pathname === deploymentBase || pathname === `${deploymentBase}/`) pathname = '/';
+  else if (pathname.startsWith(`${deploymentBase}/`)) pathname = pathname.slice(deploymentBase.length);
   const normalized = pathname === '/' ? '/' : pathname.replace(/\/+$/, '');
   return normalized === '/hr' ? '/hr/' : normalized;
 }

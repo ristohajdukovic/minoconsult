@@ -1,5 +1,7 @@
 # Custom Domain Deployment
 
+> Deferred. The active site currently deploys to `https://ristohajdukovic.github.io/minoconsult/` without a CNAME. Re-enable the production-domain steps below only after the DNS records are intentionally moved away from the existing host.
+
 Production target: `https://www.mino.co.at` on GitHub Pages. Canonical URLs are generated from `.env.production`, and Vite production assets use the custom-domain root `/`.
 
 ## Repository configuration

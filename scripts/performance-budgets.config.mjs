@@ -11,6 +11,5 @@ export default Object.freeze({
     'fonts.googleapis.com',
     'fonts.gstatic.com',
     'images.unsplash.com',
-    'ristohajdukovic.github.io',
   ],
 });

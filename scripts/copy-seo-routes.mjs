@@ -22,7 +22,8 @@ const indexFile = resolve(distDir, 'index.html');
 const env = loadEnv('production', process.cwd(), '');
 const siteUrl = resolveSiteUrl(env, { production: true });
 const isPreviewBuild = process.argv.includes('--preview');
-const outputBasePath = isPreviewBuild ? '/minoconsult' : '';
+const usesProjectPages = siteUrl.includes('ristohajdukovic.github.io/minoconsult');
+const outputBasePath = isPreviewBuild || usesProjectPages ? '/minoconsult' : '';
 
 function outputHref(path) {
   if (path === '/') return `${outputBasePath}/` || '/';

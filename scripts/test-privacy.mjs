@@ -6,6 +6,7 @@ import { preview } from 'vite';
 const failures = [];
 const checks = [];
 let baseUrl;
+const deploymentBase = '/minoconsult';
 
 function check(condition, message) {
   checks.push(message);
@@ -30,7 +31,7 @@ async function findBrowser() {
 }
 
 async function goto(page, path) {
-  const response = await page.goto(`${baseUrl}${path}`, { waitUntil: 'domcontentloaded' });
+  const response = await page.goto(`${baseUrl}${deploymentBase}${path}`, { waitUntil: 'domcontentloaded' });
   check(Boolean(response?.ok()), `${path} returns a successful response`);
   await page.locator('.site-header').waitFor();
 }
@@ -80,6 +81,7 @@ try {
 
   await page.getByRole('button', { name: 'Google Maps laden' }).click();
   await page.locator('.map-frame iframe').waitFor({ state: 'attached' });
+  await page.waitForTimeout(100);
   check(await page.locator('.map-frame iframe').count() === 1, 'Google Maps iframe mounts after the contextual consent action');
   check(requestUrls.some((url) => /google\.com\/maps/i.test(url)), 'Loading the consented map initiates the Google Maps request');
   check(await page.evaluate(() => JSON.parse(localStorage.getItem('mino_privacy_preferences_v1')).googleMaps === true), 'Google Maps preference is stored without personal data');
@@ -173,10 +175,15 @@ try {
     check(!/\[?TODO\]?/i.test(await page.locator('main').innerText()), `${path} contains no visible TODO marker`);
   }
 
-  const cname = (await readFile(resolve('dist', 'CNAME'), 'utf8')).trim();
-  check(cname === 'www.mino.co.at', 'Production build contains the correct CNAME');
+  let cnameExists = true;
+  try {
+    await access(resolve('dist', 'CNAME'));
+  } catch {
+    cnameExists = false;
+  }
+  check(!cnameExists, 'Project Pages build contains no custom-domain CNAME');
   const indexHtml = await readFile(resolve('dist', 'index.html'), 'utf8');
-  check(/(?:src|href)="\/assets\//.test(indexHtml) && !/\/minoconsult\//.test(indexHtml), 'Production assets resolve from the custom-domain root');
+  check(/(?:src|href)="\/minoconsult\/assets\//.test(indexHtml), 'Production assets resolve from the GitHub Pages project path');
   check(!/<iframe\b[^>]*google\.com\/maps/i.test(indexHtml), 'Initial generated HTML contains no Google Maps iframe');
 
   const generatedFiles = await collectFiles(resolve('dist'));
@@ -187,7 +194,6 @@ try {
     ['fonts.googleapis.com', /fonts\.googleapis\.com/i],
     ['fonts.gstatic.com', /fonts\.gstatic\.com/i],
     ['images.unsplash.com', /images\.unsplash\.com/i],
-    ['GitHub preview metadata', /ristohajdukovic\.github\.io/i],
   ]) check(!pattern.test(generatedText), `Generated production files contain no ${label}`);
 
   await context.close();
@@ -201,4 +207,4 @@ if (failures.length > 0) {
   process.exit(1);
 }
 
-console.log(`Passed ${checks.length} privacy, consent, appointment-request, asset and custom-domain checks.`);
+console.log(`Passed ${checks.length} privacy, consent, appointment-request and project Pages checks.`);

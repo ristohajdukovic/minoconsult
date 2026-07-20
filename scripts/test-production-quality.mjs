@@ -7,6 +7,11 @@ import { allPages } from '../src/config/routes.js';
 const checks = [];
 const failures = [];
 let baseUrl;
+const deploymentBase = '/minoconsult';
+
+function pageUrl(path) {
+  return `${baseUrl}${deploymentBase}${path}`;
+}
 
 function check(condition, message) {
   checks.push(message);
@@ -41,12 +46,16 @@ try {
   const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
   const page = await context.newPage();
   const consoleErrors = [];
+  const failedResources = [];
   page.on('console', (message) => {
     if (message.type() === 'error') consoleErrors.push(message.text());
   });
+  page.on('response', (response) => {
+    if (response.status() >= 400) failedResources.push(`${response.status()} ${response.url()}`);
+  });
 
   for (const route of allPages) {
-    const response = await page.goto(`${baseUrl}${route.path}`, { waitUntil: 'domcontentloaded' });
+    const response = await page.goto(pageUrl(route.path), { waitUntil: 'domcontentloaded' });
     check(Boolean(response?.ok()), `${route.path} responds through direct navigation`);
     await page.locator('main h1').waitFor();
     check(await page.locator('main h1').count() === 1, `${route.path} has one runtime H1`);
@@ -57,7 +66,7 @@ try {
     check((html.match(/<noscript>[\s\S]*?<h1\b/gi) ?? []).length === 1, `${route.path} has one static fallback H1`);
   }
 
-  await page.goto(`${baseUrl}/`, { waitUntil: 'networkidle' });
+  await page.goto(pageUrl('/'), { waitUntil: 'networkidle' });
   const imageDetails = await page.locator('img').evaluateAll((images) => images.map((image) => ({
     src: image.getAttribute('src'),
     width: image.getAttribute('width'),
@@ -75,20 +84,20 @@ try {
   check(await page.locator('.map-consent-placeholder').count() === 1, 'Malformed privacy storage falls back to blocked Google Maps');
   check(await page.locator('iframe').count() === 0, 'Malformed privacy storage does not load Google Maps');
 
-  const notFoundResponse = await page.goto(`${baseUrl}/404.html`, { waitUntil: 'domcontentloaded' });
+  const notFoundResponse = await page.goto(pageUrl('/404.html'), { waitUntil: 'domcontentloaded' });
   check(Boolean(notFoundResponse?.ok()), 'Static 404 document is available');
   check(await page.locator('h1').count() === 1, '404 document has one H1');
   check(await page.locator('meta[name="robots"]').getAttribute('content') === 'noindex, follow', '404 document uses noindex, follow');
   check(await page.getByRole('link', { name: 'Deutsche Startseite' }).count() === 1, '404 offers German recovery');
   check(await page.getByRole('link', { name: 'Hrvatska početna stranica' }).count() === 1, '404 offers Croatian recovery');
 
-  check(consoleErrors.length === 0, `Basic production navigation has no console errors${consoleErrors.length ? `: ${consoleErrors.join(' | ')}` : ''}`);
+  check(consoleErrors.length === 0, `Basic production navigation has no console errors${consoleErrors.length ? `: ${consoleErrors.join(' | ')}${failedResources.length ? ` (${failedResources.join(' | ')})` : ''}` : ''}`);
   await context.close();
 
   const noScriptContext = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
   const noScriptPage = await noScriptContext.newPage();
   for (const route of allPages) {
-    const response = await noScriptPage.goto(`${baseUrl}${route.path}`, { waitUntil: 'domcontentloaded' });
+    const response = await noScriptPage.goto(pageUrl(route.path), { waitUntil: 'domcontentloaded' });
     check(Boolean(response?.ok()), `${route.path} remains available without JavaScript`);
     check(await noScriptPage.locator('main.static-fallback h1').count() === 1, `${route.path} exposes core content without JavaScript`);
     check(await noScriptPage.locator('a[href^="mailto:"]').count() >= 1, `${route.path} exposes email contact without JavaScript`);

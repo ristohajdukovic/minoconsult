@@ -7,6 +7,7 @@ import { absoluteUrl, resolveSiteUrl } from '../src/config/site.js';
 const distDir = resolve('dist');
 const env = loadEnv('production', process.cwd(), '');
 const siteUrl = resolveSiteUrl(env, { production: true });
+const usesProjectPages = siteUrl.includes('ristohajdukovic.github.io/minoconsult');
 const failures = [];
 const titles = new Set();
 const descriptions = new Set();
@@ -111,10 +112,10 @@ for (const page of allPages) {
   if ((fallbackHtml.match(/<h1\b/gi) ?? []).length !== 1) failures.push(`${page.path}: static fallback does not contain exactly one H1`);
   if (!fallbackHtml.includes('mailto:') || !fallbackHtml.includes('tel:')) failures.push(`${page.path}: static fallback is missing core contact links`);
 
-  if (/ristohajdukovic\.github\.io/i.test(html)) failures.push(`${page.path}: preview URL leaked into HTML`);
+  if (!usesProjectPages && /ristohajdukovic\.github\.io/i.test(html)) failures.push(`${page.path}: preview URL leaked into HTML`);
   if (/\[TODO\]|\bTODO\b/i.test(html)) failures.push(`${page.path}: TODO text leaked into HTML`);
   if (/<iframe\b[^>]*(?:google\.com\/maps|google\.at\/maps)/i.test(html)) failures.push(`${page.path}: Google Maps iframe exists in initial HTML`);
-  if (/\/minoconsult\//i.test(html)) failures.push(`${page.path}: project preview base leaked into production HTML`);
+  if (!usesProjectPages && /\/minoconsult\//i.test(html)) failures.push(`${page.path}: project preview base leaked into production HTML`);
   if (page.language === 'hr' && canonicalMatches[0]?.[1] === absoluteUrl(siteUrl, page.alternatePaths.de)) {
     failures.push(`${page.path}: Croatian page canonicalizes to German`);
   }
@@ -127,7 +128,7 @@ if (sitemapUrls.size !== expectedUrls.size || [...expectedUrls].some((url) => !s
   failures.push('sitemap.xml URLs do not match generated routes');
 }
 if (!/xmlns:xhtml="http:\/\/www\.w3\.org\/1999\/xhtml"/.test(sitemap)) failures.push('sitemap.xml is missing the XHTML namespace');
-if (/ristohajdukovic\.github\.io/i.test(sitemap)) failures.push('preview URL leaked into sitemap.xml');
+if (!usesProjectPages && /ristohajdukovic\.github\.io/i.test(sitemap)) failures.push('preview URL leaked into sitemap.xml');
 
 const robots = await readFile(resolve(distDir, 'robots.txt'), 'utf8');
 if (!robots.includes(`Sitemap: ${absoluteUrl(siteUrl, '/sitemap.xml')}`)) failures.push('robots.txt references the wrong sitemap');
@@ -155,20 +156,31 @@ for (const language of ['de', 'hr']) {
   if (language === 'hr' && content?.cta?.book !== 'Zatražite prvi razgovor') failures.push('Croatian CTA does not use request terminology');
 }
 
-try {
-  const publicCname = (await readFile(resolve('public', 'CNAME'), 'utf8')).trim();
-  const distCname = (await readFile(resolve(distDir, 'CNAME'), 'utf8')).trim();
-  if (publicCname !== 'www.mino.co.at') failures.push('public/CNAME does not contain www.mino.co.at');
-  if (distCname !== 'www.mino.co.at') failures.push('dist/CNAME does not contain www.mino.co.at');
-} catch {
-  failures.push('public/CNAME or dist/CNAME is missing');
+if (usesProjectPages) {
+  for (const cnamePath of [resolve('public', 'CNAME'), resolve(distDir, 'CNAME')]) {
+    try {
+      await readFile(cnamePath, 'utf8');
+      failures.push(`${cnamePath}: CNAME must be absent for the project Pages deployment`);
+    } catch {
+      // Expected while the custom domain is deferred.
+    }
+  }
+} else {
+  try {
+    const publicCname = (await readFile(resolve('public', 'CNAME'), 'utf8')).trim();
+    const distCname = (await readFile(resolve(distDir, 'CNAME'), 'utf8')).trim();
+    if (publicCname !== 'www.mino.co.at') failures.push('public/CNAME does not contain www.mino.co.at');
+    if (distCname !== 'www.mino.co.at') failures.push('dist/CNAME does not contain www.mino.co.at');
+  } catch {
+    failures.push('public/CNAME or dist/CNAME is missing');
+  }
 }
 
 const prohibitedPatterns = [
   ['Google Fonts stylesheet domain', /fonts\.googleapis\.com/i],
   ['Google Fonts asset domain', /fonts\.gstatic\.com/i],
   ['Unsplash production image domain', /images\.unsplash\.com/i],
-  ['GitHub Pages preview domain', /ristohajdukovic\.github\.io/i],
+  ...(!usesProjectPages ? [['GitHub Pages preview domain', /ristohajdukovic\.github\.io/i]] : []),
 ];
 for (const file of await collectTextFiles(distDir)) {
   const contents = await readFile(file, 'utf8');

@@ -542,7 +542,7 @@ export const legalPages = [
       {
         title: '4. Hosting',
         paragraphs: [
-          'Die Website ist für die Bereitstellung über GitHub Pages mit der eigenen Domain www.mino.co.at konfiguriert. Im Rahmen der technischen Bereitstellung kann der Hosting-Anbieter Verbindungs- und Zugriffsdaten verarbeiten.',
+          'Die Website wird über GitHub Pages unter ristohajdukovic.github.io/minoconsult bereitgestellt. Der Hosting-Anbieter kann Verbindungs- und Zugriffsdaten verarbeiten.',
           'Einzelheiten zu Anbieterbezeichnung, Vertragsgrundlagen und Protokollaufbewahrung werden vor der endgültigen rechtlichen Freigabe geprüft.',
         ],
       },

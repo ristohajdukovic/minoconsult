@@ -3,25 +3,27 @@ export const seoPages = [
     path: '/buchhaltung-wien',
     title: 'Buchhaltung Wien | MINO Consulting KG',
     metaDescription:
-      'Buchhaltung in Wien für Selbstständige, Gründer und KMU. MINO Consulting KG unterstützt bei Belegen, UVA, laufender Buchhaltung und klaren Finanzprozessen.',
+      'Laufende Buchhaltung in Wien: Belege, Bankbewegungen, UVA und offene Posten. Erstgespräch bei MINO Consulting KG anfragen.',
     eyebrow: 'Buchhaltung Wien',
-    h1: 'Buchhaltung in Wien für klare Zahlen und weniger Papierchaos',
+    h1: 'Laufende Buchhaltung für Unternehmen in Wien',
     intro:
-      'Laufende Buchhaltung muss nicht kompliziert wirken. Wir helfen Wiener Unternehmen, Belege, Fristen und Auswertungen so zu organisieren, dass Entscheidungen auf aktuellen Zahlen basieren.',
-    whoForTitle: 'Für wen diese Leistung passt',
+      'Die laufende Buchhaltung verarbeitet Geschäftsfälle auf Grundlage der übermittelten Belege und Bankdaten. Im Erstgespräch klären wir vorhandene Unterlagen, offene Perioden und den möglichen Bearbeitungsrhythmus.',
+    whoForTitle: 'Typische Ausgangslagen',
     whoFor: [
-      'Einzelunternehmerinnen und Einzelunternehmer, die ihre Belege sauber organisieren möchten',
-      'KMU mit laufenden Eingangs- und Ausgangsrechnungen',
-      'Gründer, die von Beginn an klare Buchhaltungsprozesse brauchen',
-      'Unternehmen, die digitale Abläufe statt ungeordneter Papierordner möchten',
+      'Laufende Eingangs- und Ausgangsrechnungen müssen verbucht werden',
+      'Bankbewegungen, Kassa und offene Posten sollen abgestimmt werden',
+      'Belege werden bisher uneinheitlich oder verspätet übermittelt',
+      'Für eine neue Tätigkeit muss ein Buchhaltungsablauf festgelegt werden',
     ],
     includedTitle: 'Was in der Buchhaltung enthalten sein kann',
     included: [
       'Laufende Verbuchung von Belegen und Bankbewegungen',
       'Vorbereitung der Umsatzsteuervoranmeldung und Fristenüberblick',
       'Abstimmung offener Posten und strukturierte Belegorganisation',
-      'Monatliche Auswertungen als Grundlage für bessere Entscheidungen',
+      'Auswertungen im vereinbarten Umfang und Hinweise zu offenen Buchhaltungspunkten',
     ],
+    clientProvides: ['Ausgangs- und Eingangsrechnungen sowie Bank- und Kassadaten', 'Relevante Verträge, Nachweise und fristgerechte Antworten auf Rückfragen'],
+    limitations: ['Umfang und Rhythmus werden erst nach Sichtung der Ausgangslage vereinbart', 'Vollständige, rechtzeitig übermittelte Unterlagen bleiben Voraussetzung'],
     processTitle: 'So läuft die Zusammenarbeit ab',
     process: [
       {
@@ -51,7 +53,7 @@ export const seoPages = [
       {
         question: 'Betreuen Sie auch kleine Unternehmen und Einzelunternehmer?',
         answer:
-          'Ja. Gerade kleinere Unternehmen profitieren von klaren Abläufen, weil Buchhaltung, Umsatzsteuer und Belegorganisation sonst viel operative Zeit binden.',
+          'Ob ein konkretes Mandat übernommen werden kann, hängt von Umfang, Ausgangslage und freien Kapazitäten ab. Das wird nach Ihrer Anfrage gesondert geklärt.',
       },
       {
         question: 'Wie oft sollte die Buchhaltung aktualisiert werden?',
@@ -59,26 +61,27 @@ export const seoPages = [
           'Für viele Unternehmen ist ein monatlicher Rhythmus sinnvoll. So bleiben Umsatzsteuer, offene Posten und Auswertungen aktuell und Entscheidungen müssen nicht auf alten Zahlen basieren.',
       },
     ],
-    ctaTitle: 'Buchhaltung in Wien strukturiert starten',
+    ctaTitle: 'Leistungsumfang der Buchhaltung klären',
     ctaBody:
       'Im Erstgespräch klären wir, welche Unterlagen vorhanden sind, welche Fristen relevant sind und wie Ihre laufende Buchhaltung sinnvoll organisiert werden kann.',
+    relatedLinkLabel: 'Buchhaltung und Belegablauf prüfen',
     related: ['/lohnverrechnung-wien', '/steuerberatung-wien', '/jahresabschluss-wien'],
   },
   {
     path: '/steuerberatung-wien',
     title: 'Steuerberatung Wien | MINO Consulting KG',
     metaDescription:
-      'Steuerberatung in Wien für Gründer, Selbstständige und KMU. MINO Consulting KG unterstützt bei Steuerfragen, Planung, Erklärungen und Finanzamt-Kommunikation.',
+      'Steuerberatung in Wien für betriebliche Fragen, Erklärungen und Kommunikation mit dem österreichischen Finanzamt.',
     eyebrow: 'Steuerberatung Wien',
-    h1: 'Steuerberatung in Wien mit Fristenplan und Finanzamt-Begleitung',
+    h1: 'Steuerberatung für betriebliche Fragen in Wien',
     intro:
-      'Steuern werden planbarer, wenn UVA-Termine, Vorauszahlungen und Gestaltungsmöglichkeiten nachvollziehbar dokumentiert sind. Wir begleiten Unternehmen in Wien bei Erklärungen, FinanzOnline-Fristen und Rückfragen des Finanzamts.',
-    whoForTitle: 'Für wen steuerliche Beratung sinnvoll ist',
+      'Bei Steuererklärungen, Umsatzsteuerfragen, Vorauszahlungen oder Schreiben des Finanzamts kommt es auf den konkreten Sachverhalt und vollständige Unterlagen an. MINO klärt mit Ihnen den Beratungsbedarf und den möglichen Umfang.',
+    whoForTitle: 'Typische Anlässe für eine Anfrage',
     whoFor: [
-      'Selbstständige mit Fragen zu Einkommensteuer, Umsatzsteuer oder Vorauszahlungen',
-      'KMU, die steuerliche Entscheidungen frühzeitig planen möchten',
-      'Gründer, die steuerliche Pflichten vor dem Start verstehen wollen',
-      'Unternehmen, die Unterstützung bei Rückfragen vom Finanzamt brauchen',
+      'Offene Fragen zu Einkommensteuer, Körperschaftsteuer oder Umsatzsteuer',
+      'Eine Steuererklärung oder ein Finanzamt-Schreiben muss eingeordnet werden',
+      'Geplante betriebliche Änderungen haben mögliche steuerliche Folgen',
+      'Vor einer Gründung sollen die ersten steuerlichen Pflichten geklärt werden',
     ],
     includedTitle: 'Mögliche Schwerpunkte der Steuerberatung',
     included: [
@@ -87,6 +90,8 @@ export const seoPages = [
       'Steuerliche Planung für Investitionen, Wachstum oder Umstrukturierungen',
       'Korrespondenz und strukturierte Vorbereitung bei Finanzamt-Rückfragen',
     ],
+    clientProvides: ['Beschreibung des Sachverhalts, der Frage und bekannter Fristen', 'Relevante Bescheide, Schreiben, Verträge, Belege und Berechnungen'],
+    limitations: ['Die Beurteilung hängt von vollständigen und richtigen Angaben ab', 'Ein bestimmtes Steuerergebnis oder eine behördliche Anerkennung wird nicht versprochen'],
     processTitle: 'Unser Beratungsprozess',
     process: [
       {
@@ -111,12 +116,12 @@ export const seoPages = [
       {
         question: 'Unterstützen Sie bei steuerlicher Planung?',
         answer:
-          'Ja. Wir helfen dabei, steuerliche Folgen von Investitionen, Einnahmen, Rechtsformfragen oder geplanten Änderungen besser einzuordnen und rechtzeitig zu planen.',
+          'Die steuerlichen Folgen geplanter Änderungen können im vereinbarten Beratungsumfang eingeordnet werden. Welche Prüfung möglich ist, hängt vom Sachverhalt und den vorliegenden Unterlagen ab.',
       },
       {
         question: 'Kann ich von meinem bisherigen Steuerberater wechseln?',
         answer:
-          'Ein Wechsel ist grundsätzlich möglich. Wichtig sind eine saubere Übergabe der Unterlagen, klare Zuständigkeiten und ein strukturierter Starttermin.',
+          'Sie können einen geplanten Wechsel anfragen. Ob und wann MINO das Mandat übernehmen kann und welche Unterlagen für die Übergabe erforderlich sind, wird gesondert geklärt.',
       },
       {
         question: 'Vertreten Sie auch bei Rückfragen vom Finanzamt?',
@@ -127,23 +132,24 @@ export const seoPages = [
     ctaTitle: 'Steuerfragen frühzeitig klären',
     ctaBody:
       'Bringen Sie Ihre wichtigsten Fragen mit. Wir ordnen Prioritäten, Fristen und mögliche nächste Schritte in einem Erstgespräch.',
+    relatedLinkLabel: 'Steuerfragen und Finanzamt-Kommunikation klären',
     related: ['/buchhaltung-wien', '/steuerberatung-gruender-wien', '/jahresabschluss-wien'],
   },
   {
     path: '/jahresabschluss-wien',
     title: 'Jahresabschluss Wien | MINO Consulting KG',
     metaDescription:
-      'Jahresabschluss in Wien für KMU und Selbstständige. MINO Consulting KG unterstützt bei Abschlussunterlagen, Auswertungen und Rückfragen zum Jahresabschluss.',
+      'Jahresabschluss in Wien: Abschlussunterlagen, Kontenabstimmung, Steuererklärungen und Besprechung der Ergebnisse.',
     eyebrow: 'Jahresabschluss Wien',
-    h1: 'Jahresabschluss in Wien sauber vorbereiten und verständlich auswerten',
+    h1: 'Jahresabschluss in Wien vorbereiten und besprechen',
     intro:
-      'Ein Jahresabschluss ist mehr als eine Pflichtübung. Richtig vorbereitet zeigt er, wie stabil Ihr Unternehmen steht und welche Entscheidungen als Nächstes sinnvoll sind.',
-    whoForTitle: 'Für wen diese Seite relevant ist',
+      'Für den Jahresabschluss müssen Buchhaltung, Konten und ergänzende Nachweise vollständig abgestimmt werden. Welche Abschlussarbeiten und Erklärungen erforderlich sind, hängt von Rechtsform und Geschäftsjahr ab.',
+    whoForTitle: 'Typische Ausgangslagen',
     whoFor: [
-      'KMU, die einen geordneten Jahresabschluss benötigen',
-      'Selbstständige, die ihre Unterlagen rechtzeitig vorbereiten möchten',
-      'Unternehmen mit offenen Abstimmungen oder Rückfragen',
-      'Geschäftsführer, die Zahlen für Banken, Förderstellen oder Planung brauchen',
+      'Ein Geschäftsjahr ist abgeschlossen und die Abschlussunterlagen sind vorzubereiten',
+      'Konten, offene Rechnungen oder Anlagen müssen noch abgestimmt werden',
+      'Für Steuererklärungen werden die Abschlussdaten benötigt',
+      'Ergebnisse und daraus folgende Pflichten sollen besprochen werden',
     ],
     includedTitle: 'Was beim Jahresabschluss wichtig ist',
     included: [
@@ -152,6 +158,8 @@ export const seoPages = [
       'Aufbereitung von Auswertungen und Abschlussinformationen',
       'Begleitung bei Rückfragen und nächsten steuerlichen Schritten',
     ],
+    clientProvides: ['Vollständige Buchhaltungs-, Bank-, Kassa-, Anlagen- und offene-Posten-Daten', 'Verträge, Inventur, weitere Nachweise und zeitnahe Antworten auf Rückfragen'],
+    limitations: ['Unterlagen und Fristen unterscheiden sich nach Rechtsform und Einzelfall', 'Der Jahresabschluss ist keine Abschlussprüfung und wird nicht als solche beschrieben'],
     processTitle: 'Ablauf des Jahresabschlusses',
     process: [
       {
@@ -189,26 +197,27 @@ export const seoPages = [
           'Sinnvoll ist eine laufende Vorbereitung während des Jahres. Spätestens vor Abschluss der Periode sollten offene Belege, Konten und Rückfragen gesammelt werden.',
       },
     ],
-    ctaTitle: 'Jahresabschluss planbar machen',
+    ctaTitle: 'Unterlagen für den Jahresabschluss klären',
     ctaBody:
       'Wir klären, wo Ihre Unterlagen stehen, welche Punkte offen sind und wie der Abschluss sinnvoll vorbereitet werden kann.',
+    relatedLinkLabel: 'Jahresabschluss und Abschlussunterlagen vorbereiten',
     related: ['/buchhaltung-wien', '/steuerberatung-wien', '/lohnverrechnung-wien'],
   },
   {
     path: '/lohnverrechnung-wien',
     title: 'Lohnverrechnung Wien | MINO Consulting KG',
     metaDescription:
-      'Lohnverrechnung in Wien für Arbeitgeber und KMU. MINO Consulting KG unterstützt bei Gehaltsabrechnungen, Meldungen und strukturierten Lohnprozessen.',
+      'Lohnverrechnung in Wien: Stammdaten, monatliche Änderungen, Abrechnungen und Meldungen im vereinbarten Umfang.',
     eyebrow: 'Lohnverrechnung Wien',
-    h1: 'Lohnverrechnung in Wien mit verlässlichen Abläufen',
+    h1: 'Lohnverrechnung für Arbeitgeber in Wien',
     intro:
-      'Lohnverrechnung braucht Genauigkeit, Fristenbewusstsein und klare Kommunikation. Wir unterstützen Wiener Arbeitgeber dabei, monatliche Abrechnungen strukturiert vorzubereiten.',
-    whoForTitle: 'Für wen Lohnverrechnung relevant ist',
+      'Für die laufende Lohnverrechnung müssen Stammdaten und monatliche Änderungen vollständig und rechtzeitig vorliegen. Im Erstgespräch klären wir Beschäftigtenzahl, vorhandene Daten und den möglichen Übergabeablauf.',
+    whoForTitle: 'Typische Ausgangslagen',
     whoFor: [
-      'KMU mit bestehenden Mitarbeiterinnen und Mitarbeitern',
-      'Arbeitgeber, die erstmals Personal aufnehmen',
-      'Unternehmen mit wiederkehrenden Fragen zu Abrechnung und Meldungen',
-      'Gründer, die Lohnprozesse von Anfang an sauber aufsetzen möchten',
+      'Ein Betrieb beschäftigt bereits Mitarbeiterinnen und Mitarbeiter',
+      'Die erste Beschäftigung soll abgerechnet und organisatorisch vorbereitet werden',
+      'Monatliche Änderungen und Abwesenheiten müssen geordnet übermittelt werden',
+      'Lohnbuchungen sollen mit der laufenden Buchhaltung abgestimmt werden',
     ],
     includedTitle: 'Was unterstützt werden kann',
     included: [
@@ -217,6 +226,8 @@ export const seoPages = [
       'Strukturierung von Stammdaten, Fristen und Änderungsmeldungen',
       'Abstimmung mit Buchhaltung und Jahresabschluss',
     ],
+    clientProvides: ['Personalstamm-, Entgelt-, Arbeitszeit- und Eintrittsdaten', 'Monatliche Änderungen rechtzeitig vor dem vereinbarten Abrechnungstermin'],
+    limitations: ['Verspätete oder unvollständige Angaben können die Abrechnung verhindern', 'Arbeitsrechtliche Beratung ist nicht automatisch Teil der Lohnverrechnung'],
     processTitle: 'So wird die Lohnverrechnung organisiert',
     process: [
       {
@@ -246,7 +257,7 @@ export const seoPages = [
       {
         question: 'Ist Lohnverrechnung auch für kleine Arbeitgeber sinnvoll auszulagern?',
         answer:
-          'Ja, oft gerade dann. Kleine Arbeitgeber haben meist wenig interne Routine, müssen aber trotzdem Fristen, Daten und Änderungen verlässlich handhaben.',
+          'Auch kleine Arbeitgeber können eine Anfrage stellen. Ob MINO den konkreten Umfang übernehmen kann, wird anhand der Beschäftigtenzahl, Datenlage und Kapazität geprüft.',
       },
       {
         question: 'Wie hängen Lohnverrechnung und Buchhaltung zusammen?',
@@ -254,26 +265,27 @@ export const seoPages = [
           'Lohnaufwand, Abgaben und Zahlungen müssen sauber in der Buchhaltung abgebildet werden. Deshalb ist eine abgestimmte Organisation wichtig.',
       },
     ],
-    ctaTitle: 'Lohnverrechnung sauber aufsetzen',
+    ctaTitle: 'Ablauf der Lohnverrechnung klären',
     ctaBody:
       'Im Erstgespräch klären wir, wie viele Mitarbeitende betroffen sind, welche Unterlagen vorliegen und welche monatlichen Abläufe gebraucht werden.',
+    relatedLinkLabel: 'Lohnverrechnung und Monatsdaten abstimmen',
     related: ['/buchhaltung-wien', '/jahresabschluss-wien', '/steuerberatung-gruender-wien'],
   },
   {
     path: '/steuerberatung-gruender-wien',
     title: 'Steuerberatung für Gründer in Wien | MINO Consulting KG',
     metaDescription:
-      'Steuerberatung für Gründer in Wien. MINO Consulting KG unterstützt bei Rechtsform, FinanzOnline, ersten Steuerpflichten und Buchhaltungssetup.',
+      'Steuerliche und buchhalterische Fragen vor einer Gründung in Wien: Umsatzsteuer, FinanzOnline, Rechnungen und erste Fristen.',
     eyebrow: 'Steuerberatung für Gründer',
-    h1: 'Steuerberatung für Gründer in Wien vor dem ersten großen Umweg',
+    h1: 'Steuerliche Fragen vor einer Gründung in Wien klären',
     intro:
-      'In der Gründungsphase werden viele Entscheidungen getroffen, die später Zeit, Geld und Nerven kosten können. Wir helfen, steuerliche Pflichten und finanzielle Grundlagen früh verständlich zu ordnen.',
-    whoForTitle: 'Für wen die Beratung gedacht ist',
+      'Vor dem Start entstehen Fragen zu Rechtsform, Umsatzsteuer, Rechnungen, FinanzOnline und Buchhaltung. MINO ordnet die steuerlichen und buchhalterischen Punkte; rechtliche und notarielle Leistungen sind davon getrennt.',
+    whoForTitle: 'Typische Anlässe',
     whoFor: [
-      'Gründerinnen und Gründer vor oder kurz nach dem Start',
-      'Selbstständige, die erstmals Rechnungen, Umsatzsteuer und FinanzOnline einrichten',
-      'Teams, die Rechtsform, Kostenstruktur und Buchhaltung planen',
-      'Unternehmer, die ihre ersten steuerlichen Pflichten in Österreich verstehen möchten',
+      'Eine selbstständige oder unternehmerische Tätigkeit ist geplant',
+      'Rechnungslegung, Umsatzsteuer und FinanzOnline sind noch ungeklärt',
+      'Für Belege und Buchhaltung fehlt ein Startprozess',
+      'Steuerliche Unterschiede möglicher Rechtsformen sollen eingeordnet werden',
     ],
     includedTitle: 'Typische Themen im Gründer-Erstgespräch',
     included: [
@@ -282,6 +294,8 @@ export const seoPages = [
       'Vorbereitung auf FinanzOnline und Kommunikation mit Behörden',
       'Überblick über laufende Pflichten nach der Gründung',
     ],
+    clientProvides: ['Beschreibung von Tätigkeit, Beteiligten, Start sowie Umsatz- und Kostenannahmen', 'Relevante Vertragsentwürfe und konkrete Fragen zu Steuern und Buchhaltung'],
+    limitations: ['Beschrieben werden Steuer- und Buchhaltungsfragen, keine Rechts- oder Notariatsleistung', 'Förderungen, Eintragungen und Behördenentscheidungen werden nicht garantiert'],
     processTitle: 'Vom Vorhaben zum klaren Setup',
     process: [
       {
@@ -319,26 +333,27 @@ export const seoPages = [
           'Auch vor dem ersten Umsatz entstehen oft Kosten, Belege und Entscheidungen. Eine einfache Struktur von Beginn an verhindert spätere Nacharbeit.',
       },
     ],
-    ctaTitle: 'Gründung steuerlich sauber vorbereiten',
+    ctaTitle: 'Steuerliche Fragen zur Gründung besprechen',
     ctaBody:
       'Bringen Sie Ihre Idee, offene Fragen und vorhandene Unterlagen mit. Wir klären, welche nächsten Schritte steuerlich und organisatorisch sinnvoll sind.',
+    relatedLinkLabel: 'Steuerlichen Start und erste Pflichten einordnen',
     related: ['/unternehmensgruendung-wien', '/buchhaltung-wien', '/lohnverrechnung-wien'],
   },
   {
     path: '/unternehmensgruendung-wien',
     title: 'Unternehmensgründung Wien | MINO Consulting KG',
     metaDescription:
-      'Unternehmensgründung in Wien mit steuerlicher und finanzieller Struktur. MINO Consulting KG unterstützt Gründer bei Planung, Setup und ersten Pflichten.',
+      'Steuerfragen und Buchhaltungssetup bei einer Unternehmensgründung in Wien, klar abgegrenzt von Rechts- und Notariatsleistungen.',
     eyebrow: 'Unternehmensgründung Wien',
-    h1: 'Unternehmensgründung in Wien mit klarer finanzieller Grundlage',
+    h1: 'Buchhaltung und Steuern bei einer Gründung in Wien',
     intro:
-      'Eine Gründung braucht mehr als eine gute Idee. Damit die ersten Monate tragfähig werden, sollten Rechtsform, Buchhaltung, Fristen und Zahlenmodell früh zusammenpassen.',
-    whoForTitle: 'Für wen Gründungsbegleitung passt',
+      'Diese Leistung betrifft die steuerliche Einordnung und den Aufbau der Buchhaltung rund um den Start. Gesellschaftsrechtliche, notarielle und sonstige rechtliche Schritte werden von den jeweils befugten externen Stellen erbracht.',
+    whoForTitle: 'Typische Ausgangslagen',
     whoFor: [
-      'Personen, die ein Unternehmen in Wien oder Österreich gründen möchten',
-      'Gründerteams, die Rechtsform und laufende Pflichten strukturieren wollen',
-      'Selbstständige, die vom Nebenprojekt in ein geordnetes Unternehmen wechseln',
-      'Neue Arbeitgeber, die Buchhaltung und Lohnprozesse früh mitdenken müssen',
+      'Die steuerlichen Folgen einer geplanten Gründung sind noch offen',
+      'Rechnungen, Belegablage und laufende Buchhaltung müssen eingerichtet werden',
+      'Die ersten Steuer- und Meldefristen sollen eingeordnet werden',
+      'Bei geplanten Beschäftigten muss die Lohnverrechnung vorbereitet werden',
     ],
     includedTitle: 'Was bei der Gründung begleitet werden kann',
     included: [
@@ -347,6 +362,8 @@ export const seoPages = [
       'Struktur für Belege, Fristen, Rechnungen und Auswertungen',
       'Vorbereitung der laufenden Zusammenarbeit nach der Gründung',
     ],
+    clientProvides: ['Beschreibung von Vorhaben, Beteiligten, Umsätzen, Kosten und Finanzierung', 'Stand externer Gründungsschritte und Fragen zu Steuern und Buchhaltung'],
+    limitations: ['Keine Gesellschaftsrechtsberatung oder notariellen Leistungen', 'Leistungsumfang und weitere Betreuung werden erst nach Prüfung vereinbart'],
     processTitle: 'Schritte in der Gründungsbegleitung',
     process: [
       {
@@ -376,7 +393,7 @@ export const seoPages = [
       {
         question: 'Unterstützen Sie auch nach der Gründung weiter?',
         answer:
-          'Ja. Die Gründung ist nur der Start. Danach können laufende Buchhaltung, Steuerfragen, Lohnverrechnung und Auswertungen weiter begleitet werden.',
+          'Eine laufende Betreuung kann angefragt werden. Ob und in welchem Umfang sie übernommen werden kann, wird nach Prüfung der Ausgangslage gesondert vereinbart.',
       },
       {
         question: 'Welche Fehler passieren in der Startphase häufig?',
@@ -384,9 +401,10 @@ export const seoPages = [
           'Häufig fehlen klare Belegprozesse, realistische Planung, Fristenüberblick oder eine frühe Einordnung steuerlicher Pflichten. Genau hier hilft ein strukturiertes Setup.',
       },
     ],
-    ctaTitle: 'Gründung mit Struktur angehen',
+    ctaTitle: 'Steuerlichen und buchhalterischen Start klären',
     ctaBody:
       'Wir klären gemeinsam, welche steuerlichen und finanziellen Grundlagen für Ihren Start in Wien jetzt Priorität haben.',
+    relatedLinkLabel: 'Buchhaltung und Steuern bei der Gründung vorbereiten',
     related: ['/steuerberatung-gruender-wien', '/buchhaltung-wien', '/steuerberatung-wien'],
   },
 ];
@@ -452,7 +470,6 @@ export const legalPages = [
           'Schönbrunner Straße 222-228 / Stiege 1 / 6. OG',
           '1120 Wien',
           'www.ksw.or.at',
-          '[TODO: KSW-Mitgliedsnummer vor Launch eintragen]',
         ],
       },
       {
@@ -466,20 +483,6 @@ export const legalPages = [
           'Wirtschaftstreuhandberufs-Ausübungsrichtlinie (WT-ARL)',
           'Berufsordnung der KSW',
           'Abrufbar unter: www.ksw.or.at',
-        ],
-      },
-      {
-        title: 'Berufshaftpflichtversicherung',
-        items: [
-          '[TODO: Name der Versicherung vor Launch eintragen]',
-          '[TODO: Räumlicher Geltungsbereich, typisch Österreich/EU, vor Launch bestätigen]',
-        ],
-      },
-      {
-        title: 'Online-Streitbeilegung gemäß Art. 14 Abs. 1 ODR-VO',
-        items: [
-          'Die Europäische Kommission stellt eine Plattform zur Online-Streitbeilegung (OS) bereit: https://ec.europa.eu/consumers/odr',
-          'Unsere E-Mail-Adresse finden Sie oben in diesem Impressum.',
         ],
       },
       {
@@ -510,29 +513,120 @@ export const legalPages = [
     path: '/datenschutzerklaerung',
     title: 'Datenschutzerklärung | MINO Consulting KG',
     metaDescription:
-      'Datenschutzerklärung von MINO Consulting KG mit Informationen zu Kontaktaufnahme, Website-Nutzung und Datenverarbeitung.',
+      'Datenschutzerklärung von MINO Consulting KG zu Websitezugriff, Kontaktaufnahme, Terminanfragen, Google Maps und lokalen Präferenzen.',
     h1: 'Datenschutzerklärung',
     intro:
-      'Diese Platzhalterseite muss vor dem Launch mit einer geprüften Datenschutzerklärung ersetzt werden.',
+      'Diese Informationen beschreiben die technische Datenverarbeitung beim Besuch dieser Website und bei der Kontaktaufnahme mit MINO Consulting KG.',
+    tableOfContentsTitle: 'Inhalt',
+    tableOfContentsLabel: 'Inhaltsverzeichnis der Datenschutzerklärung',
     sections: [
       {
-        title: 'Verantwortlicher',
-        items: [
-          'MINO Consulting KG',
-          'Geblergasse 95/8, 1170 Wien, Österreich',
-          'office@mino-consulting.at',
-          '+43 1 90 680 200',
+        title: '1. Verantwortlicher',
+        paragraphs: [
+          'Verantwortlich für die Verarbeitung personenbezogener Daten auf dieser Website ist die MINO Consulting KG, Geblergasse 95/8, 1170 Wien, Österreich.',
         ],
       },
       {
-        title: 'Noch zu prüfen',
-        items: [
-          '[TODO: Geprüfte Datenschutzerklärung vor Launch einfügen]',
+        title: '2. Kontaktinformationen',
+        paragraphs: [
+          'Datenschutzanfragen können Sie an office@mino-consulting.at oder telefonisch an +43 1 90 680 200 richten.',
         ],
+      },
+      {
+        title: '3. Allgemeiner Websitezugriff und Serverprotokolle',
+        paragraphs: [
+          'Beim Aufruf der Website werden technisch erforderliche Verbindungsdaten übertragen. Dazu können insbesondere IP-Adresse, Zeitpunkt, aufgerufene Ressource, Referrer sowie Browser- und Geräteinformationen gehören.',
+          'Der Hosting-Anbieter kann solche Zugriffsdaten für die Auslieferung, Stabilität und Sicherheit der Website in Serverprotokollen verarbeiten. Die konkrete Speicherdauer richtet sich nach den technisch und rechtlich erforderlichen Vorgaben des Anbieters.',
+        ],
+      },
+      {
+        title: '4. Hosting',
+        paragraphs: [
+          'Die Website ist für die Bereitstellung über GitHub Pages mit der eigenen Domain www.mino.co.at konfiguriert. Im Rahmen der technischen Bereitstellung kann der Hosting-Anbieter Verbindungs- und Zugriffsdaten verarbeiten.',
+          'Einzelheiten zu Anbieterbezeichnung, Vertragsgrundlagen und Protokollaufbewahrung werden vor der endgültigen rechtlichen Freigabe geprüft.',
+        ],
+      },
+      {
+        title: '5. Kontakt per Telefon',
+        paragraphs: [
+          'Wenn Sie telefonisch Kontakt aufnehmen, werden die von Ihnen mitgeteilten Angaben zur Bearbeitung Ihrer Anfrage und für erforderliche Anschlusskommunikation verwendet. Welche Angaben verarbeitet werden, hängt vom Inhalt des Gesprächs ab.',
+        ],
+      },
+      {
+        title: '6. Kontakt per E-Mail',
+        paragraphs: [
+          'Wenn Sie eine E-Mail senden, werden Ihre Absenderadresse, der Nachrichteninhalt und weitere von Ihnen übermittelte Angaben zur Bearbeitung der Anfrage und für erforderliche Anschlusskommunikation verarbeitet.',
+          'Der Anbieter, über den office@mino-consulting.at betrieben wird, und die konkrete Aufbewahrungsdauer sind noch rechtlich und organisatorisch zu bestätigen.',
+        ],
+      },
+      {
+        title: '7. Vorbereitung einer Terminanfrage über die Website',
+        paragraphs: [
+          'Das Formular bereitet aus Ihren Angaben eine E-Mail-Anfrage vor. Sie entscheiden selbst, ob Sie diese in Ihrer E-Mail-Anwendung öffnen und absenden. Die Website stellt die Anfrage nicht als bestätigten Termin dar und übermittelt die Formulardaten nicht an eine Website-Datenbank.',
+          'Während das Formular geöffnet ist, liegen die Angaben vorübergehend im Browserzustand. Sie werden nicht im lokalen Speicher abgelegt. Erst wenn Sie die vorbereitete Nachricht absenden, wird die E-Mail über die von Ihnen und MINO Consulting KG verwendeten E-Mail-Systeme verarbeitet.',
+        ],
+      },
+      {
+        title: '8. Google Maps nach ausdrücklicher Einwilligung',
+        paragraphs: [
+          'Die eingebettete Karte von Google Maps bleibt zunächst blockiert. Sie wird erst geladen, wenn Sie „Google Maps laden“ wählen oder Google Maps in den Datenschutzeinstellungen aktivieren.',
+          'Beim Laden wird eine Verbindung zu Google hergestellt. Dabei können technische Daten wie Ihre IP-Adresse an Google übertragen werden. Die Einwilligung kann jederzeit in den Datenschutzeinstellungen widerrufen werden; die Karte wird dann unmittelbar entfernt und bleibt bei künftigen Aufrufen blockiert.',
+        ],
+      },
+      {
+        title: '9. Lokaler Speicher für Datenschutzeinstellungen',
+        paragraphs: [
+          'Für eine aktivierte Google-Maps-Karte speichert die Website im lokalen Speicher des Browsers unter dem Schlüssel mino_privacy_preferences_v1 ausschließlich die Einstellung googleMaps: true. Die Einstellung enthält keine persönlichen Formulardaten, Kennung oder Zeitangabe.',
+          'Wenn Sie Google Maps deaktivieren, wird diese gespeicherte Erlaubnis entfernt.',
+        ],
+      },
+      {
+        title: '10. Lokal bereitgestellte Schriftarten',
+        paragraphs: [
+          'Die verwendeten Schriftarten Abhaya Libre und Figtree werden von dieser Website selbst bereitgestellt. Für die Darstellung der Schrift wird keine Verbindung zu Google Fonts oder einem anderen Schrift-CDN hergestellt.',
+        ],
+      },
+      {
+        title: '11. Lokal bereitgestellte Bilder',
+        paragraphs: [
+          'Die auf der Website angezeigten Bilddateien werden lokal mit der Website ausgeliefert. Beim Laden dieser Dateien wird keine Verbindung zu Unsplash oder einem externen Bild-CDN hergestellt.',
+        ],
+      },
+      {
+        title: '12. Externe Links',
+        paragraphs: [
+          'Die Website enthält Links zu externen Angeboten, etwa Google Maps oder der KSW. Eine Verbindung zum externen Anbieter entsteht erst, wenn Sie einen solchen Link aktivieren. Nach dem Verlassen dieser Website gelten die Datenschutzinformationen des jeweiligen Anbieters.',
+        ],
+      },
+      {
+        title: '13. Rechte betroffener Personen',
+        paragraphs: [
+          'Im Rahmen der gesetzlichen Voraussetzungen können Sie Auskunft, Berichtigung, Löschung oder Einschränkung der Verarbeitung verlangen. Soweit anwendbar, können Sie außerdem Datenübertragbarkeit verlangen oder einer Verarbeitung widersprechen.',
+          'Eine erteilte Einwilligung können Sie jederzeit mit Wirkung für die Zukunft widerrufen. Die Rechtmäßigkeit der bis zum Widerruf erfolgten Verarbeitung bleibt davon unberührt. Anfragen richten Sie bitte an office@mino-consulting.at.',
+        ],
+      },
+      {
+        title: '14. Beschwerde bei der österreichischen Datenschutzbehörde',
+        paragraphs: [
+          'Wenn Sie der Ansicht sind, dass die Verarbeitung Ihrer personenbezogenen Daten gegen Datenschutzrecht verstößt, können Sie Beschwerde bei der österreichischen Datenschutzbehörde erheben. Aktuelle Kontaktinformationen finden Sie auf der Website der Datenschutzbehörde.',
+        ],
+      },
+      {
+        title: '15. Sicherheit',
+        paragraphs: [
+          'Für die Website werden angemessene technische und organisatorische Maßnahmen eingesetzt, um Daten im Rahmen der technischen Möglichkeiten vor Verlust, unbefugtem Zugriff und Veränderung zu schützen. Eine vollständig risikofreie Datenübertragung kann nicht zugesichert werden.',
+        ],
+      },
+      {
+        title: '16. Änderungen dieser Datenschutzerklärung',
+        paragraphs: [
+          'Diese Datenschutzerklärung wird angepasst, wenn sich technische Funktionen, eingesetzte Anbieter oder rechtliche Anforderungen ändern. Die jeweils aktuelle Fassung ist auf dieser Seite abrufbar.',
+        ],
+      },
+      {
+        title: '17. Versionsstand',
+        paragraphs: ['Juli 2026'],
       },
     ],
   },
 ];
-
-export const seoPagesByPath = Object.fromEntries(seoPages.map((page) => [page.path, page]));
-export const legalPagesByPath = Object.fromEntries(legalPages.map((page) => [page.path, page]));

@@ -12,8 +12,8 @@ export default {
         ink: '#0A1C1A',
       },
       fontFamily: {
-        sans: ['"Euclid Circular B"', '"Nunito Sans"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        display: ['ivypresto-display', '"Cormorant Garamond"', 'Georgia', 'serif'],
+        sans: ['Figtree', '"Segoe UI"', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        display: ['"Abhaya Libre"', 'Georgia', '"Times New Roman"', 'serif'],
       },
       boxShadow: {
         soft: '0 18px 50px rgba(10, 28, 26, 0.10)',

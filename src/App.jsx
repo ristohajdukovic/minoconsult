@@ -3,76 +3,84 @@
    provided based on the principal's KSW credential. Consider
    updating the Firmenbuch entry to add Steuerberatung at next
    Notar appointment. Not blocking for website launch. */
-import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { HugeiconsIcon } from '@hugeicons/react';
+import React, { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
-  ArrowDownDoubleIcon,
-  ArrowRight02Icon,
-  ArrowUpRight02Icon,
-  BookOpen02Icon,
-  Briefcase02Icon,
-  Calendar03Icon,
-  Call02Icon,
-  Cancel01Icon,
-  CheckmarkCircle02Icon,
-  Clock03Icon,
-  DocumentValidationIcon,
-  File02Icon,
-  JusticeScale01Icon,
-  LockIcon,
-  Mail01Icon,
-  MapPinIcon,
-  Plant01Icon,
-  PlusSignIcon,
-  ShieldUserIcon,
-  SmartPhone01Icon,
-  StarIcon,
-} from '@hugeicons/core-free-icons';
-import { legalPages, legalPagesByPath, seoPages, seoPagesByPath } from './seoPages.js';
+  getPageByPath,
+  homeContentByLanguage,
+  servicePagesByLanguage,
+} from './config/routes.js';
+import {
+  absoluteUrl,
+  MAP_EXTERNAL_URL,
+  OFFICE_ADDRESS,
+  SITE_NAME,
+  SITE_URL,
+} from './config/site.js';
+import { getPublicTrustFacts, verifiedBusinessFacts } from './config/verifiedBusinessFacts.js';
+import Icon from './components/Icon.jsx';
+import { FOCUSABLE_SELECTOR, lockBodyScroll } from './accessibility/dialog.js';
+import ConsentControlledMap from './privacy/ConsentControlledMap.jsx';
 
-function createHugeIcon(icon) {
-  return function HugeIconAdapter({ size = 24, color = 'currentColor', strokeWidth = 1.65, ...props }) {
-    return <HugeiconsIcon icon={icon} size={size} color={color} strokeWidth={strokeWidth} {...props} />;
+const PrivacySettingsDialog = lazy(() => import('./privacy/PrivacySettingsDialog.jsx'));
+const BookingModal = lazy(() => import('./components/BookingModal.jsx'));
+
+function createIcon(name) {
+  return function IconAdapter(props) {
+    return <Icon name={name} {...props} />;
   };
 }
 
-const ArrowRight = createHugeIcon(ArrowRight02Icon);
-const ArrowUpRight = createHugeIcon(ArrowUpRight02Icon);
-const BookOpen = createHugeIcon(BookOpen02Icon);
-const BriefcaseBusiness = createHugeIcon(Briefcase02Icon);
-const CalendarDays = createHugeIcon(Calendar03Icon);
-const CheckCircle2 = createHugeIcon(CheckmarkCircle02Icon);
-const ChevronsDown = createHugeIcon(ArrowDownDoubleIcon);
-const Clock3 = createHugeIcon(Clock03Icon);
-const FileCheck2 = createHugeIcon(DocumentValidationIcon);
-const FileText = createHugeIcon(File02Icon);
-const Lock = createHugeIcon(LockIcon);
-const Mail = createHugeIcon(Mail01Icon);
-const MapPin = createHugeIcon(MapPinIcon);
-const Phone = createHugeIcon(Call02Icon);
-const Plus = createHugeIcon(PlusSignIcon);
-const Scale = createHugeIcon(JusticeScale01Icon);
-const ShieldCheck = createHugeIcon(ShieldUserIcon);
-const Smartphone = createHugeIcon(SmartPhone01Icon);
-const Sprout = createHugeIcon(Plant01Icon);
-const Star = createHugeIcon(StarIcon);
-const X = createHugeIcon(Cancel01Icon);
+const ArrowRight = createIcon('arrow-right');
+const ArrowUpRight = createIcon('arrow-up-right');
+const BriefcaseBusiness = createIcon('briefcase');
+const CheckCircle2 = createIcon('check');
+const ChevronsDown = createIcon('chevrons-down');
+const Clock3 = createIcon('clock');
+const FileText = createIcon('file');
+const Mail = createIcon('mail');
+const MapPin = createIcon('map');
+const Phone = createIcon('phone');
+const Plus = createIcon('plus');
+const ShieldCheck = createIcon('shield');
+const Smartphone = createIcon('smartphone');
+const X = createIcon('x');
+
+const iconComponents = {
+  briefcase: BriefcaseBusiness,
+  check: CheckCircle2,
+  clock: Clock3,
+  file: FileText,
+  mail: Mail,
+  map: MapPin,
+  phone: Phone,
+  shield: ShieldCheck,
+  smartphone: Smartphone,
+};
 
 const languages = [
   { code: 'de', label: 'DE' },
   { code: 'hr', label: 'HR' },
 ];
 
-const timeSlots = ['08:30', '10:00', '11:30', '13:00', '14:30', '15:30'];
-
-// Set real values from a verified source before rendering public review proof.
-const trustProofConfig = {
-  googleRating: null,
-  googleReviewCount: null,
-  googleStars: 3,
+const pageUi = {
+  de: {
+    book: 'Erstgespräch anfragen', contact: 'Kontakt aufnehmen', focus: 'Worum es hier geht',
+    focusText: 'Unterlagen, Pflichten und Umfang werden für Ihre Situation geklärt.',
+    process: 'Ablauf', faq: 'Häufige Fragen zu', faqBody: 'Antworten zu Unterlagen, Zuständigkeiten und dem möglichen Leistungsumfang.',
+    next: 'Anfrage', contactDetails: 'Kontaktdaten ansehen', related: 'Im Zusammenhang relevant', home: 'Zur Startseite',
+    relatedLabel: 'Sachlich verwandte Leistungen', legal: 'Rechtliches',
+    provides: 'Was Sie üblicherweise bereitstellen', limits: 'Wichtige Abgrenzung',
+  },
+  hr: {
+    book: 'Zatražite prvi razgovor', contact: 'Obratite nam se', focus: 'Svrha usluge',
+    focusText: 'Dokumentacija, obveze i opseg utvrđuju se za vašu situaciju.',
+    process: 'Postupak', faq: 'Česta pitanja:', faqBody: 'Odgovori o dokumentaciji, odgovornostima i mogućem opsegu usluge.',
+    next: 'Upit', contactDetails: 'Pogledajte kontaktne podatke', related: 'Povezano s ovom uslugom', home: 'Na početnu stranicu',
+    relatedLabel: 'Sadržajno povezane usluge', legal: 'Pravne informacije',
+    provides: 'Što obično trebate dostaviti', limits: 'Važno razgraničenje',
+  },
 };
 
-const siteUrl = 'https://ristohajdukovic.github.io/minoconsult';
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
 
 function getRouteHref(path) {
@@ -88,12 +96,13 @@ function normalizeRoutePath(pathname) {
     path = path.slice(basePath.length);
   }
 
+  if (path === '/hr' || path === '/hr/') return '/hr/';
   path = path.replace(/\/+$/, '') || '/';
   return path;
 }
 
 function getCanonicalUrl(path) {
-  return `${siteUrl}${path === '/' ? '/' : path}`;
+  return absoluteUrl(SITE_URL, path);
 }
 
 function setMetaContent(selector, contentValue) {
@@ -123,6 +132,19 @@ function setCanonicalHref(url) {
   element.setAttribute('href', url);
 }
 
+function setAlternateHref(hreflang, url) {
+  let element = document.head.querySelector(`link[rel="alternate"][hreflang="${hreflang}"]`);
+
+  if (!element) {
+    element = document.createElement('link');
+    element.setAttribute('rel', 'alternate');
+    element.setAttribute('hreflang', hreflang);
+    document.head.appendChild(element);
+  }
+
+  element.setAttribute('href', url);
+}
+
 function useCurrentRoutePath() {
   const [routePath, setRoutePath] = useState(() => normalizeRoutePath(window.location.pathname));
 
@@ -136,593 +158,13 @@ function useCurrentRoutePath() {
   return routePath;
 }
 
-function resolveNavHref(href, routePath) {
+function resolveNavHref(href, routePath, language) {
   if (!href.startsWith('#')) return href;
-  if (routePath === '/' || href === '#contact' || href === '#top') return href;
-  return `${getRouteHref('/')}${href}`;
+  const homePath = language === 'hr' ? '/hr/' : '/';
+  if (routePath === homePath || href === '#contact' || href === '#top') return href;
+  return `${getRouteHref(homePath)}${href}`;
 }
 
-const content = {
-  de: {
-    pageTitle: 'MINO Consulting KG | Steuerberatung und Buchhaltung in Wien',
-    meta: {
-      languageLabel: 'Sprache',
-      menuLabel: 'Navigation umschalten',
-      appointmentAria: 'Termin bei MINO Consulting KG vereinbaren',
-    },
-    nav: [
-      { label: 'Leistungen', href: '#services' },
-      { label: 'Über uns', href: '#about' },
-      { label: 'Kontakt', href: '#contact' },
-    ],
-    cta: {
-      contact: 'Kontakt',
-      book: 'Termin vereinbaren',
-      call: 'Anrufen',
-      consultation: 'Erstgespräch vereinbaren',
-      scroll: 'Scrollen',
-      learnMore: 'Mehr erfahren',
-    },
-    hero: {
-      badge: 'Steuerberatung in Wien',
-      title: [
-        { text: 'Professionelle Wiener ' },
-        { text: 'Buchhaltung', em: true },
-        { text: ' und ' },
-        { text: 'Steuerberatung', em: true },
-      ],
-      body:
-        'MINO Consulting KG organisiert Belege, UVA-Fristen, Lohnverrechnung und Reporting, damit Unternehmen in Österreich mit aktuellen Zahlen und sauber dokumentierten Pflichten arbeiten.',
-      imageAlt: 'Beratungsgespräch zu Finanzplanung in einem hellen Büro',
-    },
-    value: {
-      statement:
-        'Wir sind eine Wiener Kanzlei, die Zahlen mit Entscheidungen verbindet. Aus komplexen Finanzdaten entstehen klare, umsetzbare Einblicke, damit Sie fundierte Entscheidungen treffen.',
-      features: [
-        {
-          icon: BriefcaseBusiness,
-          text: 'Von laufender Buchhaltung bis Lohnverrechnung: Leistungen, die auf österreichische Unternehmen abgestimmt sind.',
-        },
-        {
-          icon: ShieldCheck,
-          text: 'Wir führen UVA-Termine, FinanzOnline-Fristen und Meldeanforderungen in einer nachvollziehbaren Fristenliste zusammen.',
-        },
-        {
-          icon: FileText,
-          text: 'Jahresabschlüsse, Management Reports und geordnete Unterlagen unterstützen sichere Entscheidungen.',
-        },
-        {
-          icon: CheckCircle2,
-          text: 'Saubere Dokumentation, monatliche Abstimmungen und konkrete Hinweise zu SVS, Umsatzsteuer und Finanzamt halten Ihre Compliance im Blick.',
-        },
-      ],
-    },
-    servicesIntro: {
-      title: [
-        { text: 'Wir bieten ein breites Spektrum an ' },
-        { text: 'Rechnungswesen und Steuerleistungen', em: true },
-      ],
-      body:
-        'Individuelle Lösungen für Belegfluss, UVA, Lohnabrechnung und Jahresabschluss.',
-    },
-    services: [
-      {
-        id: 'buchhaltung-lohnverrechnung',
-        icon: BookOpen,
-        title: [
-          { text: 'Buchhaltung & ' },
-          { text: 'Lohnverrechnung', em: true },
-        ],
-        subtitle: 'Laufende Buchhaltung',
-        body:
-          'Monatliche und jährliche Buchhaltung, geordnete Belege, Lohnverrechnung, Gehaltsabrechnungen und klare Reporting-Routinen.',
-        details: [
-          'Laufende Verbuchung und Belegorganisation',
-          'UVA-Vorbereitung und Abstimmung offener Posten',
-          'Lohn- und Gehaltsabrechnungen inklusive Meldungen',
-          'Monatliche Auswertungen für bessere Entscheidungen',
-        ],
-        price: 'Ab €290/Monat',
-      },
-      {
-        id: 'steuerberatung-vertretung',
-        icon: Scale,
-        title: [{ text: 'Steuerberatung & Vertretung' }],
-        subtitle: 'Finanzamt & Erklärungen',
-        body:
-          'Einkommensteuer- und Körperschaftsteuererklärungen, Steuerplanung und Vertretung gegenüber dem österreichischen Finanzamt.',
-        details: [
-          'Einkommensteuer- und Körperschaftsteuererklärungen',
-          'Umsatzsteuerliche Fragen und Fristenplanung',
-          'Vertretung und Korrespondenz mit dem Finanzamt',
-          'Praktische Optimierung laufender Steuerlasten',
-        ],
-        price: 'Ab €180/Monat',
-      },
-      {
-        id: 'steuererklaerung-kleinunternehmer',
-        icon: FileText,
-        title: [{ text: 'Steuererklärung & Kleinunternehmer' }],
-        subtitle: 'Private & kleine Betriebe',
-        body:
-          'Einkommensteuererklärung, Arbeitnehmerveranlagung, Steuererklärung und Kleinunternehmer-Regelung für Personen und kleine Unternehmen in Österreich.',
-        details: [
-          'Einkommensteuererklärung für Selbstständige und Unternehmer',
-          'Arbeitnehmerveranlagung inklusive Beleg- und Absetzbetragsprüfung',
-          'Steuererklärung mit FinanzOnline-Fristen und Unterlagencheck',
-          'Kleinunternehmer-Regelung, Umsatzgrenzen und Wechsel zur Umsatzsteuerpflicht',
-        ],
-        price: 'Nach Aufwand',
-      },
-      {
-        id: 'jahresabschluss-reporting',
-        icon: FileCheck2,
-        title: [{ text: 'Jahresabschluss & Reporting' }],
-        subtitle: 'Abschluss & Auswertung',
-        body:
-          'Jahresabschluss, Finanzberichte, prüfungsbereite Unterlagen, Managementauswertungen und entscheidungsorientierte Prognosen.',
-        details: [
-          'Jahresabschluss und strukturierte Abschlussunterlagen',
-          'Management Reports mit klaren Kennzahlen',
-          'Liquiditätsplanung und Forecasts',
-          'Vorbereitung für Banken, Förderstellen oder Prüfungen',
-        ],
-        price: 'Ab €690/Jahr',
-      },
-      {
-        id: 'gruendung-unternehmensberatung',
-        icon: Sprout,
-        title: [{ text: 'Gründung & Unternehmensberatung' }],
-        subtitle: 'Start in Österreich',
-        body:
-          'Strategische Planung, Unterstützung bei der Gründung und finanzielle Grundlagen für neue Unternehmen und operative Entscheidungen.',
-        details: [
-          'Wahl der passenden Unternehmensstruktur',
-          'Finanzielle Planung vor und nach der Gründung',
-          'Registrierungs- und Behördenkoordination',
-          'Setup von Buchhaltung, Fristen und Reporting',
-        ],
-        price: 'Ab €490 einmalig',
-      },
-    ],
-    specialization: {
-      title: 'Spezialisierung auf ausgewählte Branchen',
-      body: 'Wir kennen die steuerlichen Eigenheiten Ihrer Branche.',
-      cards: [
-        {
-          title: 'Immobilien & Hausverwaltung',
-          body:
-            'Vorsteuerabzug bei Vermietung, Liebhaberei-Beurteilung, WEG-Abrechnung und Hausverwalter-Reporting.',
-        },
-        {
-          title: 'Gastronomie & Hotellerie',
-          body:
-            'Trinkgeld-Aufzeichnung, Pauschalierung, Registrierkassenpflicht und touristische Saisonbuchhaltung.',
-        },
-        {
-          title: 'Gründer & Selbstständige',
-          body:
-            'Rechtsformwahl, Sozialversicherung (SVS), Kleinunternehmer-Regelung und Förderberatung vor der ersten UVA-Meldung.',
-        },
-      ],
-    },
-    localServices: {
-      title: 'Beratung in Ihrer Nähe',
-      body: 'Lokale Schwerpunktseiten für Wien.',
-      label: 'Lokale Leistungsseiten',
-    },
-    about: {
-      badge: 'Über MINO',
-      founderImageAlt: 'Professioneller Berater im Anzug',
-      principalName: 'Mag. Tomislav Siketic',
-      principalRole: 'Steuerberater · Geschäftsführer',
-      principalRegistration: 'Mitglied der KSW',
-      title: [
-        { text: 'Finanzielle Klarheit für Wiener Unternehmen, von einem Team, das die ' },
-        { text: 'österreichische Steuerlandschaft', em: true },
-        { text: ' kennt.' },
-      ],
-      paragraphs: [
-        'Seit 1997 begleitet MINO Consulting Wiener Unternehmen durch Buchhaltung, Lohnverrechnung und Steuerangelegenheiten.',
-        'MINO Consulting KG verbindet lokales Know-how in Wien mit direkter Abstimmung zu FinanzOnline, UVA-Fristen, SVS-Themen und laufender Buchhaltung.',
-        'Wir begleiten Buchhaltung, Lohnverrechnung, Steuererklärungen, Jahresabschlüsse und Gründungsthemen mit Fokus auf Klarheit, Reaktionsfähigkeit und verlässliche Compliance.',
-      ],
-    },
-    faq: {
-      title: [
-        { text: 'Häufig gestellte ' },
-        { text: 'Fragen', em: true },
-      ],
-      body:
-        'Antworten zu Steuerberatung, Buchhaltung und Lohnverrechnung in Wien für Gründer, KMU und wachsende Unternehmen.',
-      items: [
-        {
-          question: 'Wann lohnt sich ein Steuerberater in Wien für ein Unternehmen?',
-          answer:
-            'Sobald laufende Buchhaltung, Umsatzsteuer, Lohnverrechnung oder Gründungsthemen Zeit kosten oder Risiken erzeugen. Ein Steuerberater in Wien hilft, Fristen einzuhalten, Unterlagen sauber aufzubereiten und Entscheidungen auf Basis aktueller Zahlen zu treffen.',
-        },
-        {
-          question: 'Welche Unterlagen braucht MINO Consulting KG für die laufende Buchhaltung?',
-          answer:
-            'In der Regel genügen Ausgangs- und Eingangsrechnungen, Bankunterlagen, Belege, Kassa-Daten und relevante Verträge. Im Erstgespräch klären wir, welche Unterlagen Ihr Unternehmen in Österreich konkret liefern sollte und wie der Austausch am effizientesten organisiert wird.',
-        },
-        {
-          question: 'Übernehmen Sie auch Lohnverrechnung in Wien?',
-          answer:
-            'Ja, wir unterstützen bei laufender Lohn- und Gehaltsverrechnung, An- und Abmeldungen, Meldungen an Behörden und einer sauberen monatlichen Abwicklung für Arbeitgeber in Österreich.',
-        },
-        {
-          question: 'Können Sie den Jahresabschluss und die Kommunikation mit dem Finanzamt begleiten?',
-          answer:
-            'Wir unterstützen bei Jahresabschluss, Auswertungen und der geordneten Vorbereitung von Unterlagen. Dazu gehört auch die laufende Kommunikation rund um steuerliche Themen und Rückfragen des Finanzamts.',
-        },
-        {
-          question: 'Ist eine Beratung auch für Gründer und Start-ups in Wien sinnvoll?',
-          answer:
-            'Gerade in der Gründungsphase ist strukturierte steuerliche und finanzielle Planung wichtig. Wir helfen bei Rechtsform, Fristen, Setup von Buchhaltung und einem praktikablen Start für Ihr Unternehmen in Wien.',
-        },
-        {
-          question: 'Wie läuft ein Erstgespräch mit MINO Consulting KG ab?',
-          answer:
-            'Im Erstgespräch besprechen wir Ihr Geschäftsmodell, aktuelle Prozesse, offene Fragen und Prioritäten. Danach erhalten Sie eine klare Empfehlung, welche Leistungen, Unterlagen und nächsten Schritte sinnvoll sind.',
-        },
-        {
-          question: 'Kann ich zu MINO Consulting KG wechseln, wenn ich bereits einen Steuerberater habe?',
-          answer:
-            'Ja. Ein Wechsel ist in vielen Fällen unkompliziert, wenn Unterlagen, Zugänge und Zuständigkeiten sauber übergeben werden. Wir unterstützen Sie dabei, den Übergang strukturiert zu organisieren.',
-        },
-      ],
-    },
-    contact: {
-      badge: 'Kontakt',
-      title: [
-        { text: 'Bereit für den ' },
-        { text: 'nächsten Schritt?', em: true },
-      ],
-      body:
-        'Senden Sie uns eine Anfrage, und wir klären gemeinsam, welche Unterlagen, Fristen und Entscheidungen als Nächstes anstehen.',
-      reassurance: 'Das Erstgespräch ist kostenlos und unverbindlich.',
-      button: 'Termin anfragen',
-      cards: [
-        { icon: Clock3, label: 'Öffnungszeiten', value: 'Mo-Fr: 8:00-16:00' },
-        { icon: Mail, label: 'E-Mail', value: 'office@mino-consulting.at' },
-        { icon: Phone, label: 'Büro', value: '+43 1 90 680 200' },
-        { icon: Smartphone, label: 'Mobil', value: '+43 660 21 99 444' },
-        { icon: MapPin, label: 'Adresse', value: 'Geblergasse 95/8, 1170 Wien' },
-        { icon: CalendarDays, label: 'Beratung', value: 'Vor Ort oder online nach Termin' },
-      ],
-      mapTitle: 'Standort in Wien',
-      mapAddress: 'Geblergasse 95/8, 1170 Wien',
-      backTop: 'Nach oben',
-    },
-    booking: {
-      title: 'Termin vereinbaren',
-      intro:
-        'Wählen Sie Thema, Zeitpunkt und Kontaktangaben. Die Anfrage wird vorbereitet und kann direkt per E-Mail an MINO Consulting KG gesendet werden.',
-      serviceLabel: 'Beratungsthema',
-      modeLabel: 'Format',
-      dateLabel: 'Datum',
-      timeLabel: 'Uhrzeit',
-      nameLabel: 'Name',
-      companyLabel: 'Unternehmen',
-      emailLabel: 'E-Mail',
-      phoneLabel: 'Telefon',
-      messageLabel: 'Nachricht',
-      messagePlaceholder: 'Kurz beschreiben, wobei Sie Unterstützung benötigen.',
-      submit: 'Anfrage prüfen',
-      sendEmail: 'Per E-Mail senden',
-      newRequest: 'Neue Anfrage',
-      close: 'Schließen',
-      securityText: 'Ihre Daten sind 100% sicher - keine Weitergabe an Dritte',
-      responseBadge: '⏱ Antwort in 24h',
-      required: 'Bitte füllen Sie Thema, Datum, Uhrzeit, Name und E-Mail aus.',
-      successTitle: 'Ihre Terminanfrage ist vorbereitet.',
-      successBody:
-        'Prüfen Sie die Zusammenfassung und senden Sie die Anfrage per E-Mail. Eine echte Buchung wird bestätigt, sobald MINO Consulting KG antwortet.',
-      modes: ['Online', 'Vor Ort', 'Telefonisch'],
-      services: [
-        'Erstgespräch',
-        'Buchhaltung & Lohnverrechnung',
-        'Steuerberatung',
-        'Einkommensteuererklärung',
-        'Arbeitnehmerveranlagung',
-        'Steuererklärung',
-        'Kleinunternehmer',
-        'Jahresabschluss & Reporting',
-        'Gründung & Beratung',
-      ],
-    },
-  },
-  hr: {
-    pageTitle: 'MINO Consulting KG | Računovodstvo i porezno savjetovanje u Beču',
-    meta: {
-      languageLabel: 'Jezik',
-      menuLabel: 'Otvori navigaciju',
-      appointmentAria: 'Zakaži konsultacije sa MINO Consulting KG',
-    },
-    nav: [
-      { label: 'Usluge', href: '#services' },
-      { label: 'O nama', href: '#about' },
-      { label: 'Kontakt', href: '#contact' },
-    ],
-    cta: {
-      contact: 'Kontakt',
-      book: 'Zakaži termin',
-      call: 'Pozovite nas',
-      consultation: 'Zakaži prvi razgovor',
-      scroll: 'Skroluj',
-      learnMore: 'Saznaj više',
-    },
-    hero: {
-      badge: 'Računovodstvo u Beču',
-      title: [
-        { text: 'Profesionalno računovodstvo i ' },
-        { text: 'porezno savjetovanje', em: true },
-        { text: ' u Beču' },
-      ],
-      body:
-        'MINO Consulting KG organizuje dokumentaciju, PDV rokove, obračun plata i izvještavanje, kako bi firme u Austriji radile sa ažurnim brojkama i urednim obavezama.',
-      imageAlt: 'Poslovni savjetnici razgovaraju o finansijskom planiranju u svijetloj kancelariji',
-    },
-    value: {
-      statement:
-        'Mi smo računovodstvena kancelarija iz Beča koja povezuje brojke i odluke. Kompleksne finansijske podatke prevodimo u jasne uvide koje možete odmah koristiti.',
-      features: [
-        {
-          icon: BriefcaseBusiness,
-          text: 'Od knjigovodstva do obračuna plata: usluge prilagođene firmama koje posluju u Austriji.',
-        },
-        {
-          icon: ShieldCheck,
-          text: 'PDV rokove, FinanzOnline obaveze i prijave vodimo kroz preglednu listu rokova.',
-        },
-        {
-          icon: FileText,
-          text: 'Godišnji završni računi, izvještaji i uredna dokumentacija podržavaju sigurne poslovne odluke.',
-        },
-        {
-          icon: CheckCircle2,
-          text: 'Uredna dokumentacija, mjesečna usklađivanja i konkretne napomene za SVS, PDV i Finanzamt drže compliance pod kontrolom.',
-        },
-      ],
-    },
-    servicesIntro: {
-      title: [
-        { text: 'Pružamo širok spektar ' },
-        { text: 'računovodstvenih i poreznih usluga', em: true },
-      ],
-      body:
-        'Individualna rješenja za dokumentaciju, PDV, obračun plata i godišnji završni račun.',
-    },
-    services: [
-      {
-        id: 'knjigovodstvo-obracun-plata',
-        icon: BookOpen,
-        title: [
-          { text: 'Knjigovodstvo & ' },
-          { text: 'obračun plata', em: true },
-        ],
-        subtitle: 'Tekuće računovodstvo',
-        body:
-          'Mjesečno i godišnje knjigovodstvo, organizovani dokumenti, obračun plata, platne liste i jasni ritmovi izvještavanja.',
-        details: [
-          'Tekuće knjiženje i organizacija dokumentacije',
-          'Priprema PDV prijava i usklađivanje otvorenih stavki',
-          'Obračun plata i potrebne prijave',
-          'Mjesečni izvještaji za jasnije odluke',
-        ],
-        price: 'Od €290/mjesec',
-      },
-      {
-        id: 'porezno-savjetovanje-zastupanje',
-        icon: Scale,
-        title: [{ text: 'Porezno savjetovanje & zastupanje' }],
-        subtitle: 'Finanzamt & prijave',
-        body:
-          'Porezne prijave za fizička i pravna lica, porezno planiranje i zastupanje pred austrijskim Finanzamtom.',
-        details: [
-          'Porezne prijave za fizička i pravna lica',
-          'Planiranje rokova i pitanja vezana za PDV',
-          'Zastupanje i komunikacija sa Finanzamtom',
-          'Praktična optimizacija poreznih obaveza',
-        ],
-        price: 'Od €180/mjesec',
-      },
-      {
-        id: 'porezne-prijave-kleinunternehmer',
-        icon: FileText,
-        title: [{ text: 'Porezne prijave & Kleinunternehmer' }],
-        subtitle: 'Privatno & mali biznisi',
-        body:
-          'Einkommensteuererklärung, Arbeitnehmerveranlagung, Steuererklärung i Kleinunternehmer pravila za osobe i male firme u Austriji.',
-        details: [
-          'Einkommensteuererklärung za samozaposlene i vlasnike firmi',
-          'Arbeitnehmerveranlagung uz pregled dokumenata i odbitnih stavki',
-          'Steuererklärung sa FinanzOnline rokovima i provjerom dokumentacije',
-          'Kleinunternehmer regulativa, pragovi prometa i prelazak u PDV obavezu',
-        ],
-        price: 'Prema obimu posla',
-      },
-      {
-        id: 'godisnji-obracun-reporting',
-        icon: FileCheck2,
-        title: [{ text: 'Godišnji obračun & reporting' }],
-        subtitle: 'Izvještaji & analiza',
-        body:
-          'Godišnji završni računi, finansijski izvještaji, dokumentacija spremna za kontrolu, menadžerski izvještaji i prognoze.',
-        details: [
-          'Godišnji završni računi i uredna dokumentacija',
-          'Menadžerski izvještaji sa jasnim pokazateljima',
-          'Planiranje likvidnosti i prognoze',
-          'Priprema za banke, kontrole ili subvencije',
-        ],
-        price: 'Od €690/godina',
-      },
-      {
-        id: 'osnivanje-firme-savjetovanje',
-        icon: Sprout,
-        title: [{ text: 'Osnivanje firme & savjetovanje' }],
-        subtitle: 'Početak u Austriji',
-        body:
-          'Strateško planiranje, podrška pri osnivanju i finansijske osnove za nove firme i operativne odluke.',
-        details: [
-          'Odabir odgovarajuće strukture firme',
-          'Finansijsko planiranje prije i poslije osnivanja',
-          'Koordinacija registracije i administracije',
-          'Setup knjigovodstva, rokova i izvještavanja',
-        ],
-        price: 'Od €490 jednokratno',
-      },
-    ],
-    specialization: {
-      title: 'Specijalizacija za odabrane branše',
-      body: 'Poznajemo porezne specifičnosti vaše djelatnosti.',
-      cards: [
-        {
-          title: 'Nekretnine & upravljanje objektima',
-          body:
-            'Odbitak pretporeza kod najma, procjena Liebhaberei rizika, WEG obračuni i izvještaji za upravitelje zgrada.',
-        },
-        {
-          title: 'Gastronomija & hotelijerstvo',
-          body:
-            'Evidencija napojnica, paušaliranje, obaveze registracione kase i sezonsko knjigovodstvo za turizam.',
-        },
-        {
-          title: 'Osnivači & samozaposleni',
-          body:
-            'Izbor pravne forme, socijalno osiguranje (SVS), Kleinunternehmer regulativa i savjetovanje prije prve PDV prijave.',
-        },
-      ],
-    },
-    localServices: {
-      title: 'Savjetovanje u vašoj blizini',
-      body: 'Lokalne fokus stranice za Beč.',
-      label: 'Lokalne usluge',
-    },
-    about: {
-      badge: 'O MINO',
-      founderImageAlt: 'Profesionalni savjetnik u odijelu',
-      principalName: 'Mag. Tomislav Siketic',
-      principalRole: 'Porezni savjetnik · direktor',
-      principalRegistration: 'Član KSW',
-      title: [
-        { text: 'Finansijski pregled za firme u Beču, uz tim koji poznaje ' },
-        { text: 'austrijski porezni sistem', em: true },
-        { text: '.' },
-      ],
-      paragraphs: [
-        'Od 1997. godine MINO Consulting prati bečka preduzeća kroz računovodstvo, obračun plaća i porezne poslove.',
-        'MINO Consulting KG spaja lokalno iskustvo u Beču sa direktnom koordinacijom oko FinanzOnline, PDV rokova, SVS tema i tekućeg knjigovodstva.',
-        'Podržavamo knjigovodstvo, obračun plata, porezne prijave, godišnje završne račune i osnivanje firme uz fokus na jasnoću, brz odgovor i pouzdan compliance.',
-      ],
-    },
-    faq: {
-      title: [
-        { text: 'Česta ' },
-        { text: 'pitanja', em: true },
-      ],
-      body:
-        'Odgovori na najčešća pitanja o poreznom savjetovanju, knjigovodstvu i obračunu plata u Beču za osnivače, mala i srednja preduzeća.',
-      items: [
-        {
-          question: 'Kada se isplati angažovati poreznog savjetnika u Beču za firmu?',
-          answer:
-            'Čim tekuće knjigovodstvo, PDV, obračun plata ili pitanja vezana za osnivanje počnu trošiti vrijeme ili stvarati rizik. Porezni savjetnik u Beču pomaže da rokovi budu pod kontrolom, dokumentacija uredna i odluke zasnovane na stvarnim brojkama.',
-        },
-        {
-          question: 'Koju dokumentaciju MINO Consulting KG treba za tekuće knjigovodstvo?',
-          answer:
-            'Najčešće su potrebne izlazne i ulazne fakture, bankovni izvodi, fiskalni i ostali računi, blagajnički podaci i relevantni ugovori. Na prvom sastanku preciziramo šta je vašoj firmi u Austriji potrebno pripremiti i kako najefikasnije organizovati razmjenu dokumenata.',
-        },
-        {
-          question: 'Da li preuzimate i obračun plata u Beču?',
-          answer:
-            'Da. Pomažemo kod redovnog obračuna plata i zarada, prijava i odjava zaposlenih, potrebnih prijava prema institucijama i uredne mjesečne administracije za poslodavce u Austriji.',
-        },
-        {
-          question: 'Možete li voditi godišnji završni račun i komunikaciju sa Finanzamtom?',
-          answer:
-            'Podržavamo pripremu godišnjeg završnog računa, izvještaja i uredne dokumentacije za poslovne odluke. U to spada i tekuća komunikacija oko poreznih pitanja i upita koje može postaviti Finanzamt.',
-        },
-        {
-          question: 'Da li je savjetovanje korisno i za osnivače i startupe u Beču?',
-          answer:
-            'Posebno u fazi osnivanja vrijedi imati jasnu poreznu i finansijsku strukturu. Pomažemo kod izbora forme firme, rokova, postavke knjigovodstva i praktičnog starta poslovanja u Beču.',
-        },
-        {
-          question: 'Kako izgleda prvi razgovor sa MINO Consulting KG?',
-          answer:
-            'Na prvom razgovoru prolazimo kroz vaš poslovni model, sadašnje procese, otvorena pitanja i prioritete. Nakon toga dobijate jasan prijedlog koje usluge, dokumenti i naredni koraci imaju najviše smisla.',
-        },
-        {
-          question: 'Mogu li preći u MINO Consulting KG ako već imam poreznog savjetnika?',
-          answer:
-            'Da. Promjena je u mnogim slučajevima jednostavna kada se dokumentacija, pristupi i odgovornosti uredno prenesu. Pomažemo da tranzicija bude organizovana i pregledna.',
-        },
-      ],
-    },
-    contact: {
-      badge: 'Kontakt',
-      title: [
-        { text: 'Spremni za ' },
-        { text: 'sljedeći korak?', em: true },
-      ],
-      body:
-        'Pošaljite nam upit i zajedno ćemo razjasniti dokumente, rokove i odluke koje su vam sada najvažnije.',
-      reassurance: 'Prvi razgovor je besplatan i neobavezan.',
-      button: 'Pošalji upit',
-      cards: [
-        { icon: Clock3, label: 'Radno vrijeme', value: 'Pon-Pet: 8:00-16:00' },
-        { icon: Mail, label: 'E-mail', value: 'office@mino-consulting.at' },
-        { icon: Phone, label: 'Telefon', value: '+43 1 90 680 200' },
-        { icon: Smartphone, label: 'Mobilni', value: '+43 660 21 99 444' },
-        { icon: MapPin, label: 'Adresa', value: 'Geblergasse 95/8, 1170 Wien' },
-        { icon: CalendarDays, label: 'Konsultacije', value: 'U kancelariji ili online po dogovoru' },
-      ],
-      mapTitle: 'Lokacija u Beču',
-      mapAddress: 'Geblergasse 95/8, 1170 Wien',
-      backTop: 'Na vrh',
-    },
-    booking: {
-      title: 'Zakaži termin',
-      intro:
-        'Odaberite temu, datum, vrijeme i unesite kontakt podatke. Upit se priprema za slanje e-mailom firmi MINO Consulting KG.',
-      serviceLabel: 'Tema konsultacija',
-      modeLabel: 'Format',
-      dateLabel: 'Datum',
-      timeLabel: 'Vrijeme',
-      nameLabel: 'Ime i prezime',
-      companyLabel: 'Firma',
-      emailLabel: 'E-mail',
-      phoneLabel: 'Telefon',
-      messageLabel: 'Poruka',
-      messagePlaceholder: 'Ukratko opišite gdje vam je potrebna podrška.',
-      submit: 'Pregledaj upit',
-      sendEmail: 'Pošalji e-mail',
-      newRequest: 'Novi upit',
-      close: 'Zatvori',
-      securityText: 'Vaši podaci su 100% sigurni - bez prosljeđivanja trećim stranama',
-      responseBadge: '⏱ Odgovor u 24h',
-      required: 'Molimo unesite temu, datum, vrijeme, ime i e-mail.',
-      successTitle: 'Vaš upit za termin je pripremljen.',
-      successBody:
-        'Provjerite sažetak i pošaljite upit e-mailom. Termin je potvrđen tek nakon odgovora MINO Consulting KG.',
-      modes: ['Online', 'U kancelariji', 'Telefonski'],
-      services: [
-        'Prvi razgovor',
-        'Knjigovodstvo & obračun plata',
-        'Porezno savjetovanje',
-        'Einkommensteuererklärung',
-        'Arbeitnehmerveranlagung',
-        'Steuererklärung',
-        'Kleinunternehmer',
-        'Godišnji obračun & reporting',
-        'Osnivanje firme & savjetovanje',
-      ],
-    },
-  },
-};
 
 function RichText({ parts }) {
   return (
@@ -731,6 +173,20 @@ function RichText({ parts }) {
         part.em ? <em key={`${part.text}-${index}`}>{part.text}</em> : <React.Fragment key={`${part.text}-${index}`}>{part.text}</React.Fragment>,
       )}
     </>
+  );
+}
+
+const germanTerms = /(Finanzamt|FinanzOnline|Arbeitnehmerveranlagung|Kleinunternehmer|Steuerberater|WTBG 2017|WT-ARL|Liebhaberei|WEG)/g;
+
+function LocalizedText({ text, language }) {
+  if (language !== 'hr' || !germanTerms.test(text)) {
+    germanTerms.lastIndex = 0;
+    return text;
+  }
+
+  germanTerms.lastIndex = 0;
+  return text.split(germanTerms).map((part, index) =>
+    index % 2 === 1 ? <span lang="de" key={`${part}-${index}`}>{part}</span> : part,
   );
 }
 
@@ -858,62 +314,106 @@ function useDelayedStickyHeader() {
   return heroCtaScrolledOut && scrolledPastHero;
 }
 
-function LanguageSwitcher({ language, setLanguage, label }) {
+function useMobileMenu(isEnabled) {
+  const [isOpen, setIsOpen] = useState(false);
+  const buttonRef = useRef(null);
+  const menuRef = useRef(null);
+
+  const closeMenu = (restoreFocus = true) => {
+    setIsOpen(false);
+    if (restoreFocus) window.requestAnimationFrame(() => buttonRef.current?.focus());
+  };
+
+  useEffect(() => {
+    if (!isEnabled && isOpen) setIsOpen(false);
+  }, [isEnabled, isOpen]);
+
+  useEffect(() => {
+    if (!isOpen) return undefined;
+    const unlockBodyScroll = lockBodyScroll();
+    const firstFocusable = menuRef.current?.querySelector(FOCUSABLE_SELECTOR);
+    window.requestAnimationFrame(() => firstFocusable?.focus());
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        closeMenu(true);
+      }
+    };
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+      unlockBodyScroll();
+    };
+  }, [isOpen]);
+
+  return { isOpen, setIsOpen, closeMenu, buttonRef, menuRef };
+}
+
+function LanguageSwitcher({ page, label }) {
   return (
     <div className="language-switcher" aria-label={label}>
       {languages.map((item) => (
-        <button
+        <a
           key={item.code}
-          type="button"
-          className={language === item.code ? 'is-active' : ''}
-          onClick={() => setLanguage(item.code)}
+          className={page.language === item.code ? 'is-active' : ''}
+          href={getRouteHref(page.alternatePaths[item.code])}
+          hrefLang={item.code === 'de' ? 'de-AT' : 'hr'}
+          lang={item.code}
+          aria-current={page.language === item.code ? 'page' : undefined}
         >
           {item.label}
-        </button>
+        </a>
       ))}
     </div>
   );
 }
 
-function BrandLogo({ routePath, onClick }) {
+function BrandLogo({ routePath, language, onClick }) {
+  const homePath = language === 'hr' ? '/hr/' : '/';
   return (
-    <a href={routePath === '/' ? '#top' : getRouteHref('/')} className="brand-logo" onClick={onClick} aria-label="MINO Consulting KG">
-      <img src={`${import.meta.env.BASE_URL}mino-logo.svg`} alt="MINO Consulting KG" />
+    <a href={routePath === homePath ? '#top' : getRouteHref(homePath)} className="brand-logo" onClick={onClick} aria-label="MINO Consulting KG">
+      <img src={`${import.meta.env.BASE_URL}mino-logo.svg`} alt="" width="344" height="143" />
     </a>
   );
 }
 
-function Header({ t, language, setLanguage, onBook, routePath, showLanguageSwitcher = true }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const closeMenu = () => setIsOpen(false);
+function Header({ t, page, onBook, routePath, isInert = false }) {
+  const { isOpen, setIsOpen, closeMenu, buttonRef, menuRef } = useMobileMenu(!isInert);
+  const mobileMenuId = 'primary-mobile-menu';
 
   return (
-    <header className="site-header relative z-50 border-b border-forest/50 bg-white">
-      <nav className="section-shell flex h-[4.5rem] items-center justify-between sm:h-[4.75rem]" aria-label="Main navigation">
-        <BrandLogo routePath={routePath} onClick={closeMenu} />
+    <header
+      className="site-header relative z-50 border-b border-forest/50 bg-white"
+      aria-hidden={isInert || undefined}
+      inert={isInert ? true : undefined}
+    >
+      <nav className="section-shell header-navigation flex h-[4.5rem] items-center justify-between sm:h-[4.75rem]" aria-label={t.meta.primaryNavigationLabel}>
+        <BrandLogo routePath={routePath} language={page.language} onClick={() => closeMenu(false)} />
 
         <div className="hidden items-center gap-8 md:flex">
           {t.nav.map((item) => (
-            <a key={item.href} className="nav-link" href={resolveNavHref(item.href, routePath)}>
+            <a key={item.href} className="nav-link" href={resolveNavHref(item.href, routePath, page.language)}>
               {item.label}
             </a>
           ))}
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3">
-          {showLanguageSwitcher && (
-            <LanguageSwitcher language={language} setLanguage={setLanguage} label={t.meta.languageLabel} />
-          )}
+          <LanguageSwitcher page={page} label={t.meta.languageLabel} />
           <div className="hidden sm:block">
             <button className="button-primary" type="button" onClick={onBook}>
               {t.cta.book}
             </button>
           </div>
           <button
+            ref={buttonRef}
             className="hamburger-button md:hidden"
             type="button"
             aria-label={t.meta.menuLabel}
             aria-expanded={isOpen}
+            aria-controls={mobileMenuId}
             onClick={() => setIsOpen((current) => !current)}
           >
             {isOpen ? (
@@ -930,64 +430,70 @@ function Header({ t, language, setLanguage, onBook, routePath, showLanguageSwitc
       </nav>
 
       {isOpen && (
-        <div className="mobile-menu-panel border-t border-forest/50 bg-white md:hidden">
+        <nav
+          ref={menuRef}
+          id={mobileMenuId}
+          className="mobile-menu-panel border-t border-forest/50 bg-white md:hidden"
+          aria-label={t.meta.mobileNavigationLabel}
+        >
           <div className="section-shell grid gap-3 py-5">
             {t.nav.map((item) => (
-              <a key={item.href} className="nav-link py-2" href={resolveNavHref(item.href, routePath)} onClick={closeMenu}>
+              <a key={item.href} className="nav-link py-2" href={resolveNavHref(item.href, routePath, page.language)} onClick={() => closeMenu(false)}>
                 {item.label}
               </a>
             ))}
             <button
               className="button-primary mt-2"
               type="button"
-              onClick={() => {
-                closeMenu();
-                onBook();
+              onClick={(event) => {
+                closeMenu(false);
+                onBook(event);
               }}
             >
               {t.cta.book}
             </button>
           </div>
-        </div>
+        </nav>
       )}
     </header>
   );
 }
 
-function DelayedStickyHeader({ t, language, setLanguage, onBook, isVisible, routePath, showLanguageSwitcher = true }) {
-  const [isOpen, setIsOpen] = useState(false);
-
-  useEffect(() => {
-    if (!isVisible) setIsOpen(false);
-  }, [isVisible]);
+function DelayedStickyHeader({ t, page, onBook, isVisible, routePath }) {
+  const { isOpen, setIsOpen, closeMenu, buttonRef, menuRef } = useMobileMenu(isVisible);
+  const mobileMenuId = 'sticky-mobile-menu';
 
   return (
-    <header className={`delayed-sticky-header ${isVisible ? 'is-visible' : ''}`}>
-      <nav className="section-shell flex h-[4.5rem] items-center justify-between sm:h-16" aria-label="Sticky navigation">
-        <BrandLogo routePath={routePath} onClick={() => setIsOpen(false)} />
+    <header
+      className={`delayed-sticky-header ${isVisible ? 'is-visible' : ''}`}
+      aria-hidden={!isVisible}
+      inert={!isVisible ? true : undefined}
+    >
+      <nav className="section-shell header-navigation flex h-[4.5rem] items-center justify-between sm:h-16" aria-label={t.meta.stickyNavigationLabel}>
+        <BrandLogo routePath={routePath} language={page.language} onClick={() => closeMenu(false)} />
 
         <div className="hidden items-center gap-8 md:flex">
           {t.nav.map((item) => (
-            <a key={item.href} className="nav-link" href={resolveNavHref(item.href, routePath)}>
+            <a key={item.href} className="nav-link" href={resolveNavHref(item.href, routePath, page.language)}>
               {item.label}
             </a>
           ))}
         </div>
 
         <div className="flex items-center gap-2 sm:gap-3">
-          {showLanguageSwitcher && (
-            <LanguageSwitcher language={language} setLanguage={setLanguage} label={t.meta.languageLabel} />
-          )}
+          <LanguageSwitcher page={page} label={t.meta.languageLabel} />
           <div className="hidden sm:block">
             <button className="button-primary py-2.5" type="button" onClick={onBook}>
               {t.cta.book}
             </button>
           </div>
           <button
+            ref={buttonRef}
             className="hamburger-button md:hidden"
             type="button"
             aria-label={t.meta.menuLabel}
             aria-expanded={isOpen}
+            aria-controls={mobileMenuId}
             onClick={() => setIsOpen((current) => !current)}
           >
             {isOpen ? (
@@ -1004,45 +510,37 @@ function DelayedStickyHeader({ t, language, setLanguage, onBook, isVisible, rout
       </nav>
 
       {isVisible && isOpen && (
-        <div className="mobile-menu-panel border-t border-forest/50 bg-white md:hidden">
+        <nav
+          ref={menuRef}
+          id={mobileMenuId}
+          className="mobile-menu-panel border-t border-forest/50 bg-white md:hidden"
+          aria-label={t.meta.mobileNavigationLabel}
+        >
           <div className="section-shell grid gap-3 py-5">
             {t.nav.map((item) => (
-              <a key={item.href} className="nav-link py-2" href={resolveNavHref(item.href, routePath)} onClick={() => setIsOpen(false)}>
+              <a key={item.href} className="nav-link py-2" href={resolveNavHref(item.href, routePath, page.language)} onClick={() => closeMenu(false)}>
                 {item.label}
               </a>
             ))}
             <button
               className="button-primary mt-2"
               type="button"
-              onClick={() => {
-                setIsOpen(false);
-                onBook();
+              onClick={(event) => {
+                closeMenu(false);
+                onBook(event);
               }}
             >
               {t.cta.book}
             </button>
           </div>
-        </div>
+        </nav>
       )}
     </header>
   );
 }
 
-function getGoogleRatingText(language) {
-  if (!trustProofConfig.googleRating) return '';
-
-  const label = language === 'de' ? 'Google Bewertung' : 'Google ocjena';
-
-  if (!trustProofConfig.googleReviewCount) {
-    return `${label}: ${trustProofConfig.googleRating}`;
-  }
-
-  const reviewLabel = language === 'de' ? 'Bewertungen' : 'recenzija';
-  return `${label}: ${trustProofConfig.googleRating} (${trustProofConfig.googleReviewCount} ${reviewLabel})`;
-}
-
 function getOfficePhone(t) {
-  return t.contact.cards.find((item) => item.icon === Phone)?.value ?? '';
+  return t.contact.cards.find((item) => item.icon === 'phone')?.value ?? '';
 }
 
 function getPhoneHref(phoneNumber) {
@@ -1050,12 +548,12 @@ function getPhoneHref(phoneNumber) {
 }
 
 function getContactHref(item) {
-  if (item.icon === Mail) return `mailto:${item.value}`;
-  if (item.icon === Phone || item.icon === Smartphone) return getPhoneHref(item.value);
+  if (item.icon === 'mail') return `mailto:${item.value}`;
+  if (item.icon === 'phone' || item.icon === 'smartphone') return getPhoneHref(item.value);
   return null;
 }
 
-function renderLegalItem(item) {
+function renderLegalItem(item, language, newWindowText) {
   const emailMatch = item.match(/office@mino-consulting\.at/);
   const officePhoneMatch = item.match(/\+43\s1\s90\s680\s200/);
   const mobilePhoneMatch = item.match(/\+43\s660\s21\s99\s444/);
@@ -1090,19 +588,25 @@ function renderLegalItem(item) {
     const matchedLink = kswMatch?.[0] ?? odrMatch?.[0] ?? websiteMatch[0];
     const href = matchedLink.startsWith('http') ? matchedLink : `https://${matchedLink}`;
     const [before, after] = item.split(matchedLink);
+    const opensNewWindow = Boolean(kswMatch || odrMatch);
 
     return (
       <>
-        {before}
-        <a href={href} target="_blank" rel="noopener noreferrer">
+        <LocalizedText text={before} language={language} />
+        <a
+          href={href}
+          target={opensNewWindow ? '_blank' : undefined}
+          rel={opensNewWindow ? 'noopener noreferrer' : undefined}
+          aria-label={opensNewWindow ? `${matchedLink} (${newWindowText})` : undefined}
+        >
           {matchedLink}
         </a>
-        {after}
+        <LocalizedText text={after} language={language} />
       </>
     );
   }
 
-  return item;
+  return <LocalizedText text={item} language={language} />;
 }
 
 function HeroImage({ t, className = '' }) {
@@ -1110,9 +614,14 @@ function HeroImage({ t, className = '' }) {
     <div className={className}>
       <div className="hero-image-frame">
         <img
-          className="h-32 w-full rounded-t-md object-cover sm:h-[31rem]"
-          src="https://images.unsplash.com/photo-1551836022-d5d88e9218df?auto=format&fit=crop&w=1400&q=82"
+          className="w-full rounded-t-md object-cover"
+          src={`${import.meta.env.BASE_URL}images/hero/mino-office-consultation-placeholder.svg`}
           alt={t.hero.imageAlt}
+          width="1400"
+          height="933"
+          fetchPriority="high"
+          sizes="(min-width: 1024px) 46vw, 100vw"
+          onError={(event) => event.currentTarget.classList.add('is-unavailable')}
         />
         <a className="scroll-badge" href="#value">
           {t.cta.scroll}
@@ -1131,10 +640,11 @@ function Hero({ t, onBook }) {
     <section id="top" className="hero-section relative overflow-hidden">
       <div className="section-shell hero-layout">
         <div className="hero-copy reveal">
+          <p className="hero-kicker">{t.hero.label}</p>
           <h1>
             <RichText parts={t.hero.title} />
           </h1>
-          <p className="mt-4 max-w-lg text-forest/75 sm:mt-5">{t.hero.body}</p>
+          <p className="mt-4 max-w-lg text-forest/75 sm:mt-5"><LocalizedText text={t.hero.body} language={t.language} /></p>
 
           <div className="hero-actions reveal reveal-delay-2" data-hero-cta>
             <button className="button-primary w-full sm:w-auto" type="button" onClick={onBook}>
@@ -1143,17 +653,34 @@ function Hero({ t, onBook }) {
             <a
               className="button-secondary w-full sm:w-auto"
               href={phoneHref}
-              aria-label={`MINO Consulting anrufen: ${officePhone}`}
+              aria-label={`${t.cta.callAria}: ${officePhone}`}
             >
               {t.cta.call}
             </a>
           </div>
 
-          <HeroImage t={t} className="mt-6 lg:hidden" />
         </div>
 
-        <HeroImage t={t} className="hero-visual relative hidden lg:block reveal reveal-delay-1" />
+        <HeroImage t={t} className="hero-visual relative reveal reveal-delay-1" />
       </div>
+    </section>
+  );
+}
+
+function VerifiedFactsStrip({ language }) {
+  const facts = getPublicTrustFacts(language);
+  if (facts.length === 0) return null;
+
+  return (
+    <section className="verified-facts-section" aria-label={language === 'hr' ? 'Provjereni podaci' : 'Verifizierte Angaben'}>
+      <dl className="section-shell verified-facts-list">
+        {facts.map((fact) => (
+          <div key={fact.label} className="verified-fact">
+            <dt>{fact.label}</dt>
+            <dd>{fact.value}</dd>
+          </div>
+        ))}
+      </dl>
     </section>
   );
 }
@@ -1166,13 +693,13 @@ function ValueProposition({ t }) {
 
         <div className="value-feature-grid">
           {t.value.features.map((item, index) => {
-            const Icon = item.icon;
+            const Icon = iconComponents[item.icon];
             return (
               <article key={item.text} className={`feature-item reveal reveal-delay-${Math.min(index, 2)}`}>
                 <span className="feature-icon">
                   <Icon size={18} aria-hidden="true" />
                 </span>
-                <p>{item.text}</p>
+                <p><LocalizedText text={item.text} language={t.language} /></p>
               </article>
             );
           })}
@@ -1182,59 +709,48 @@ function ValueProposition({ t }) {
   );
 }
 
-const servicePageById = {
-  'buchhaltung-lohnverrechnung': '/buchhaltung-wien',
-  'steuerberatung-vertretung': '/steuerberatung-wien',
-  'steuererklaerung-kleinunternehmer': '/steuerberatung-wien',
-  'jahresabschluss-reporting': '/jahresabschluss-wien',
-  'gruendung-unternehmensberatung': '/unternehmensgruendung-wien',
-  'porezno-savjetovanje-zastupanje': '/steuerberatung-wien',
-  'porezne-prijave-kleinunternehmer': '/steuerberatung-wien',
-  'godisnji-obracun-reporting': '/jahresabschluss-wien',
-  'osnivanje-poslovno-savjetovanje': '/unternehmensgruendung-wien',
-};
-
-function Services({ t }) {
+function Services({ t, language }) {
   const servicesListRef = useRef(null);
   const [activeServiceIndex, setActiveServiceIndex] = useState(0);
 
   useEffect(() => {
     const list = servicesListRef.current;
     if (!list) return undefined;
+    const motionQuery = window.matchMedia('(min-width: 1024px) and (prefers-reduced-motion: no-preference)');
+    let observer;
 
-    let frameId = 0;
+    const observeServices = () => {
+      observer?.disconnect();
+      if (!motionQuery.matches || !('IntersectionObserver' in window)) {
+        setActiveServiceIndex(0);
+        return;
+      }
 
-    const updateActiveService = () => {
-      window.cancelAnimationFrame(frameId);
-      frameId = window.requestAnimationFrame(() => {
-        const items = Array.from(list.querySelectorAll('.service-editorial-item'));
-        const readingLine = window.innerHeight * 0.36;
+      const ratios = new Map();
+      const items = Array.from(list.querySelectorAll('.service-editorial-item'));
+      observer = new IntersectionObserver((entries) => {
+        entries.forEach((entry) => ratios.set(entry.target, entry.isIntersecting ? entry.intersectionRatio : 0));
         let nextIndex = 0;
-        let closestDistance = Number.POSITIVE_INFINITY;
-
+        let highestRatio = 0;
         items.forEach((item, index) => {
-          const rect = item.getBoundingClientRect();
-          const anchor = rect.top + rect.height * 0.28;
-          const distance = Math.abs(anchor - readingLine);
-
-          if (distance < closestDistance) {
-            closestDistance = distance;
+          const ratio = ratios.get(item) ?? 0;
+          if (ratio > highestRatio) {
+            highestRatio = ratio;
             nextIndex = index;
           }
         });
+        setActiveServiceIndex((currentIndex) => (currentIndex === nextIndex ? currentIndex : nextIndex));
+      }, { rootMargin: '-18% 0px -34% 0px', threshold: [0, 0.25, 0.5, 0.75, 1] });
 
-        setActiveServiceIndex(nextIndex);
-      });
+      items.forEach((item) => observer.observe(item));
     };
 
-    updateActiveService();
-    window.addEventListener('scroll', updateActiveService, { passive: true });
-    window.addEventListener('resize', updateActiveService);
+    observeServices();
+    motionQuery.addEventListener?.('change', observeServices);
 
     return () => {
-      window.cancelAnimationFrame(frameId);
-      window.removeEventListener('scroll', updateActiveService);
-      window.removeEventListener('resize', updateActiveService);
+      observer?.disconnect();
+      motionQuery.removeEventListener?.('change', observeServices);
     };
   }, [t.services.length]);
 
@@ -1270,7 +786,7 @@ function Services({ t }) {
 
           <div className="service-editorial-items">
             {t.services.map((service, index) => {
-              const serviceHref = getRouteHref(servicePageById[service.id] ?? '/steuerberatung-wien');
+              const serviceHref = getRouteHref(service.path);
 
               return (
                 <article
@@ -1288,10 +804,14 @@ function Services({ t }) {
                         <RichText parts={service.title} />
                       </h3>
                     </div>
-                    <p>{service.body}</p>
+                    <p><LocalizedText text={service.body} language={language} /></p>
 
-                    <a className="service-editorial-link" href={serviceHref}>
-                      {t.cta.learnMore}
+                    <a
+                      className="service-editorial-link"
+                      href={serviceHref}
+                      aria-label={`${t.cta.learnMore}: ${service.title.map((part) => part.text).join('')}`}
+                    >
+                      {t.cta.learnMore}: {service.title.map((part) => part.text).join('')}
                       <ArrowRight size={17} aria-hidden="true" />
                     </a>
                   </div>
@@ -1301,14 +821,14 @@ function Services({ t }) {
           </div>
         </div>
 
-        <nav className="service-page-nav reveal" aria-label="Lokale Leistungsseiten">
+        <nav className="service-page-nav reveal" aria-label={t.localServices.label}>
           <div className="service-page-nav-heading">
             <h3>{t.localServices.title}</h3>
             <p>{t.localServices.body}</p>
           </div>
           <small>{t.localServices.label}</small>
           <div className="service-page-link-grid">
-            {seoPages.map((page) => (
+            {servicePagesByLanguage[language].map((page) => (
               <a key={page.path} className="service-page-link" href={getRouteHref(page.path)}>
                 {page.eyebrow}
                 <ArrowUpRight size={14} aria-hidden="true" />
@@ -1321,17 +841,46 @@ function Services({ t }) {
   );
 }
 
-function Specialization({ t }) {
+function WorkingProcess({ t }) {
+  if (!t.process?.steps?.length) return null;
+
+  return (
+    <section className="section-spacious section-surface-light">
+      <div className="section-shell">
+        <div className="max-w-3xl reveal">
+          <small>{t.process.label}</small>
+          <h2 className="mt-4">{t.process.title}</h2>
+          <p className="mt-5 text-forest/70">{t.process.body}</p>
+        </div>
+        <ol className="seo-process-list">
+          {t.process.steps.map((step, index) => (
+            <li key={step.title} className="seo-process-item reveal">
+              <span>{String(index + 1).padStart(2, '0')}</span>
+              <div>
+                <h3>{step.title}</h3>
+                <p>{step.body}</p>
+              </div>
+            </li>
+          ))}
+        </ol>
+      </div>
+    </section>
+  );
+}
+
+function ClientFitSection({ t }) {
+  if (!t.clientFit?.cards?.length) return null;
+
   return (
     <section className="section-spacious section-surface-cream">
       <div className="section-shell">
         <div className="mx-auto max-w-3xl text-center reveal">
-          <h2>{t.specialization.title}</h2>
-          <p className="mt-4 text-forest/60">{t.specialization.body}</p>
+          <h2>{t.clientFit.title}</h2>
+          <p className="mt-4">{t.clientFit.body}</p>
         </div>
 
         <div className="specialization-grid reveal reveal-delay-1">
-          {t.specialization.cards.map((card) => (
+          {t.clientFit.cards.map((card) => (
             <article className="specialization-card" key={card.title}>
               <h3>{card.title}</h3>
               <p>{card.body}</p>
@@ -1349,9 +898,14 @@ function About({ t }) {
       <div className="section-shell grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
         <div className="founder-placeholder reveal">
           <img
-            src="https://images.unsplash.com/photo-1560250097-0b93528c311a?auto=format&fit=crop&w=1100&q=82"
-            alt={t.about.founderImageAlt}
+            src={`${import.meta.env.BASE_URL}images/team/tomislav-siketic-placeholder.svg`}
+            alt=""
+            width="1100"
+            height="1375"
             loading="lazy"
+            decoding="async"
+            sizes="(min-width: 1024px) 40vw, 100vw"
+            onError={(event) => event.currentTarget.classList.add('is-unavailable')}
           />
         </div>
 
@@ -1364,45 +918,26 @@ function About({ t }) {
             <RichText parts={t.about.title} />
           </h2>
           <div className="principal-block">
-            {/* TODO: Confirm academic title with Tomislav before launch.
-                Currently set to "Mag." - verify it's not Dr., MMag., or other. */}
             <p className="principal-name">{t.about.principalName}</p>
             <p className="principal-role">{t.about.principalRole}</p>
             <p className="principal-registration">{t.about.principalRegistration}</p>
           </div>
           <div className="mt-6 space-y-5 text-forest/75">
             {t.about.paragraphs.map((paragraph) => (
-              <p key={paragraph}>{paragraph}</p>
+              <p key={paragraph}><LocalizedText text={paragraph} language={t.language} /></p>
             ))}
           </div>
+          <a className="about-legal-link" href={getRouteHref(t.language === 'hr' ? '/hr/impressum' : '/impressum')}>
+            {t.about.legalLinkLabel}
+            <ArrowUpRight size={14} aria-hidden="true" />
+          </a>
         </div>
       </div>
     </section>
   );
 }
 
-function FaqStructuredData({ items }) {
-  const schema = useMemo(
-    () =>
-      JSON.stringify({
-        '@context': 'https://schema.org',
-        '@type': 'FAQPage',
-        mainEntity: items.map((item) => ({
-          '@type': 'Question',
-          name: item.question,
-          acceptedAnswer: {
-            '@type': 'Answer',
-            text: item.answer,
-          },
-        })),
-      }),
-    [items],
-  );
-
-  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: schema }} />;
-}
-
-function FaqAccordion({ items, idPrefix = 'faq' }) {
+function FaqAccordion({ items, language, idPrefix = 'faq' }) {
   const [openIndex, setOpenIndex] = useState(null);
 
   return (
@@ -1410,10 +945,11 @@ function FaqAccordion({ items, idPrefix = 'faq' }) {
       {items.map((item, index) => {
         const isOpen = openIndex === index;
         const panelId = `${idPrefix}-panel-${index}`;
+        const triggerId = `${idPrefix}-trigger-${index}`;
 
         return (
           <article key={item.question} className="faq-item" data-open={isOpen ? 'true' : 'false'}>
-            <h3>
+            <h3 id={triggerId}>
               <button
                 className="faq-trigger"
                 type="button"
@@ -1421,7 +957,7 @@ function FaqAccordion({ items, idPrefix = 'faq' }) {
                 aria-controls={panelId}
                 onClick={() => setOpenIndex((currentIndex) => (currentIndex === index ? null : index))}
               >
-                <span className="faq-question">{item.question}</span>
+                <span className="faq-question"><LocalizedText text={item.question} language={language} /></span>
                 <span className="faq-icon" aria-hidden="true">
                   <Plus size={18} />
                 </span>
@@ -1433,9 +969,12 @@ function FaqAccordion({ items, idPrefix = 'faq' }) {
               className="faq-panel"
               data-open={isOpen ? 'true' : 'false'}
               aria-hidden={!isOpen}
+              aria-labelledby={triggerId}
+              role="region"
+              inert={!isOpen ? true : undefined}
             >
               <div className="faq-panel-inner">
-                <p>{item.answer}</p>
+                <p><LocalizedText text={item.answer} language={language} /></p>
               </div>
             </div>
           </article>
@@ -1447,8 +986,6 @@ function FaqAccordion({ items, idPrefix = 'faq' }) {
 
 function FaqSection({ t }) {
   return (
-    <>
-      <FaqStructuredData items={t.faq.items} />
       <section id="faq" className="section-spacious section-surface-cream">
         <div className="section-shell faq-layout">
           <div className="faq-intro reveal">
@@ -1458,74 +995,19 @@ function FaqSection({ t }) {
             <p className="mt-5 text-forest/70">{t.faq.body}</p>
           </div>
 
-          <FaqAccordion items={t.faq.items} idPrefix="home-faq" />
+          <FaqAccordion items={t.faq.items} language={t.language} idPrefix="home-faq" />
         </div>
       </section>
-    </>
   );
-}
-
-function AccountingServiceStructuredData({ routePath }) {
-  const schema = useMemo(
-    () =>
-      JSON.stringify({
-        '@context': 'https://schema.org',
-        '@type': 'AccountingService',
-        name: 'MINO Consulting KG',
-        url: getCanonicalUrl(routePath),
-        address: {
-          '@type': 'PostalAddress',
-          streetAddress: 'Geblergasse 95/8',
-          postalCode: '1170',
-          addressLocality: 'Wien',
-          addressCountry: 'AT',
-        },
-        telephone: '+43 1 90 680 200',
-        email: 'office@mino-consulting.at',
-        areaServed: {
-          '@type': 'City',
-          name: 'Wien',
-        },
-      }),
-    [routePath],
-  );
-
-  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: schema }} />;
-}
-
-function SeoLandingPageStructuredData({ page }) {
-  const schema = useMemo(
-    () =>
-      JSON.stringify({
-        '@context': 'https://schema.org',
-        '@type': 'WebPage',
-        name: page.title,
-        description: page.metaDescription,
-        url: getCanonicalUrl(page.path),
-        isPartOf: {
-          '@type': 'WebSite',
-          name: 'MINO Consulting KG',
-          url: getCanonicalUrl('/'),
-        },
-        about: {
-          '@type': 'AccountingService',
-          name: 'MINO Consulting KG',
-        },
-      }),
-    [page],
-  );
-
-  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: schema }} />;
 }
 
 function SeoLandingPage({ page, onBook }) {
-  const relatedPages = page.related.map((path) => seoPagesByPath[path]).filter(Boolean);
+  const relatedPages = page.related.map((path) => getPageByPath(path)).filter(Boolean);
+  const ui = pageUi[page.language];
+  const homePath = page.language === 'hr' ? '/hr/' : '/';
 
   return (
     <>
-      <SeoLandingPageStructuredData page={page} />
-      <FaqStructuredData items={page.faq} />
-
       <section id="top" className="seo-hero-section section-surface-warm">
         <div className="section-shell seo-hero-layout">
           <div className="reveal">
@@ -1534,21 +1016,21 @@ function SeoLandingPage({ page, onBook }) {
               {page.eyebrow}
             </small>
             <h1 className="mt-5">{page.h1}</h1>
-            <p className="mt-5 max-w-2xl text-forest/75">{page.intro}</p>
+            <p className="mt-5 max-w-2xl text-forest/75"><LocalizedText text={page.intro} language={page.language} /></p>
             <div className="mt-7 flex flex-col gap-3 sm:flex-row" data-hero-cta>
               <button className="button-primary" type="button" onClick={onBook}>
-                Erstgespräch vereinbaren
+                {ui.book}
                 <ArrowRight size={16} aria-hidden="true" />
               </button>
               <a className="button-secondary" href="#contact">
-                Kontakt aufnehmen
+                {ui.contact}
               </a>
             </div>
           </div>
 
-          <aside className="seo-hero-note reveal reveal-delay-1" aria-label="Lokaler Fokus">
-            <small>Fokus</small>
-            <p>Beratung für Wien, Gründer, Selbstständige und KMU mit klaren Abläufen und persönlicher Abstimmung.</p>
+          <aside className="seo-hero-note reveal reveal-delay-1" aria-label={ui.focus}>
+            <small>{ui.focus}</small>
+            <p>{ui.focusText}</p>
           </aside>
         </div>
       </section>
@@ -1559,7 +1041,7 @@ function SeoLandingPage({ page, onBook }) {
             <small>{page.whoForTitle}</small>
             <ul className="seo-check-list">
               {page.whoFor.map((item) => (
-                <li key={item}>{item}</li>
+                <li key={item}><LocalizedText text={item} language={page.language} /></li>
               ))}
             </ul>
           </article>
@@ -1568,17 +1050,44 @@ function SeoLandingPage({ page, onBook }) {
             <small>{page.includedTitle}</small>
             <ul className="seo-check-list">
               {page.included.map((item) => (
-                <li key={item}>{item}</li>
+                <li key={item}><LocalizedText text={item} language={page.language} /></li>
               ))}
             </ul>
           </article>
         </div>
       </section>
 
+      {(page.clientProvides?.length || page.limitations?.length) && (
+        <section className="section-spacious section-surface-warm">
+          <div className="section-shell seo-two-column">
+            {page.clientProvides?.length > 0 && (
+              <article className="seo-info-block reveal">
+                <small>{page.clientProvidesTitle ?? ui.provides}</small>
+                <ul className="seo-check-list">
+                  {page.clientProvides.map((item) => (
+                    <li key={item}><LocalizedText text={item} language={page.language} /></li>
+                  ))}
+                </ul>
+              </article>
+            )}
+            {page.limitations?.length > 0 && (
+              <article className="seo-info-block reveal reveal-delay-1">
+                <small>{page.limitationsTitle ?? ui.limits}</small>
+                <ul className="seo-check-list">
+                  {page.limitations.map((item) => (
+                    <li key={item}><LocalizedText text={item} language={page.language} /></li>
+                  ))}
+                </ul>
+              </article>
+            )}
+          </div>
+        </section>
+      )}
+
       <section className="section-spacious section-surface-cream">
         <div className="section-shell">
           <div className="max-w-3xl reveal">
-            <small>Prozess</small>
+            <small>{ui.process}</small>
             <h2 className="mt-4">{page.processTitle}</h2>
           </div>
 
@@ -1588,7 +1097,7 @@ function SeoLandingPage({ page, onBook }) {
                 <span>{String(index + 1).padStart(2, '0')}</span>
                 <div>
                   <h3>{step.title}</h3>
-                  <p>{step.body}</p>
+                  <p><LocalizedText text={step.body} language={page.language} /></p>
                 </div>
               </li>
             ))}
@@ -1600,11 +1109,11 @@ function SeoLandingPage({ page, onBook }) {
         <div className="section-shell faq-layout">
           <div className="faq-intro reveal">
             <small>FAQ</small>
-            <h2 className="mt-4">Häufige Fragen zu {page.eyebrow}</h2>
-            <p className="mt-5 text-forest/70">Konkrete Antworten für Unternehmen und Selbstständige in Wien.</p>
+            <h2 className="mt-4">{ui.faq} {page.eyebrow}</h2>
+            <p className="mt-5 text-forest/70">{ui.faqBody}</p>
           </div>
 
-          <FaqAccordion items={page.faq} idPrefix={`seo-${page.path.slice(1)}`} />
+          <FaqAccordion items={page.faq} language={page.language} idPrefix={`seo-${page.path.slice(1).replaceAll('/', '-')}`} />
         </div>
       </section>
 
@@ -1612,31 +1121,31 @@ function SeoLandingPage({ page, onBook }) {
         <div className="section-shell">
           <div className="seo-cta-panel reveal">
             <div>
-              <small>Nächster Schritt</small>
+              <small>{ui.next}</small>
               <h2 className="mt-4">{page.ctaTitle}</h2>
-              <p className="mt-5 text-forest/75">{page.ctaBody}</p>
+              <p className="mt-5 text-forest/75"><LocalizedText text={page.ctaBody} language={page.language} /></p>
             </div>
             <div className="seo-cta-actions">
               <button className="button-primary" type="button" onClick={onBook}>
-                Erstgespräch vereinbaren
+                {ui.book}
                 <ArrowRight size={16} aria-hidden="true" />
               </button>
               <a className="button-secondary" href="#contact">
-                Kontaktdaten ansehen
+                {ui.contactDetails}
               </a>
             </div>
           </div>
 
-          <nav className="seo-related-links reveal" aria-label="Verwandte lokale Leistungsseiten">
-            <small>Verwandte Seiten</small>
+          <nav className="seo-related-links reveal" aria-label={ui.relatedLabel}>
+            <small>{ui.related}</small>
             <div className="seo-related-grid">
-              <a className="seo-related-link" href={getRouteHref('/')}>
-                Startseite
+              <a className="seo-related-link" href={getRouteHref(homePath)}>
+                {ui.home}
                 <ArrowUpRight size={14} aria-hidden="true" />
               </a>
               {relatedPages.map((relatedPage) => (
                 <a key={relatedPage.path} className="seo-related-link" href={getRouteHref(relatedPage.path)}>
-                  {relatedPage.eyebrow}
+                  {relatedPage.relatedLinkLabel ?? relatedPage.eyebrow}
                   <ArrowUpRight size={14} aria-hidden="true" />
                 </a>
               ))}
@@ -1648,28 +1157,54 @@ function SeoLandingPage({ page, onBook }) {
   );
 }
 
-function LegalPage({ page }) {
+function LegalPage({ page, onPrivacySettings }) {
+  const ui = pageUi[page.language];
+  const isPrivacyPage = page.path.endsWith('datenschutzerklaerung') || page.path.endsWith('pravila-privatnosti');
+  const privacyContent = homeContentByLanguage[page.language].privacySettings;
   return (
     <section id="top" className="section-spacious section-surface-light">
       <div className="section-shell legal-page">
-        <div className="max-w-3xl reveal">
-          <small className="tag-pill">Rechtliches</small>
+        <div className={`max-w-3xl ${isPrivacyPage ? '' : 'reveal'}`}>
+          <small className="tag-pill">{ui.legal}</small>
           <h1 className="mt-5">{page.h1}</h1>
-          <p className="mt-5 text-forest/70">{page.intro}</p>
+          <p className="mt-5 text-forest/70"><LocalizedText text={page.intro} language={page.language} /></p>
+          {isPrivacyPage && (
+            <button className="button-secondary legal-privacy-settings-button" type="button" onClick={onPrivacySettings}>
+              {privacyContent.button}
+            </button>
+          )}
         </div>
 
-        <div className="legal-section-grid reveal reveal-delay-1">
-          {page.sections.map((section) => {
-            const sectionId = `legal-${section.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+        {isPrivacyPage && (
+          <nav className="privacy-table-of-contents" aria-label={page.tableOfContentsLabel}>
+            <h2>{page.tableOfContentsTitle}</h2>
+            <ol>
+              {page.sections.map((section, index) => (
+                <li key={section.title}><a href={`#privacy-section-${index + 1}`}>{section.title}</a></li>
+              ))}
+            </ol>
+          </nav>
+        )}
+
+        <div className={`legal-section-grid ${isPrivacyPage ? '' : 'reveal reveal-delay-1'}`}>
+          {page.sections.map((section, index) => {
+            const sectionId = isPrivacyPage
+              ? `privacy-section-${index + 1}`
+              : `legal-${section.title.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
 
             return (
               <section className="legal-section" key={section.title} aria-labelledby={sectionId}>
                 <h2 id={sectionId}>{section.title}</h2>
-                <ul>
-                  {section.items.map((item) => (
-                    <li key={item}>{renderLegalItem(item)}</li>
-                  ))}
-                </ul>
+                {section.paragraphs?.map((paragraph) => (
+                  <p key={paragraph}>{renderLegalItem(paragraph, page.language, homeContentByLanguage[page.language].meta.newWindow)}</p>
+                ))}
+                {section.items && (
+                  <ul>
+                    {section.items.map((item) => (
+                      <li key={item}>{renderLegalItem(item, page.language, homeContentByLanguage[page.language].meta.newWindow)}</li>
+                    ))}
+                  </ul>
+                )}
               </section>
             );
           })}
@@ -1679,8 +1214,8 @@ function LegalPage({ page }) {
   );
 }
 
-function Contact({ t, onBook, routePath }) {
-  const contactDetails = t.contact.cards.filter((item) => item.icon !== CalendarDays);
+function Contact({ t, onBook, onPrivacySettings, routePath }) {
+  const contactDetails = t.contact.cards.filter((item) => item.icon !== 'calendar');
 
   return (
     <footer id="contact" className="footer-spacious footer-contact bg-forest text-white">
@@ -1705,7 +1240,7 @@ function Contact({ t, onBook, routePath }) {
 
           <div className="footer-contact-list reveal reveal-delay-1">
             {contactDetails.map((item) => {
-              const Icon = item.icon;
+              const Icon = iconComponents[item.icon];
               const href = getContactHref(item);
               return (
                 <div key={item.label} className="footer-contact-item">
@@ -1734,41 +1269,37 @@ function Contact({ t, onBook, routePath }) {
             </div>
             <a
               className="inline-flex items-center gap-2 text-sm font-bold text-taupe transition hover:text-white"
-              href="https://www.google.com/maps/search/?api=1&query=Geblergasse%2095%2F8%2C%201170%20Wien"
+              href={MAP_EXTERNAL_URL}
               target="_blank"
-              rel="noreferrer"
+              rel="noopener noreferrer"
+              aria-label={`${t.contact.mapLink} (${t.meta.newWindow})`}
             >
-              Google Maps
+              {t.contact.mapLink}
               <ArrowUpRight size={16} aria-hidden="true" />
             </a>
           </div>
-          <div className="map-frame">
-            <iframe
-              title={t.contact.mapTitle}
-              src="https://www.google.com/maps?q=Geblergasse%2095%2F8%2C%201170%20Wien&output=embed"
-              loading="lazy"
-              referrerPolicy="no-referrer-when-downgrade"
-              allowFullScreen
-            />
-          </div>
+          <ConsentControlledMap content={t.mapConsent} />
         </div>
 
         <div className="footer-bottom-bar">
           <p>
-            © {new Date().getFullYear()} MINO Consulting KG · Geblergasse 95/8 · 1170 Wien · FN 157894y (HG Wien) · UID ATU10543606 · Mitglied der KSW
+            © {new Date().getFullYear()} {verifiedBusinessFacts.companyName} · {OFFICE_ADDRESS} · {verifiedBusinessFacts.commercialRegisterNumber} ({verifiedBusinessFacts.commercialRegisterCourt})
           </p>
           <div className="footer-bottom-links">
             {t.nav.map((item) => (
-              <a className="hover:text-white" href={resolveNavHref(item.href, routePath)} key={item.href}>
+              <a className="hover:text-white" href={resolveNavHref(item.href, routePath, t.language)} key={item.href}>
                 {item.label}
               </a>
             ))}
-            <a className="hover:text-white" href={getRouteHref('/impressum')}>
-              Impressum
+            <a className="hover:text-white" href={getRouteHref(t.language === 'hr' ? '/hr/impressum' : '/impressum')}>
+              {t.contact.legalLinks.imprint}
             </a>
-            <a className="hover:text-white" href={getRouteHref('/datenschutzerklaerung')}>
-              Datenschutz
+            <a className="hover:text-white" href={getRouteHref(t.language === 'hr' ? '/hr/pravila-privatnosti' : '/datenschutzerklaerung')}>
+              {t.contact.legalLinks.privacy}
             </a>
+            <button className="footer-privacy-settings" type="button" onClick={onPrivacySettings}>
+              {t.privacySettings.button}
+            </button>
             <a className="hover:text-white" href="#top">
               {t.contact.backTop}
             </a>
@@ -1779,320 +1310,121 @@ function Contact({ t, onBook, routePath }) {
   );
 }
 
-function BookingModal({ t, language, isOpen, onClose }) {
-  const today = useMemo(() => new Date().toISOString().split('T')[0], []);
-  const googleRatingText = getGoogleRatingText(language);
-  const initialForm = useMemo(
-    () => ({
-      service: t.booking.services[0],
-      mode: t.booking.modes[0],
-      date: '',
-      time: '',
-      name: '',
-      company: '',
-      email: '',
-      phone: '',
-      message: '',
-    }),
-    [t],
-  );
-  const [form, setForm] = useState(initialForm);
-  const [error, setError] = useState('');
-  const [submitted, setSubmitted] = useState(false);
-
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = 'hidden';
-      setForm(initialForm);
-      setError('');
-      setSubmitted(false);
-    }
-
-    return () => {
-      document.body.style.overflow = '';
-    };
-  }, [initialForm, isOpen]);
-
-  if (!isOpen) return null;
-
-  const updateField = (field, value) => {
-    setForm((current) => ({ ...current, [field]: value }));
-    setError('');
-  };
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    if (!form.service || !form.date || !form.time || !form.name || !form.email) {
-      setError(t.booking.required);
-      return;
-    }
-
-    setSubmitted(true);
-  };
-
-  const emailBody = [
-    `${t.booking.serviceLabel}: ${form.service}`,
-    `${t.booking.modeLabel}: ${form.mode}`,
-    `${t.booking.dateLabel}: ${form.date}`,
-    `${t.booking.timeLabel}: ${form.time}`,
-    `${t.booking.nameLabel}: ${form.name}`,
-    `${t.booking.companyLabel}: ${form.company || '-'}`,
-    `${t.booking.emailLabel}: ${form.email}`,
-    `${t.booking.phoneLabel}: ${form.phone || '-'}`,
-    `${t.booking.messageLabel}: ${form.message || '-'}`,
-  ].join('\n');
-
-  const mailtoHref = `mailto:office@mino-consulting.at?subject=${encodeURIComponent(
-    language === 'de' ? 'Terminanfrage MINO Consulting KG' : 'Upit za termin MINO Consulting KG',
-  )}&body=${encodeURIComponent(emailBody)}`;
-
-  return (
-    <div className="booking-overlay" role="dialog" aria-modal="true" aria-labelledby="booking-title">
-      <div className="booking-panel">
-        <div className="flex items-start justify-between gap-5 border-b border-forest/50 p-5 sm:p-6">
-          <div>
-            <small className="tag-pill">
-              <CalendarDays size={14} aria-hidden="true" />
-              {t.cta.book}
-            </small>
-            <h2 id="booking-title" className="mt-4">
-              {t.booking.title}
-            </h2>
-            <p className="mt-3 max-w-2xl text-forest/70">{t.booking.intro}</p>
-          </div>
-          <button className="hamburger-button shrink-0" type="button" onClick={onClose} aria-label={t.booking.close}>
-            <X size={18} aria-hidden="true" />
-          </button>
-        </div>
-
-        {submitted ? (
-          <div className="p-5 sm:p-6">
-            <h3>{t.booking.successTitle}</h3>
-            <p className="mt-3 text-forest/70">{t.booking.successBody}</p>
-            <dl className="mt-6 grid gap-3 rounded-md border border-forest/50 bg-cream p-4 text-sm sm:grid-cols-2">
-              {[
-                [t.booking.serviceLabel, form.service],
-                [t.booking.modeLabel, form.mode],
-                [t.booking.dateLabel, form.date],
-                [t.booking.timeLabel, form.time],
-                [t.booking.nameLabel, form.name],
-                [t.booking.emailLabel, form.email],
-              ].map(([label, value]) => (
-                <div key={label}>
-                  <dt className="text-xs font-bold uppercase tracking-[0.14em] text-forest/50">{label}</dt>
-                  <dd className="mt-1 font-semibold text-forest">{value}</dd>
-                </div>
-              ))}
-            </dl>
-            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-              <a className="button-primary" href={mailtoHref}>
-                {t.booking.sendEmail}
-                <Mail size={16} aria-hidden="true" />
-              </a>
-              <button className="button-secondary" type="button" onClick={() => setSubmitted(false)}>
-                {t.booking.newRequest}
-              </button>
-            </div>
-          </div>
-        ) : (
-          <form className="grid gap-5 p-5 sm:p-6" onSubmit={handleSubmit}>
-            <div className="grid gap-5 lg:grid-cols-[1fr_0.9fr]">
-              <div className="space-y-5">
-                <label className="form-field">
-                  <span>{t.booking.serviceLabel}</span>
-                  <select value={form.service} onChange={(event) => updateField('service', event.target.value)}>
-                    {t.booking.services.map((service) => (
-                      <option key={service} value={service}>
-                        {service}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-
-                <div>
-                  <small className="form-label">{t.booking.modeLabel}</small>
-                  <div className="grid gap-2 sm:grid-cols-3">
-                    {t.booking.modes.map((mode) => (
-                      <button
-                        key={mode}
-                        type="button"
-                        className={`choice-button ${form.mode === mode ? 'is-active' : ''}`}
-                        onClick={() => updateField('mode', mode)}
-                      >
-                        {mode}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <label className="form-field">
-                    <span>{t.booking.dateLabel}</span>
-                    <input
-                      type="date"
-                      min={today}
-                      value={form.date}
-                      onChange={(event) => updateField('date', event.target.value)}
-                    />
-                  </label>
-                  <div>
-                    <small className="form-label">{t.booking.timeLabel}</small>
-                    <div className="grid grid-cols-2 gap-2">
-                      {timeSlots.map((slot) => (
-                        <button
-                          key={slot}
-                          type="button"
-                          className={`choice-button ${form.time === slot ? 'is-active' : ''}`}
-                          onClick={() => updateField('time', slot)}
-                        >
-                          {slot}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="grid gap-4">
-                <label className="form-field">
-                  <span>{t.booking.nameLabel}</span>
-                  <input value={form.name} onChange={(event) => updateField('name', event.target.value)} />
-                </label>
-                <label className="form-field">
-                  <span>{t.booking.companyLabel}</span>
-                  <input value={form.company} onChange={(event) => updateField('company', event.target.value)} />
-                </label>
-                <label className="form-field">
-                  <span>{t.booking.emailLabel}</span>
-                  <input
-                    type="email"
-                    value={form.email}
-                    onChange={(event) => updateField('email', event.target.value)}
-                  />
-                </label>
-                <label className="form-field">
-                  <span>{t.booking.phoneLabel}</span>
-                  <input value={form.phone} onChange={(event) => updateField('phone', event.target.value)} />
-                </label>
-              </div>
-            </div>
-
-            <label className="form-field">
-              <span>{t.booking.messageLabel}</span>
-              <textarea
-                value={form.message}
-                placeholder={t.booking.messagePlaceholder}
-                onChange={(event) => updateField('message', event.target.value)}
-              />
-            </label>
-
-            {error && <p className="rounded-md border border-rose bg-rose-light px-4 py-3 text-rose">{error}</p>}
-
-            <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
-              <button className="button-secondary" type="button" onClick={onClose}>
-                {t.booking.close}
-              </button>
-              <button className="button-primary" type="submit">
-                {t.booking.submit}
-                <ArrowRight size={16} aria-hidden="true" />
-              </button>
-            </div>
-
-            <div className="booking-trust-row" aria-label="Booking trust information">
-              <span className="booking-trust-item">
-                <Lock size={13} aria-hidden="true" />
-                {t.booking.securityText}
-              </span>
-              <span className="booking-response-pill">{t.booking.responseBadge}</span>
-              {googleRatingText && (
-                <span className="booking-trust-item">
-                  <span className="booking-stars" aria-hidden="true">
-                    {Array.from({ length: trustProofConfig.googleStars }).map((_, index) => (
-                      <Star key={index} size={13} />
-                    ))}
-                  </span>
-                  {googleRatingText}
-                </span>
-              )}
-            </div>
-          </form>
-        )}
-      </div>
-    </div>
-  );
-}
 
 export default function App() {
-  const [language, setLanguage] = useState('de');
   const [bookingOpen, setBookingOpen] = useState(false);
+  const [privacySettingsOpen, setPrivacySettingsOpen] = useState(false);
+  const bookingOpenerRef = useRef(null);
+  const privacySettingsOpenerRef = useRef(null);
   const routePath = useCurrentRoutePath();
-  const seoPage = seoPagesByPath[routePath];
-  const legalPage = legalPagesByPath[routePath];
-  const activeLanguage = seoPage || legalPage ? 'de' : language;
-  const t = content[activeLanguage];
-  const currentTitle = seoPage ? seoPage.title : legalPage ? legalPage.title : t.pageTitle;
-  const currentDescription = seoPage
-    ? seoPage.metaDescription
-    : legalPage
-      ? legalPage.metaDescription
-    : 'MINO Consulting KG bietet Buchhaltung, Lohnverrechnung, Steuerberatung, Auswertungen und Unternehmensberatung in Wien.';
-  const canonicalPath = seoPage ? seoPage.path : legalPage ? legalPage.path : '/';
+  const page = getPageByPath(routePath) ?? getPageByPath('/');
+  const t = homeContentByLanguage[page.language];
   const showDelayedStickyHeader = useDelayedStickyHeader();
+
+  const openBooking = useCallback((event) => {
+    bookingOpenerRef.current = event?.currentTarget ?? document.activeElement;
+    setPrivacySettingsOpen(false);
+    setBookingOpen(true);
+  }, []);
+
+  const closeBooking = useCallback(() => {
+    setBookingOpen(false);
+    window.requestAnimationFrame(() => bookingOpenerRef.current?.focus());
+  }, []);
+
+  const openPrivacySettings = useCallback((event) => {
+    privacySettingsOpenerRef.current = event?.currentTarget ?? document.activeElement;
+    setBookingOpen(false);
+    setPrivacySettingsOpen(true);
+  }, []);
+
+  const closePrivacySettings = useCallback(() => {
+    setPrivacySettingsOpen(false);
+    window.requestAnimationFrame(() => privacySettingsOpenerRef.current?.focus());
+  }, []);
+
+  const modalOpen = bookingOpen || privacySettingsOpen;
 
   useScrollReveal();
 
   useEffect(() => {
-    document.documentElement.lang = activeLanguage === 'de' ? 'de' : 'hr';
-    document.title = currentTitle;
-    setMetaContent('meta[name="description"]', currentDescription);
-    setMetaContent('meta[property="og:title"]', currentTitle);
-    setMetaContent('meta[property="og:description"]', currentDescription);
+    const locale = page.language === 'de' ? 'de_AT' : 'hr_HR';
+    document.documentElement.lang = page.language;
+    document.title = page.title ?? page.pageTitle;
+    setMetaContent('meta[name="description"]', page.metaDescription);
+    setMetaContent('meta[name="robots"]', 'index, follow');
+    setMetaContent('meta[property="og:title"]', page.title ?? page.pageTitle);
+    setMetaContent('meta[property="og:description"]', page.metaDescription);
     setMetaContent('meta[property="og:type"]', 'website');
-    setMetaContent('meta[property="og:url"]', getCanonicalUrl(canonicalPath));
-    setCanonicalHref(getCanonicalUrl(canonicalPath));
-  }, [activeLanguage, canonicalPath, currentDescription, currentTitle]);
+    setMetaContent('meta[property="og:url"]', getCanonicalUrl(page.path));
+    setMetaContent('meta[property="og:site_name"]', SITE_NAME);
+    setMetaContent('meta[property="og:locale"]', locale);
+    setMetaContent('meta[name="twitter:card"]', 'summary_large_image');
+    setMetaContent('meta[name="twitter:title"]', page.title ?? page.pageTitle);
+    setMetaContent('meta[name="twitter:description"]', page.metaDescription);
+    setCanonicalHref(getCanonicalUrl(page.path));
+    setAlternateHref('de-AT', getCanonicalUrl(page.alternatePaths.de));
+    setAlternateHref('hr', getCanonicalUrl(page.alternatePaths.hr));
+    setAlternateHref('x-default', getCanonicalUrl(page.alternatePaths.de));
+  }, [page]);
 
   return (
     <div className="relative min-h-screen overflow-x-clip bg-cream text-forest">
       <div className="architect-grid" aria-hidden="true" />
-      <div className="relative z-10">
-        <AccountingServiceStructuredData routePath={canonicalPath} />
+      <div
+        className="relative z-10"
+        aria-hidden={modalOpen || undefined}
+        inert={modalOpen ? true : undefined}
+      >
+        <a className="skip-link" href="#main-content">{t.meta.skipLink}</a>
         <Header
           t={t}
-          language={activeLanguage}
-          setLanguage={setLanguage}
-          onBook={() => setBookingOpen(true)}
+          page={page}
+          onBook={openBooking}
           routePath={routePath}
-          showLanguageSwitcher={!seoPage && !legalPage}
+          isInert={showDelayedStickyHeader}
         />
         <DelayedStickyHeader
           t={t}
-          language={activeLanguage}
-          setLanguage={setLanguage}
-          onBook={() => setBookingOpen(true)}
+          page={page}
+          onBook={openBooking}
           isVisible={showDelayedStickyHeader}
           routePath={routePath}
-          showLanguageSwitcher={!seoPage && !legalPage}
         />
-        <main>
-          {legalPage ? (
-            <LegalPage page={legalPage} />
-          ) : seoPage ? (
-            <SeoLandingPage page={seoPage} onBook={() => setBookingOpen(true)} />
+        <main id="main-content" tabIndex="-1">
+          {page.kind === 'legal' ? (
+            <LegalPage page={page} onPrivacySettings={openPrivacySettings} />
+          ) : page.kind === 'service' ? (
+            <SeoLandingPage page={page} onBook={openBooking} />
           ) : (
             <>
-              <Hero t={t} onBook={() => setBookingOpen(true)} />
+              <Hero t={t} onBook={openBooking} />
+              <VerifiedFactsStrip language={page.language} />
               <ValueProposition t={t} />
-              <Services t={t} onBook={() => setBookingOpen(true)} />
-              <Specialization t={t} />
+              <Services t={t} language={page.language} />
+              <WorkingProcess t={t} />
+              <ClientFitSection t={t} />
               <About t={t} />
               <FaqSection t={t} />
             </>
           )}
         </main>
-        <Contact t={t} onBook={() => setBookingOpen(true)} routePath={routePath} />
+        <Contact t={t} onBook={openBooking} onPrivacySettings={openPrivacySettings} routePath={routePath} />
       </div>
-      <BookingModal t={t} language={activeLanguage} isOpen={bookingOpen} onClose={() => setBookingOpen(false)} />
+      {bookingOpen && (
+        <Suspense fallback={null}>
+          <BookingModal t={t} language={page.language} isOpen={bookingOpen} onClose={closeBooking} />
+        </Suspense>
+      )}
+      {privacySettingsOpen && (
+        <Suspense fallback={null}>
+          <PrivacySettingsDialog
+            content={t.privacySettings}
+            isOpen={privacySettingsOpen}
+            onClose={closePrivacySettings}
+          />
+        </Suspense>
+      )}
     </div>
   );
 }

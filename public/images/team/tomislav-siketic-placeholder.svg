@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 1375" role="img" aria-labelledby="title description">
+  <title id="title">Abstract adviser image placeholder</title>
+  <desc id="description">A decorative geometric composition reserved for an approved portrait.</desc>
+  <rect width="1100" height="1375" fill="#dcebe5"/>
+  <path d="M120 1220V170h860v1050" fill="none" stroke="#0a1c1a" stroke-width="4"/>
+  <circle cx="550" cy="478" r="192" fill="#0a1c1a"/>
+  <path d="M248 1168c44-292 162-438 302-438s258 146 302 438" fill="#0a1c1a"/>
+  <path d="m176 250 102-102m646 1070 102-102" stroke="#b86a64" stroke-width="24"/>
+  <rect x="382" y="1248" width="336" height="8" fill="#0a1c1a" opacity=".36"/>
+</svg>

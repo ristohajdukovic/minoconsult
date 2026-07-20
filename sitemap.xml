@@ -1,30 +1,111 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://ristohajdukovic.github.io/minoconsult/</loc>
+    <loc>https://www.mino.co.at/</loc>
+    <xhtml:link rel="alternate" hreflang="de-AT" href="https://www.mino.co.at/" />
+    <xhtml:link rel="alternate" hreflang="hr" href="https://www.mino.co.at/hr/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mino.co.at/" />
   </url>
   <url>
-    <loc>https://ristohajdukovic.github.io/minoconsult/buchhaltung-wien</loc>
+    <loc>https://www.mino.co.at/hr/</loc>
+    <xhtml:link rel="alternate" hreflang="de-AT" href="https://www.mino.co.at/" />
+    <xhtml:link rel="alternate" hreflang="hr" href="https://www.mino.co.at/hr/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mino.co.at/" />
   </url>
   <url>
-    <loc>https://ristohajdukovic.github.io/minoconsult/steuerberatung-wien</loc>
+    <loc>https://www.mino.co.at/buchhaltung-wien</loc>
+    <xhtml:link rel="alternate" hreflang="de-AT" href="https://www.mino.co.at/buchhaltung-wien" />
+    <xhtml:link rel="alternate" hreflang="hr" href="https://www.mino.co.at/hr/knjigovodstvo-bec" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mino.co.at/buchhaltung-wien" />
   </url>
   <url>
-    <loc>https://ristohajdukovic.github.io/minoconsult/jahresabschluss-wien</loc>
+    <loc>https://www.mino.co.at/hr/knjigovodstvo-bec</loc>
+    <xhtml:link rel="alternate" hreflang="de-AT" href="https://www.mino.co.at/buchhaltung-wien" />
+    <xhtml:link rel="alternate" hreflang="hr" href="https://www.mino.co.at/hr/knjigovodstvo-bec" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mino.co.at/buchhaltung-wien" />
   </url>
   <url>
-    <loc>https://ristohajdukovic.github.io/minoconsult/lohnverrechnung-wien</loc>
+    <loc>https://www.mino.co.at/steuerberatung-wien</loc>
+    <xhtml:link rel="alternate" hreflang="de-AT" href="https://www.mino.co.at/steuerberatung-wien" />
+    <xhtml:link rel="alternate" hreflang="hr" href="https://www.mino.co.at/hr/porezni-savjetnik-bec" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mino.co.at/steuerberatung-wien" />
   </url>
   <url>
-    <loc>https://ristohajdukovic.github.io/minoconsult/steuerberatung-gruender-wien</loc>
+    <loc>https://www.mino.co.at/hr/porezni-savjetnik-bec</loc>
+    <xhtml:link rel="alternate" hreflang="de-AT" href="https://www.mino.co.at/steuerberatung-wien" />
+    <xhtml:link rel="alternate" hreflang="hr" href="https://www.mino.co.at/hr/porezni-savjetnik-bec" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mino.co.at/steuerberatung-wien" />
   </url>
   <url>
-    <loc>https://ristohajdukovic.github.io/minoconsult/unternehmensgruendung-wien</loc>
+    <loc>https://www.mino.co.at/lohnverrechnung-wien</loc>
+    <xhtml:link rel="alternate" hreflang="de-AT" href="https://www.mino.co.at/lohnverrechnung-wien" />
+    <xhtml:link rel="alternate" hreflang="hr" href="https://www.mino.co.at/hr/obracun-placa-bec" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mino.co.at/lohnverrechnung-wien" />
   </url>
   <url>
-    <loc>https://ristohajdukovic.github.io/minoconsult/impressum</loc>
+    <loc>https://www.mino.co.at/hr/obracun-placa-bec</loc>
+    <xhtml:link rel="alternate" hreflang="de-AT" href="https://www.mino.co.at/lohnverrechnung-wien" />
+    <xhtml:link rel="alternate" hreflang="hr" href="https://www.mino.co.at/hr/obracun-placa-bec" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mino.co.at/lohnverrechnung-wien" />
   </url>
   <url>
-    <loc>https://ristohajdukovic.github.io/minoconsult/datenschutzerklaerung</loc>
+    <loc>https://www.mino.co.at/jahresabschluss-wien</loc>
+    <xhtml:link rel="alternate" hreflang="de-AT" href="https://www.mino.co.at/jahresabschluss-wien" />
+    <xhtml:link rel="alternate" hreflang="hr" href="https://www.mino.co.at/hr/godisnji-obracun-bec" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mino.co.at/jahresabschluss-wien" />
+  </url>
+  <url>
+    <loc>https://www.mino.co.at/hr/godisnji-obracun-bec</loc>
+    <xhtml:link rel="alternate" hreflang="de-AT" href="https://www.mino.co.at/jahresabschluss-wien" />
+    <xhtml:link rel="alternate" hreflang="hr" href="https://www.mino.co.at/hr/godisnji-obracun-bec" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mino.co.at/jahresabschluss-wien" />
+  </url>
+  <url>
+    <loc>https://www.mino.co.at/steuerberatung-gruender-wien</loc>
+    <xhtml:link rel="alternate" hreflang="de-AT" href="https://www.mino.co.at/steuerberatung-gruender-wien" />
+    <xhtml:link rel="alternate" hreflang="hr" href="https://www.mino.co.at/hr/porezno-savjetovanje-poduzetnici-bec" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mino.co.at/steuerberatung-gruender-wien" />
+  </url>
+  <url>
+    <loc>https://www.mino.co.at/hr/porezno-savjetovanje-poduzetnici-bec</loc>
+    <xhtml:link rel="alternate" hreflang="de-AT" href="https://www.mino.co.at/steuerberatung-gruender-wien" />
+    <xhtml:link rel="alternate" hreflang="hr" href="https://www.mino.co.at/hr/porezno-savjetovanje-poduzetnici-bec" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mino.co.at/steuerberatung-gruender-wien" />
+  </url>
+  <url>
+    <loc>https://www.mino.co.at/unternehmensgruendung-wien</loc>
+    <xhtml:link rel="alternate" hreflang="de-AT" href="https://www.mino.co.at/unternehmensgruendung-wien" />
+    <xhtml:link rel="alternate" hreflang="hr" href="https://www.mino.co.at/hr/osnivanje-tvrtke-bec" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mino.co.at/unternehmensgruendung-wien" />
+  </url>
+  <url>
+    <loc>https://www.mino.co.at/hr/osnivanje-tvrtke-bec</loc>
+    <xhtml:link rel="alternate" hreflang="de-AT" href="https://www.mino.co.at/unternehmensgruendung-wien" />
+    <xhtml:link rel="alternate" hreflang="hr" href="https://www.mino.co.at/hr/osnivanje-tvrtke-bec" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mino.co.at/unternehmensgruendung-wien" />
+  </url>
+  <url>
+    <loc>https://www.mino.co.at/impressum</loc>
+    <xhtml:link rel="alternate" hreflang="de-AT" href="https://www.mino.co.at/impressum" />
+    <xhtml:link rel="alternate" hreflang="hr" href="https://www.mino.co.at/hr/impressum" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mino.co.at/impressum" />
+  </url>
+  <url>
+    <loc>https://www.mino.co.at/hr/impressum</loc>
+    <xhtml:link rel="alternate" hreflang="de-AT" href="https://www.mino.co.at/impressum" />
+    <xhtml:link rel="alternate" hreflang="hr" href="https://www.mino.co.at/hr/impressum" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mino.co.at/impressum" />
+  </url>
+  <url>
+    <loc>https://www.mino.co.at/datenschutzerklaerung</loc>
+    <xhtml:link rel="alternate" hreflang="de-AT" href="https://www.mino.co.at/datenschutzerklaerung" />
+    <xhtml:link rel="alternate" hreflang="hr" href="https://www.mino.co.at/hr/pravila-privatnosti" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mino.co.at/datenschutzerklaerung" />
+  </url>
+  <url>
+    <loc>https://www.mino.co.at/hr/pravila-privatnosti</loc>
+    <xhtml:link rel="alternate" hreflang="de-AT" href="https://www.mino.co.at/datenschutzerklaerung" />
+    <xhtml:link rel="alternate" hreflang="hr" href="https://www.mino.co.at/hr/pravila-privatnosti" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.mino.co.at/datenschutzerklaerung" />
   </url>
 </urlset>

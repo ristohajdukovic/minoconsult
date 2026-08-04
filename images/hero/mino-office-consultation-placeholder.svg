@@ -5,7 +5,7 @@
   <path d="M0 742 520 222l880 520v191H0Z" fill="#d7e7e0"/>
   <path d="M234 933V332h932v601" fill="none" stroke="#0a1c1a" stroke-width="4"/>
   <path d="M234 566h932M544 332v601M856 332v601" fill="none" stroke="#0a1c1a" stroke-opacity=".35" stroke-width="3"/>
-  <rect x="82" y="78" width="376" height="206" rx="4" fill="#b86a64"/>
+  <rect x="82" y="78" width="376" height="206" rx="4" fill="#313638"/>
   <path d="M128 128h284M128 176h210M128 224h242" stroke="#fff" stroke-opacity=".74" stroke-width="9"/>
   <circle cx="1118" cy="186" r="90" fill="#0a1c1a"/>
   <path d="M1074 186h88M1118 142v88" stroke="#edf4f1" stroke-width="8"/>

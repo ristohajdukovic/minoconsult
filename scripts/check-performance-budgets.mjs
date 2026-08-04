@@ -1,6 +1,7 @@
 import { readdir, readFile, stat } from 'node:fs/promises';
 import { basename, resolve } from 'node:path';
 import budgets from './performance-budgets.config.mjs';
+import { ADVISER_PORTRAIT_PATH, HERO_IMAGE_PATH } from '../src/config/site.js';
 
 const distDir = resolve('dist');
 const failures = [];
@@ -42,10 +43,10 @@ const preloadedFonts = [...rootHtml.matchAll(/<link\s+rel="preload"\s+href="([^"
   .map((match) => outputPathToDist(match[1]));
 withinBudget(preloadedFonts.reduce((sum, file) => sum + (fileSizes.get(file) ?? 0), 0), budgets.criticalPreloadedFontBytes, 'Critical preloaded fonts');
 
-const heroImage = resolve(distDir, 'images', 'hero', 'mino-office-consultation-placeholder.svg');
-const teamImage = resolve(distDir, 'images', 'team', 'tomislav-siketic-placeholder.svg');
-withinBudget(fileSizes.get(heroImage) ?? Infinity, budgets.heroImageBytes, 'Hero image');
-withinBudget(fileSizes.get(teamImage) ?? Infinity, budgets.belowFoldImageBytes, 'Below-the-fold team image');
+const heroImage = outputPathToDist(HERO_IMAGE_PATH || '/brand/mino-logo.svg');
+const adviserVisual = outputPathToDist(ADVISER_PORTRAIT_PATH || '/brand/mino-logo.svg');
+withinBudget(fileSizes.get(heroImage) ?? Infinity, budgets.heroImageBytes, 'Hero visual');
+withinBudget(fileSizes.get(adviserVisual) ?? Infinity, budgets.belowFoldImageBytes, 'Below-the-fold adviser visual');
 
 for (const file of files.filter((candidate) => candidate.endsWith('.html'))) {
   withinBudget(fileSizes.get(file), budgets.generatedHtmlBytesPerPage, `HTML ${file.replace(`${distDir}\\`, '')}`);

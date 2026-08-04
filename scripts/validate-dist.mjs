@@ -2,7 +2,7 @@ import { readdir, readFile } from 'node:fs/promises';
 import { resolve } from 'node:path';
 import { loadEnv } from 'vite';
 import { allPages, homeContentByLanguage } from '../src/config/routes.js';
-import { absoluteUrl, resolveSiteUrl } from '../src/config/site.js';
+import { absoluteUrl, resolveSiteUrl, SOCIAL_IMAGE_PATH } from '../src/config/site.js';
 
 const distDir = resolve('dist');
 const env = loadEnv('production', process.cwd(), '');
@@ -70,7 +70,17 @@ for (const page of allPages) {
   for (const requiredMeta of ['og:title', 'og:description', 'og:type', 'og:url', 'og:site_name', 'og:locale']) {
     if (!new RegExp(`<meta\\s+property="${requiredMeta}"`, 'i').test(html)) failures.push(`${page.path}: missing ${requiredMeta}`);
   }
-  if (!/<meta\s+name="twitter:card"\s+content="summary_large_image"/i.test(html)) failures.push(`${page.path}: missing twitter card`);
+  const expectedTwitterCard = SOCIAL_IMAGE_PATH ? 'summary_large_image' : 'summary';
+  if (!new RegExp(`<meta\\s+name="twitter:card"\\s+content="${expectedTwitterCard}"`, 'i').test(html)) failures.push(`${page.path}: incorrect twitter card type`);
+  const expectedSocialImage = SOCIAL_IMAGE_PATH ? absoluteUrl(siteUrl, SOCIAL_IMAGE_PATH) : null;
+  const openGraphImageMatches = matches(html, /<meta\s+property="og:image"\s+content="([^"]+)"\s*\/>/gi);
+  const twitterImageMatches = matches(html, /<meta\s+name="twitter:image"\s+content="([^"]+)"\s*\/>/gi);
+  if (expectedSocialImage) {
+    if (openGraphImageMatches.length !== 1 || openGraphImageMatches[0]?.[1] !== expectedSocialImage) failures.push(`${page.path}: incorrect Open Graph image`);
+    if (twitterImageMatches.length !== 1 || twitterImageMatches[0]?.[1] !== expectedSocialImage) failures.push(`${page.path}: incorrect Twitter image`);
+  } else if (openGraphImageMatches.length > 0 || twitterImageMatches.length > 0) {
+    failures.push(`${page.path}: unresolved social image metadata must be omitted`);
+  }
 
   const schemaMatches = matches(html, /<script\s+type="application\/ld\+json">([\s\S]*?)<\/script>/gi);
   if (schemaMatches.length < 2) failures.push(`${page.path}: expected structured data is missing`);
@@ -167,12 +177,11 @@ if (usesProjectPages) {
   }
 } else {
   try {
-    const publicCname = (await readFile(resolve('public', 'CNAME'), 'utf8')).trim();
     const distCname = (await readFile(resolve(distDir, 'CNAME'), 'utf8')).trim();
-    if (publicCname !== 'www.mino.co.at') failures.push('public/CNAME does not contain www.mino.co.at');
-    if (distCname !== 'www.mino.co.at') failures.push('dist/CNAME does not contain www.mino.co.at');
+    const expectedCname = new URL(siteUrl).hostname;
+    if (distCname !== expectedCname) failures.push(`dist/CNAME does not contain ${expectedCname}`);
   } catch {
-    failures.push('public/CNAME or dist/CNAME is missing');
+    failures.push('dist/CNAME is missing or the configured production domain is invalid');
   }
 }
 

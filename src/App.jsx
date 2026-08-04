@@ -3,7 +3,7 @@
    provided based on the principal's KSW credential. Consider
    updating the Firmenbuch entry to add Steuerberatung at next
    Notar appointment. Not blocking for website launch. */
-import React, { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { lazy, Suspense, useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import {
   getPageByPath,
   homeContentByLanguage,
@@ -13,9 +13,16 @@ import {
   absoluteUrl,
   MAP_EXTERNAL_URL,
   OFFICE_ADDRESS,
+  SOCIAL_IMAGE_PATH,
   SITE_NAME,
   SITE_URL,
 } from './config/site.js';
+import {
+  getApprovedAdviserBiography,
+  getApprovedImage,
+  getApprovedProfessionalRegistration,
+  getApprovedTargetClientCopy,
+} from './config/customerContent.js';
 import { getPublicTrustFacts, verifiedBusinessFacts } from './config/verifiedBusinessFacts.js';
 import Icon from './components/Icon.jsx';
 import { FOCUSABLE_SELECTOR, lockBodyScroll } from './accessibility/dialog.js';
@@ -120,6 +127,10 @@ function setMetaContent(selector, contentValue) {
   element.setAttribute('content', contentValue);
 }
 
+function removeMeta(selector) {
+  document.head.querySelector(selector)?.remove();
+}
+
 function setCanonicalHref(url) {
   let element = document.head.querySelector('link[rel="canonical"]');
 
@@ -190,84 +201,108 @@ function LocalizedText({ text, language }) {
   );
 }
 
-function ScrollHighlightText({ text }) {
-  const headingRef = useRef(null);
-  const words = useMemo(() => text.trim().split(/\s+/), [text]);
-  const [activeWordCount, setActiveWordCount] = useState(1);
-
-  useEffect(() => {
-    const heading = headingRef.current;
-    if (!heading) return undefined;
-
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-    if (reduceMotion.matches) {
-      setActiveWordCount(words.length);
-      return undefined;
-    }
-
-    let frameId = 0;
-
-    const updateHighlight = () => {
-      window.cancelAnimationFrame(frameId);
-      frameId = window.requestAnimationFrame(() => {
-        const rect = heading.getBoundingClientRect();
-        const start = window.innerHeight * 0.86;
-        const end = window.innerHeight * 0.2;
-        const progress = Math.min(1, Math.max(0, (start - rect.top) / (start - end + rect.height * 0.5)));
-        setActiveWordCount(Math.max(1, Math.ceil(progress * words.length)));
-      });
-    };
-
-    updateHighlight();
-    window.addEventListener('scroll', updateHighlight, { passive: true });
-    window.addEventListener('resize', updateHighlight);
-
-    return () => {
-      window.cancelAnimationFrame(frameId);
-      window.removeEventListener('scroll', updateHighlight);
-      window.removeEventListener('resize', updateHighlight);
-    };
-  }, [words.length]);
-
-  return (
-    <h2 ref={headingRef} className="value-highlight-heading reveal">
-      {words.map((word, index) => (
-        <span
-          key={`${word}-${index}`}
-          className={`value-highlight-word ${index < activeWordCount ? 'is-active' : ''}`}
-        >
-          {word}
-        </span>
-      ))}
-    </h2>
-  );
-}
-
 function useScrollReveal() {
-  useEffect(() => {
+  useLayoutEffect(() => {
     const elements = Array.from(document.querySelectorAll('.reveal'));
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-    if (!('IntersectionObserver' in window)) {
+    if (reduceMotion || !('IntersectionObserver' in window)) {
       elements.forEach((element) => element.classList.add('is-visible'));
       return undefined;
     }
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            entry.target.classList.add('is-visible');
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      { rootMargin: '0px 0px -8% 0px', threshold: 0.16 },
-    );
+    let observer;
 
-    elements.forEach((element) => observer.observe(element));
+    try {
+      observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('is-visible');
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        { rootMargin: '0px 0px -8% 0px', threshold: 0.01 },
+      );
+    } catch {
+      elements.forEach((element) => element.classList.add('is-visible'));
+      return undefined;
+    }
 
-    return () => observer.disconnect();
+    try {
+      elements.forEach((element) => observer.observe(element));
+    } catch {
+      observer.disconnect();
+      elements.forEach((element) => element.classList.add('is-visible'));
+      return undefined;
+    }
+
+    document.documentElement.classList.add('reveal-enhanced');
+    const visibilityFallback = window.setTimeout(() => {
+      elements.forEach((element) => element.classList.add('is-visible'));
+    }, 1500);
+
+    return () => {
+      window.clearTimeout(visibilityFallback);
+      observer.disconnect();
+      document.documentElement.classList.remove('reveal-enhanced');
+    };
   }, []);
+}
+
+function useHeaderFocusHandoff(stickyVisible) {
+  const lastHeaderFocus = useRef(null);
+  const previousStickyVisible = useRef(stickyVisible);
+
+  useEffect(() => {
+    const rememberHeaderFocus = (event) => {
+      if (!(event.target instanceof HTMLElement)) return;
+      const header = event.target.closest('.site-header, .delayed-sticky-header');
+      if (!header) return;
+
+      lastHeaderFocus.current = {
+        element: event.target,
+        headerKind: header.classList.contains('delayed-sticky-header') ? 'sticky' : 'primary',
+        wasInMobileMenu: Boolean(event.target.closest('.mobile-menu-panel')),
+      };
+    };
+
+    document.addEventListener('focusin', rememberHeaderFocus);
+    return () => document.removeEventListener('focusin', rememberHeaderFocus);
+  }, []);
+
+  useLayoutEffect(() => {
+    if (previousStickyVisible.current === stickyVisible) return;
+    previousStickyVisible.current = stickyVisible;
+
+    const previous = lastHeaderFocus.current;
+    const sourceKind = stickyVisible ? 'primary' : 'sticky';
+    if (!previous || previous.headerKind !== sourceKind) return;
+
+    const sourceHeader = previous.element.closest('.site-header, .delayed-sticky-header');
+    const activeElement = document.activeElement;
+    if (activeElement !== previous.element && activeElement !== document.body && !sourceHeader?.contains(activeElement)) return;
+
+    const targetHeader = document.querySelector(stickyVisible ? '.delayed-sticky-header' : '.site-header');
+    if (!targetHeader) return;
+
+    let target;
+    if (previous.wasInMobileMenu || previous.element.matches('.hamburger-button')) {
+      target = targetHeader.querySelector('.hamburger-button');
+    } else if (previous.element.matches('.language-switcher a')) {
+      target = targetHeader.querySelector(`.language-switcher a[lang="${previous.element.lang}"]`);
+    } else if (previous.element.matches('.brand-logo')) {
+      target = targetHeader.querySelector('.brand-logo');
+    } else if (previous.element.matches('[data-booking-trigger]')) {
+      target = targetHeader.querySelector('[data-booking-trigger]');
+    } else if (previous.element.matches('a[href]')) {
+      const href = previous.element.getAttribute('href');
+      target = Array.from(targetHeader.querySelectorAll('a[href]')).find((link) => link.getAttribute('href') === href);
+    }
+
+    target?.focus({ preventScroll: true });
+  }, [stickyVisible]);
 }
 
 function useDelayedStickyHeader() {
@@ -374,7 +409,7 @@ function BrandLogo({ routePath, language, onClick }) {
   const homePath = language === 'hr' ? '/hr/' : '/';
   return (
     <a href={routePath === homePath ? '#top' : getRouteHref(homePath)} className="brand-logo" onClick={onClick} aria-label="MINO Consulting KG">
-      <img src={`${import.meta.env.BASE_URL}mino-logo.svg`} alt="" width="344" height="143" />
+      <img src={`${import.meta.env.BASE_URL}brand/mino-logo.svg`} alt="" width="344" height="143" />
     </a>
   );
 }
@@ -389,10 +424,10 @@ function Header({ t, page, onBook, routePath, isInert = false }) {
       aria-hidden={isInert || undefined}
       inert={isInert ? true : undefined}
     >
-      <nav className="section-shell header-navigation flex h-[4.5rem] items-center justify-between sm:h-[4.75rem]" aria-label={t.meta.primaryNavigationLabel}>
+      <nav className="section-shell header-navigation flex items-center justify-between" aria-label={t.meta.primaryNavigationLabel}>
         <BrandLogo routePath={routePath} language={page.language} onClick={() => closeMenu(false)} />
 
-        <div className="hidden items-center gap-8 md:flex">
+        <div className="desktop-nav hidden items-center lg:flex">
           {t.nav.map((item) => (
             <a key={item.href} className="nav-link" href={resolveNavHref(item.href, routePath, page.language)}>
               {item.label}
@@ -403,13 +438,13 @@ function Header({ t, page, onBook, routePath, isInert = false }) {
         <div className="flex items-center gap-2 sm:gap-3">
           <LanguageSwitcher page={page} label={t.meta.languageLabel} />
           <div className="hidden sm:block">
-            <button className="button-primary" type="button" onClick={onBook}>
+            <button className="button-primary" type="button" onClick={onBook} data-booking-trigger="header">
               {t.cta.book}
             </button>
           </div>
           <button
             ref={buttonRef}
-            className="hamburger-button md:hidden"
+            className="hamburger-button lg:hidden"
             type="button"
             aria-label={t.meta.menuLabel}
             aria-expanded={isOpen}
@@ -433,7 +468,7 @@ function Header({ t, page, onBook, routePath, isInert = false }) {
         <nav
           ref={menuRef}
           id={mobileMenuId}
-          className="mobile-menu-panel border-t border-forest/50 bg-white md:hidden"
+          className="mobile-menu-panel border-t border-forest/50 bg-white lg:hidden"
           aria-label={t.meta.mobileNavigationLabel}
         >
           <div className="section-shell grid gap-3 py-5">
@@ -469,10 +504,10 @@ function DelayedStickyHeader({ t, page, onBook, isVisible, routePath }) {
       aria-hidden={!isVisible}
       inert={!isVisible ? true : undefined}
     >
-      <nav className="section-shell header-navigation flex h-[4.5rem] items-center justify-between sm:h-16" aria-label={t.meta.stickyNavigationLabel}>
+      <nav className="section-shell header-navigation flex items-center justify-between" aria-label={t.meta.stickyNavigationLabel}>
         <BrandLogo routePath={routePath} language={page.language} onClick={() => closeMenu(false)} />
 
-        <div className="hidden items-center gap-8 md:flex">
+        <div className="desktop-nav hidden items-center lg:flex">
           {t.nav.map((item) => (
             <a key={item.href} className="nav-link" href={resolveNavHref(item.href, routePath, page.language)}>
               {item.label}
@@ -483,13 +518,13 @@ function DelayedStickyHeader({ t, page, onBook, isVisible, routePath }) {
         <div className="flex items-center gap-2 sm:gap-3">
           <LanguageSwitcher page={page} label={t.meta.languageLabel} />
           <div className="hidden sm:block">
-            <button className="button-primary py-2.5" type="button" onClick={onBook}>
+            <button className="button-primary py-2.5" type="button" onClick={onBook} data-booking-trigger="sticky-header">
               {t.cta.book}
             </button>
           </div>
           <button
             ref={buttonRef}
-            className="hamburger-button md:hidden"
+            className="hamburger-button lg:hidden"
             type="button"
             aria-label={t.meta.menuLabel}
             aria-expanded={isOpen}
@@ -513,7 +548,7 @@ function DelayedStickyHeader({ t, page, onBook, isVisible, routePath }) {
         <nav
           ref={menuRef}
           id={mobileMenuId}
-          className="mobile-menu-panel border-t border-forest/50 bg-white md:hidden"
+          className="mobile-menu-panel border-t border-forest/50 bg-white lg:hidden"
           aria-label={t.meta.mobileNavigationLabel}
         >
           <div className="section-shell grid gap-3 py-5">
@@ -609,20 +644,37 @@ function renderLegalItem(item, language, newWindowText) {
   return <LocalizedText text={item} language={language} />;
 }
 
-function HeroImage({ t, className = '' }) {
+function HeroVisual({ t, className = '' }) {
+  const approvedHeroImage = getApprovedImage('heroImage', t.language);
+  const [imageUnavailable, setImageUnavailable] = useState(false);
+  const hasApprovedHeroImage = Boolean(approvedHeroImage && !imageUnavailable);
+
+  useEffect(() => setImageUnavailable(false), [approvedHeroImage?.path]);
+
   return (
     <div className={className}>
-      <div className="hero-image-frame">
-        <img
-          className="w-full rounded-t-md object-cover"
-          src={`${import.meta.env.BASE_URL}images/hero/mino-office-consultation-placeholder.svg`}
-          alt={t.hero.imageAlt}
-          width="1400"
-          height="933"
-          fetchPriority="high"
-          sizes="(min-width: 1024px) 46vw, 100vw"
-          onError={(event) => event.currentTarget.classList.add('is-unavailable')}
-        />
+      <div className="hero-image-frame" data-media={hasApprovedHeroImage ? 'photography' : 'brand'}>
+        {hasApprovedHeroImage ? (
+          <img
+            className="hero-photo w-full rounded-t-md object-cover"
+            src={`${import.meta.env.BASE_URL}${approvedHeroImage.path.replace(/^\//, '')}`}
+            alt={approvedHeroImage.alt}
+            width={approvedHeroImage.width}
+            height={approvedHeroImage.height}
+            fetchPriority="high"
+            sizes="(min-width: 1024px) 46vw, 100vw"
+            onError={() => setImageUnavailable(true)}
+          />
+        ) : (
+          <div className="hero-brand-fallback" aria-hidden="true">
+            <img
+              src={`${import.meta.env.BASE_URL}brand/mino-logo.svg`}
+              alt=""
+              width="344"
+              height="143"
+            />
+          </div>
+        )}
         <a className="scroll-badge" href="#value">
           {t.cta.scroll}
           <ChevronsDown size={15} aria-hidden="true" />
@@ -639,15 +691,15 @@ function Hero({ t, onBook }) {
   return (
     <section id="top" className="hero-section relative overflow-hidden">
       <div className="section-shell hero-layout">
-        <div className="hero-copy reveal">
-          <p className="hero-kicker">{t.hero.label}</p>
+        <div className="hero-copy">
+          <p className="hero-eyebrow">{t.hero.eyebrow}</p>
           <h1>
             <RichText parts={t.hero.title} />
           </h1>
           <p className="mt-4 max-w-lg text-forest/75 sm:mt-5"><LocalizedText text={t.hero.body} language={t.language} /></p>
 
-          <div className="hero-actions reveal reveal-delay-2" data-hero-cta>
-            <button className="button-primary w-full sm:w-auto" type="button" onClick={onBook}>
+          <div className="hero-actions" data-hero-cta>
+            <button className="button-primary w-full sm:w-auto" type="button" onClick={onBook} data-booking-trigger="home-hero">
               {t.cta.book}
             </button>
             <a
@@ -661,7 +713,7 @@ function Hero({ t, onBook }) {
 
         </div>
 
-        <HeroImage t={t} className="hero-visual relative reveal reveal-delay-1" />
+        <HeroVisual t={t} className="hero-visual relative" />
       </div>
     </section>
   );
@@ -687,155 +739,63 @@ function VerifiedFactsStrip({ language }) {
 
 function ValueProposition({ t }) {
   return (
-    <section id="value" className="section-spacious value-section section-surface-light relative">
+    <section id="value" className="value-section section-surface-light">
       <div className="section-shell value-section-shell">
-        <ScrollHighlightText text={t.value.statement} />
-
-        <div className="value-feature-grid">
-          {t.value.features.map((item, index) => {
-            const Icon = iconComponents[item.icon];
-            return (
-              <article key={item.text} className={`feature-item reveal reveal-delay-${Math.min(index, 2)}`}>
-                <span className="feature-icon">
-                  <Icon size={18} aria-hidden="true" />
-                </span>
-                <p><LocalizedText text={item.text} language={t.language} /></p>
-              </article>
-            );
-          })}
-        </div>
+        <small>{t.value.eyebrow}</small>
+        <h2>{t.value.title}</h2>
+        <p><LocalizedText text={t.value.intro} language={t.language} /></p>
       </div>
     </section>
   );
 }
 
 function Services({ t, language }) {
-  const servicesListRef = useRef(null);
-  const [activeServiceIndex, setActiveServiceIndex] = useState(0);
-
-  useEffect(() => {
-    const list = servicesListRef.current;
-    if (!list) return undefined;
-    const motionQuery = window.matchMedia('(min-width: 1024px) and (prefers-reduced-motion: no-preference)');
-    let observer;
-
-    const observeServices = () => {
-      observer?.disconnect();
-      if (!motionQuery.matches || !('IntersectionObserver' in window)) {
-        setActiveServiceIndex(0);
-        return;
-      }
-
-      const ratios = new Map();
-      const items = Array.from(list.querySelectorAll('.service-editorial-item'));
-      observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => ratios.set(entry.target, entry.isIntersecting ? entry.intersectionRatio : 0));
-        let nextIndex = 0;
-        let highestRatio = 0;
-        items.forEach((item, index) => {
-          const ratio = ratios.get(item) ?? 0;
-          if (ratio > highestRatio) {
-            highestRatio = ratio;
-            nextIndex = index;
-          }
-        });
-        setActiveServiceIndex((currentIndex) => (currentIndex === nextIndex ? currentIndex : nextIndex));
-      }, { rootMargin: '-18% 0px -34% 0px', threshold: [0, 0.25, 0.5, 0.75, 1] });
-
-      items.forEach((item) => observer.observe(item));
-    };
-
-    observeServices();
-    motionQuery.addEventListener?.('change', observeServices);
-
-    return () => {
-      observer?.disconnect();
-      motionQuery.removeEventListener?.('change', observeServices);
-    };
-  }, [t.services.length]);
+  const primaryPaths = new Set(t.services.map((service) => service.path));
+  const secondaryServicePages = servicePagesByLanguage[language]
+    .filter((page) => !primaryPaths.has(page.path));
 
   return (
-    <section id="services" className="services-editorial-section section-surface-warm">
-      <div className="section-shell services-editorial-shell">
-        <div className="services-editorial-intro reveal">
+    <section id="services" className="services-section section-surface-warm">
+      <div className="section-shell services-shell">
+        <div className="services-intro">
           <h2>
             <RichText parts={t.servicesIntro.title} />
           </h2>
+          <p>{t.servicesIntro.body}</p>
         </div>
 
-        <div className="services-intro-rule reveal" aria-hidden="true" />
-
-        <p className="services-editorial-lede reveal">
-          {t.servicesIntro.body}
-        </p>
-
-        <div
-          className="services-editorial-list"
-          ref={servicesListRef}
-          style={{ '--service-index': activeServiceIndex }}
-        >
-          <div className="service-number-rail" aria-hidden="true">
-            <div className="service-number-sticky">
-              <div className="service-number-stack">
-                {t.services.map((service, index) => (
-                  <span key={service.id}>{String(index + 1).padStart(2, '0')}</span>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div className="service-editorial-items">
-            {t.services.map((service, index) => {
-              const serviceHref = getRouteHref(service.path);
-
-              return (
-                <article
-                  key={service.id}
-                  className="service-editorial-item reveal"
-                  data-active={activeServiceIndex === index ? 'true' : 'false'}
+        <div className="service-grid">
+          {t.services.map((service) => {
+            const title = service.title.map((part) => part.text).join('');
+            return (
+              <article key={service.id} className="service-card">
+                <small>{service.subtitle}</small>
+                <h3><RichText parts={service.title} /></h3>
+                <p><LocalizedText text={service.body} language={language} /></p>
+                <a
+                  className="service-card-link"
+                  href={getRouteHref(service.path)}
+                  aria-label={`${t.cta.learnMore}: ${title}`}
                 >
-                  <div className="service-editorial-content">
-                    <small className="service-editorial-label">{service.subtitle}</small>
-                    <div className="service-editorial-heading-row">
-                      <span className="service-editorial-mobile-number" aria-hidden="true">
-                        {String(index + 1).padStart(2, '0')}
-                      </span>
-                      <h3>
-                        <RichText parts={service.title} />
-                      </h3>
-                    </div>
-                    <p><LocalizedText text={service.body} language={language} /></p>
-
-                    <a
-                      className="service-editorial-link"
-                      href={serviceHref}
-                      aria-label={`${t.cta.learnMore}: ${service.title.map((part) => part.text).join('')}`}
-                    >
-                      {t.cta.learnMore}: {service.title.map((part) => part.text).join('')}
-                      <ArrowRight size={17} aria-hidden="true" />
-                    </a>
-                  </div>
-                </article>
-              );
-            })}
-          </div>
+                  {t.cta.learnMore}
+                  <ArrowRight size={16} aria-hidden="true" />
+                </a>
+              </article>
+            );
+          })}
         </div>
 
-        <nav className="service-page-nav reveal" aria-label={t.localServices.label}>
-          <div className="service-page-nav-heading">
-            <h3>{t.localServices.title}</h3>
-            <p>{t.localServices.body}</p>
-          </div>
-          <small>{t.localServices.label}</small>
-          <div className="service-page-link-grid">
-            {servicePagesByLanguage[language].map((page) => (
-              <a key={page.path} className="service-page-link" href={getRouteHref(page.path)}>
+        {secondaryServicePages.length > 0 && (
+          <nav className="service-secondary-nav" aria-label={t.localServices.label}>
+            <small>{t.localServices.label}</small>
+            {secondaryServicePages.map((page) => (
+              <a key={page.path} href={getRouteHref(page.path)}>
                 {page.eyebrow}
-                <ArrowUpRight size={14} aria-hidden="true" />
+                <ArrowRight size={15} aria-hidden="true" />
               </a>
             ))}
-          </div>
-        </nav>
+          </nav>
+        )}
       </div>
     </section>
   );
@@ -869,18 +829,19 @@ function WorkingProcess({ t }) {
 }
 
 function ClientFitSection({ t }) {
-  if (!t.clientFit?.cards?.length) return null;
+  const clientFit = getApprovedTargetClientCopy(t.language) ?? t.clientFit;
+  if (!clientFit?.cards?.length) return null;
 
   return (
     <section className="section-spacious section-surface-cream">
       <div className="section-shell">
         <div className="mx-auto max-w-3xl text-center reveal">
-          <h2>{t.clientFit.title}</h2>
-          <p className="mt-4">{t.clientFit.body}</p>
+          <h2>{clientFit.title}</h2>
+          <p className="mt-4">{clientFit.body}</p>
         </div>
 
         <div className="specialization-grid reveal reveal-delay-1">
-          {t.clientFit.cards.map((card) => (
+          {clientFit.cards.map((card) => (
             <article className="specialization-card" key={card.title}>
               <h3>{card.title}</h3>
               <p>{card.body}</p>
@@ -892,45 +853,72 @@ function ClientFitSection({ t }) {
   );
 }
 
-function About({ t }) {
-  return (
-    <section id="about" className="section-spacious section-surface-light">
-      <div className="section-shell grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-        <div className="founder-placeholder reveal">
-          <img
-            src={`${import.meta.env.BASE_URL}images/team/tomislav-siketic-placeholder.svg`}
-            alt=""
-            width="1100"
-            height="1375"
-            loading="lazy"
-            decoding="async"
-            sizes="(min-width: 1024px) 40vw, 100vw"
-            onError={(event) => event.currentTarget.classList.add('is-unavailable')}
-          />
-        </div>
+function AdviserVisual({ t }) {
+  const approvedPortrait = getApprovedImage('adviserPortrait', t.language);
+  const [imageUnavailable, setImageUnavailable] = useState(false);
+  const hasApprovedPortrait = Boolean(approvedPortrait && !imageUnavailable);
 
-        <div className="reveal reveal-delay-1">
-          <small className="tag-pill">
-            <ShieldCheck size={14} aria-hidden="true" />
-            {t.about.badge}
-          </small>
-          <h2 className="mt-5">
-            <RichText parts={t.about.title} />
-          </h2>
-          <div className="principal-block">
-            <p className="principal-name">{t.about.principalName}</p>
-            <p className="principal-role">{t.about.principalRole}</p>
-            <p className="principal-registration">{t.about.principalRegistration}</p>
+  useEffect(() => setImageUnavailable(false), [approvedPortrait?.path]);
+
+  return (
+    <div className="adviser-visual" data-media={hasApprovedPortrait ? 'portrait' : 'brand'}>
+      {hasApprovedPortrait ? (
+        <img
+          className="adviser-portrait"
+          src={`${import.meta.env.BASE_URL}${approvedPortrait.path.replace(/^\//, '')}`}
+          alt={approvedPortrait.alt}
+          width={approvedPortrait.width}
+          height={approvedPortrait.height}
+          loading="lazy"
+          decoding="async"
+          sizes="(min-width: 1024px) 36vw, 100vw"
+          onError={() => setImageUnavailable(true)}
+        />
+      ) : (
+        <div className="adviser-identity-panel">
+          <img
+            src={`${import.meta.env.BASE_URL}brand/mino-logo.svg`}
+            alt=""
+            width="344"
+            height="143"
+          />
+          <div>
+            <p className="adviser-identity-name">{t.about.principalName}</p>
+            <p className="adviser-identity-role">{t.about.principalRole}</p>
           </div>
-          <div className="mt-6 space-y-5 text-forest/75">
-            {t.about.paragraphs.map((paragraph) => (
-              <p key={paragraph}><LocalizedText text={paragraph} language={t.language} /></p>
-            ))}
-          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function About({ t }) {
+  const adviserBiography = getApprovedAdviserBiography(t.language) ?? t.about.summary;
+  const professionalRegistration = getApprovedProfessionalRegistration(t.language);
+
+  return (
+    <section id="about" className="about-section section-surface-light">
+      <div className="section-shell about-layout">
+        <AdviserVisual t={t} />
+
+        <div className="about-copy">
+          <p className="about-eyebrow">{t.about.eyebrow}</p>
+          <h2>{t.about.principalName}</h2>
+          <p className="principal-role">{t.about.principalRole}</p>
+          <p className="about-summary"><LocalizedText text={adviserBiography} language={t.language} /></p>
+          <ul className="about-facts" aria-label={t.about.factsLabel}>
+            {t.about.facts.map((fact) => <li key={fact}>{fact}</li>)}
+          </ul>
           <a className="about-legal-link" href={getRouteHref(t.language === 'hr' ? '/hr/impressum' : '/impressum')}>
             {t.about.legalLinkLabel}
             <ArrowUpRight size={14} aria-hidden="true" />
           </a>
+          {professionalRegistration && (
+            <a className="about-legal-link" href={professionalRegistration.url} target="_blank" rel="noopener noreferrer">
+              {professionalRegistration.label}
+              <ArrowUpRight size={14} aria-hidden="true" />
+            </a>
+          )}
         </div>
       </div>
     </section>
@@ -1011,14 +999,11 @@ function SeoLandingPage({ page, onBook }) {
       <section id="top" className="seo-hero-section section-surface-warm">
         <div className="section-shell seo-hero-layout">
           <div className="reveal">
-            <small className="tag-pill">
-              <MapPin size={14} aria-hidden="true" />
-              {page.eyebrow}
-            </small>
+            <small className="section-eyebrow">{page.eyebrow}</small>
             <h1 className="mt-5">{page.h1}</h1>
             <p className="mt-5 max-w-2xl text-forest/75"><LocalizedText text={page.intro} language={page.language} /></p>
             <div className="mt-7 flex flex-col gap-3 sm:flex-row" data-hero-cta>
-              <button className="button-primary" type="button" onClick={onBook}>
+              <button className="button-primary" type="button" onClick={onBook} data-booking-trigger="service-hero">
                 {ui.book}
                 <ArrowRight size={16} aria-hidden="true" />
               </button>
@@ -1126,7 +1111,7 @@ function SeoLandingPage({ page, onBook }) {
               <p className="mt-5 text-forest/75"><LocalizedText text={page.ctaBody} language={page.language} /></p>
             </div>
             <div className="seo-cta-actions">
-              <button className="button-primary" type="button" onClick={onBook}>
+              <button className="button-primary" type="button" onClick={onBook} data-booking-trigger="service-cta">
                 {ui.book}
                 <ArrowRight size={16} aria-hidden="true" />
               </button>
@@ -1165,7 +1150,7 @@ function LegalPage({ page, onPrivacySettings }) {
     <section id="top" className="section-spacious section-surface-light">
       <div className="section-shell legal-page">
         <div className={`max-w-3xl ${isPrivacyPage ? '' : 'reveal'}`}>
-          <small className="tag-pill">{ui.legal}</small>
+          <small className="section-eyebrow">{ui.legal}</small>
           <h1 className="mt-5">{page.h1}</h1>
           <p className="mt-5 text-forest/70"><LocalizedText text={page.intro} language={page.language} /></p>
           {isPrivacyPage && (
@@ -1216,94 +1201,101 @@ function LegalPage({ page, onPrivacySettings }) {
 
 function Contact({ t, onBook, onPrivacySettings, routePath }) {
   const contactDetails = t.contact.cards.filter((item) => item.icon !== 'calendar');
+  const servicePages = servicePagesByLanguage[t.language];
 
   return (
-    <footer id="contact" className="footer-spacious footer-contact bg-forest text-white">
-      <div className="section-shell">
-        <div className="footer-contact-top">
-          <div className="reveal">
-            <div className="footer-accent-line" aria-hidden="true" />
-            <h2 className="mt-6 text-white">
-              <RichText parts={t.contact.title} />
-            </h2>
-            <p className="footer-contact-copy mt-6">{t.contact.body}</p>
-            <p className="footer-contact-copy mt-3">{t.contact.reassurance}</p>
-            <button
-              className="footer-cta-button mt-9"
-              type="button"
-              onClick={onBook}
-            >
-              {t.contact.button}
-              <ArrowRight size={17} aria-hidden="true" />
-            </button>
-          </div>
+    <footer id="contact" className="footer-contact">
+      <div className="footer-main">
+        <div className="negative-footer__wordmark-stage" aria-hidden="true">
+          <img
+            className="negative-footer__wordmark"
+            src={`${import.meta.env.BASE_URL}brand/mino-wordmark-footer-white.svg`}
+            alt=""
+            aria-hidden="true"
+            width="343.55"
+            height="79.5"
+            draggable="false"
+          />
+        </div>
 
-          <div className="footer-contact-list reveal reveal-delay-1">
-            {contactDetails.map((item) => {
-              const Icon = iconComponents[item.icon];
-              const href = getContactHref(item);
-              return (
-                <div key={item.label} className="footer-contact-item">
-                  <Icon size={21} aria-hidden="true" />
-                  <div>
-                    <small>{item.label}</small>
-                    <p>
-                      {href ? (
-                        <a href={href}>{item.value}</a>
-                      ) : (
-                        item.value
-                      )}
-                    </p>
-                  </div>
+        <div className="negative-footer__content-wrap">
+          <div className="section-shell">
+            <div className="negative-footer__content">
+              <div className="footer-contact-top reveal">
+                <div>
+                  <h2><RichText parts={t.contact.title} /></h2>
+                  <p className="footer-contact-copy">{t.contact.body}</p>
+                  <p className="footer-contact-copy">{t.contact.reassurance}</p>
                 </div>
-              );
-            })}
-          </div>
-        </div>
+                <button className="footer-cta-button" type="button" onClick={onBook} data-booking-trigger="footer">
+                  {t.contact.button}
+                  <ArrowRight size={17} aria-hidden="true" />
+                </button>
+              </div>
 
-        <div className="map-panel footer-map-panel reveal">
-          <div className="footer-map-meta">
-            <div>
-              <small className="text-white/50">{t.contact.mapTitle}</small>
-              <p className="mt-2 text-white">{t.contact.mapAddress}</p>
+              <div className="footer-directory">
+                <nav className="footer-column" aria-label={t.meta.primaryNavigationLabel}>
+                  <small>{t.meta.primaryNavigationLabel}</small>
+                  {t.nav.map((item) => (
+                    <a href={resolveNavHref(item.href, routePath, t.language)} key={item.href}>{item.label}</a>
+                  ))}
+                </nav>
+
+                <nav className="footer-column" aria-label={t.localServices.label}>
+                  <small>{t.nav[0].label}</small>
+                  {servicePages.map((page) => (
+                    <a href={getRouteHref(page.path)} key={page.path}>{page.eyebrow}</a>
+                  ))}
+                </nav>
+
+                <div className="footer-column footer-contact-list">
+                  <small>{t.nav[2].label}</small>
+                  {contactDetails.map((item) => {
+                    const Icon = iconComponents[item.icon];
+                    const href = getContactHref(item);
+                    return (
+                      <div key={item.label} className="footer-contact-item">
+                        <Icon size={19} aria-hidden="true" />
+                        <div>
+                          <small>{item.label}</small>
+                          <p>{href ? <a href={href}>{item.value}</a> : item.value}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              <div className="map-panel footer-map-panel reveal">
+                <div className="footer-map-meta">
+                  <a
+                    href={MAP_EXTERNAL_URL}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`${t.contact.mapLink} (${t.meta.newWindow})`}
+                  >
+                    {t.contact.mapLink}
+                    <ArrowUpRight size={16} aria-hidden="true" />
+                  </a>
+                </div>
+                <ConsentControlledMap content={t.mapConsent} />
+              </div>
             </div>
-            <a
-              className="inline-flex items-center gap-2 text-sm font-bold text-taupe transition hover:text-white"
-              href={MAP_EXTERNAL_URL}
-              target="_blank"
-              rel="noopener noreferrer"
-              aria-label={`${t.contact.mapLink} (${t.meta.newWindow})`}
-            >
-              {t.contact.mapLink}
-              <ArrowUpRight size={16} aria-hidden="true" />
-            </a>
           </div>
-          <ConsentControlledMap content={t.mapConsent} />
         </div>
+      </div>
 
-        <div className="footer-bottom-bar">
+      <div className="footer-bottom-bar">
+        <div className="section-shell footer-bottom-inner">
           <p>
             © {new Date().getFullYear()} {verifiedBusinessFacts.companyName} · {OFFICE_ADDRESS} · {verifiedBusinessFacts.commercialRegisterNumber} ({verifiedBusinessFacts.commercialRegisterCourt})
           </p>
-          <div className="footer-bottom-links">
-            {t.nav.map((item) => (
-              <a className="hover:text-white" href={resolveNavHref(item.href, routePath, t.language)} key={item.href}>
-                {item.label}
-              </a>
-            ))}
-            <a className="hover:text-white" href={getRouteHref(t.language === 'hr' ? '/hr/impressum' : '/impressum')}>
-              {t.contact.legalLinks.imprint}
-            </a>
-            <a className="hover:text-white" href={getRouteHref(t.language === 'hr' ? '/hr/pravila-privatnosti' : '/datenschutzerklaerung')}>
-              {t.contact.legalLinks.privacy}
-            </a>
-            <button className="footer-privacy-settings" type="button" onClick={onPrivacySettings}>
-              {t.privacySettings.button}
-            </button>
-            <a className="hover:text-white" href="#top">
-              {t.contact.backTop}
-            </a>
-          </div>
+          <nav className="footer-bottom-links" aria-label={`${t.contact.legalLinks.imprint} / ${t.contact.legalLinks.privacy}`}>
+            <a href={getRouteHref(t.language === 'hr' ? '/hr/impressum' : '/impressum')}>{t.contact.legalLinks.imprint}</a>
+            <a href={getRouteHref(t.language === 'hr' ? '/hr/pravila-privatnosti' : '/datenschutzerklaerung')}>{t.contact.legalLinks.privacy}</a>
+            <button className="footer-privacy-settings" type="button" onClick={onPrivacySettings}>{t.privacySettings.button}</button>
+            <a href="#top">{t.contact.backTop}</a>
+          </nav>
         </div>
       </div>
     </footer>
@@ -1320,6 +1312,7 @@ export default function App() {
   const page = getPageByPath(routePath) ?? getPageByPath('/');
   const t = homeContentByLanguage[page.language];
   const showDelayedStickyHeader = useDelayedStickyHeader();
+  useHeaderFocusHandoff(showDelayedStickyHeader);
 
   const openBooking = useCallback((event) => {
     bookingOpenerRef.current = event?.currentTarget ?? document.activeElement;
@@ -1359,7 +1352,16 @@ export default function App() {
     setMetaContent('meta[property="og:url"]', getCanonicalUrl(page.path));
     setMetaContent('meta[property="og:site_name"]', SITE_NAME);
     setMetaContent('meta[property="og:locale"]', locale);
-    setMetaContent('meta[name="twitter:card"]', 'summary_large_image');
+    if (SOCIAL_IMAGE_PATH) {
+      const socialImageUrl = absoluteUrl(SITE_URL, SOCIAL_IMAGE_PATH);
+      setMetaContent('meta[property="og:image"]', socialImageUrl);
+      setMetaContent('meta[name="twitter:image"]', socialImageUrl);
+      setMetaContent('meta[name="twitter:card"]', 'summary_large_image');
+    } else {
+      removeMeta('meta[property="og:image"]');
+      removeMeta('meta[name="twitter:image"]');
+      setMetaContent('meta[name="twitter:card"]', 'summary');
+    }
     setMetaContent('meta[name="twitter:title"]', page.title ?? page.pageTitle);
     setMetaContent('meta[name="twitter:description"]', page.metaDescription);
     setCanonicalHref(getCanonicalUrl(page.path));
@@ -1369,10 +1371,9 @@ export default function App() {
   }, [page]);
 
   return (
-    <div className="relative min-h-screen overflow-x-clip bg-cream text-forest">
-      <div className="architect-grid" aria-hidden="true" />
+    <div className="relative min-h-screen overflow-x-clip bg-white text-forest">
       <div
-        className="relative z-10"
+        className="site-shell relative z-10"
         aria-hidden={modalOpen || undefined}
         inert={modalOpen ? true : undefined}
       >

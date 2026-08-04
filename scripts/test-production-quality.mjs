@@ -3,6 +3,7 @@ import { resolve } from 'node:path';
 import { chromium } from 'playwright-core';
 import { preview } from 'vite';
 import { allPages } from '../src/config/routes.js';
+import { ADVISER_PORTRAIT_PATH, HERO_IMAGE_PATH, SOCIAL_IMAGE_PATH } from '../src/config/site.js';
 
 const checks = [];
 const failures = [];
@@ -43,6 +44,13 @@ baseUrl = `http://127.0.0.1:${server.httpServer.address().port}`;
 const browser = await chromium.launch({ executablePath: await findBrowser(), headless: true });
 
 try {
+  const appSource = await readFile(resolve('src', 'App.jsx'), 'utf8');
+  const cssSource = await readFile(resolve('src', 'index.css'), 'utf8');
+  const baseRevealRule = cssSource.match(/\.reveal\s*\{([^}]*)\}/)?.[1] ?? '';
+  check(!appSource.includes('ScrollHighlightText'), 'Legacy word-by-word ScrollHighlightText is absent from the application');
+  check(!appSource.includes('threshold: 0.16') && appSource.includes('threshold: 0.01'), 'Reveal observation uses a reachable threshold for oversized elements');
+  check(/opacity:\s*1/.test(baseRevealRule) && /transform:\s*none/.test(baseRevealRule), 'Reveal content defaults to visible before enhancement activates');
+
   const context = await browser.newContext({ viewport: { width: 390, height: 844 } });
   const page = await context.newPage();
   const consoleErrors = [];
@@ -60,6 +68,9 @@ try {
     await page.locator('main h1').waitFor();
     check(await page.locator('main h1').count() === 1, `${route.path} has one runtime H1`);
     check(await page.locator('html').getAttribute('lang') === route.language, `${route.path} has the expected runtime language`);
+    check(await page.locator('meta[name="twitter:card"]').getAttribute('content') === (SOCIAL_IMAGE_PATH ? 'summary_large_image' : 'summary'), `${route.path} runtime social-card type matches social-image availability`);
+    check(await page.locator('meta[property="og:image"]').count() === (SOCIAL_IMAGE_PATH ? 1 : 0), `${route.path} runtime Open Graph image is conditional`);
+    check(await page.locator('meta[name="twitter:image"]').count() === (SOCIAL_IMAGE_PATH ? 1 : 0), `${route.path} runtime Twitter image is conditional`);
 
     const html = await readFile(routeFile(route.path), 'utf8');
     check((html.match(/<link\s+rel="canonical"/gi) ?? []).length === 1, `${route.path} has one static canonical`);
@@ -72,12 +83,24 @@ try {
     width: image.getAttribute('width'),
     height: image.getAttribute('height'),
     loading: image.getAttribute('loading'),
+    alt: image.getAttribute('alt'),
   })));
   check(imageDetails.every((image) => Number(image.width) > 0 && Number(image.height) > 0), 'Every production image has explicit intrinsic dimensions');
   const heroImages = imageDetails.filter((image) => image.src?.includes('/images/hero/'));
-  check(heroImages.length === 1 && heroImages[0].loading !== 'lazy', 'The single hero image is not lazy-loaded');
-  const teamImage = imageDetails.find((image) => image.src?.includes('/images/team/'));
-  check(teamImage?.loading === 'lazy', 'The below-the-fold team image is lazy-loaded');
+  if (HERO_IMAGE_PATH) {
+    check(heroImages.length === 1 && heroImages[0].loading !== 'lazy' && Boolean(heroImages[0].alt), 'Approved hero photography is eager and has meaningful alt text');
+  } else {
+    const heroFallback = page.locator('.hero-brand-fallback img');
+    check(heroImages.length === 0 && await heroFallback.count() === 1 && await heroFallback.getAttribute('alt') === '', 'Missing photography uses the decorative local brand fallback');
+    check(!imageDetails.some((image) => image.src?.includes('mino-office-consultation-placeholder')), 'Consultation placeholder is absent from the runtime image set');
+  }
+  const adviserImages = imageDetails.filter((image) => image.src?.includes('/images/team/'));
+  if (ADVISER_PORTRAIT_PATH) {
+    check(adviserImages.length === 1 && adviserImages[0].loading === 'lazy' && Boolean(adviserImages[0].alt), 'Approved adviser portrait is lazy-loaded with meaningful alt text');
+  } else {
+    const adviserFallback = page.locator('.adviser-identity-panel img');
+    check(adviserImages.length === 0 && await adviserFallback.count() === 1 && await adviserFallback.getAttribute('alt') === '', 'Missing adviser portrait uses the local identity-panel fallback');
+  }
 
   await page.evaluate(() => localStorage.setItem('mino_privacy_preferences_v1', '{malformed'));
   await page.reload({ waitUntil: 'domcontentloaded' });
@@ -92,7 +115,43 @@ try {
   check(await page.getByRole('link', { name: 'Hrvatska početna stranica' }).count() === 1, '404 offers Croatian recovery');
 
   check(consoleErrors.length === 0, `Basic production navigation has no console errors${consoleErrors.length ? `: ${consoleErrors.join(' | ')}${failedResources.length ? ` (${failedResources.join(' | ')})` : ''}` : ''}`);
+  check(failedResources.length === 0, `Basic production navigation has no broken asset requests${failedResources.length ? `: ${failedResources.join(' | ')}` : ''}`);
   await context.close();
+
+  const failedObserverContext = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  await failedObserverContext.addInitScript(() => {
+    Object.defineProperty(window, 'IntersectionObserver', {
+      configurable: true,
+      value: class SyntheticFailedObserver {
+        constructor(_callback, options) {
+          if (options?.threshold === 0.01) throw new Error('Synthetic reveal-observer failure');
+        }
+        observe() {}
+        unobserve() {}
+        disconnect() {}
+      },
+    });
+  });
+  const failedObserverPage = await failedObserverContext.newPage();
+  await failedObserverPage.goto(pageUrl('/'), { waitUntil: 'domcontentloaded' });
+  await failedObserverPage.locator('.reveal').first().waitFor();
+  check(await failedObserverPage.locator('.reveal').evaluateAll((elements) => elements.every((element) => getComputedStyle(element).opacity !== '0')), 'IntersectionObserver construction failure leaves reveal content visible');
+  await failedObserverContext.close();
+
+  const stalledObserverContext = await browser.newContext({ viewport: { width: 390, height: 844 } });
+  await stalledObserverContext.addInitScript(() => {
+    window.IntersectionObserver = class SyntheticStalledObserver {
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    };
+  });
+  const stalledObserverPage = await stalledObserverContext.newPage();
+  await stalledObserverPage.goto(pageUrl('/'), { waitUntil: 'domcontentloaded' });
+  await stalledObserverPage.locator('.reveal').first().waitFor();
+  await stalledObserverPage.waitForTimeout(1700);
+  check(await stalledObserverPage.locator('.reveal').evaluateAll((elements) => elements.every((element) => getComputedStyle(element).opacity !== '0')), 'A stalled IntersectionObserver cannot leave page sections hidden');
+  await stalledObserverContext.close();
 
   const noScriptContext = await browser.newContext({ javaScriptEnabled: false, viewport: { width: 390, height: 844 } });
   const noScriptPage = await noScriptContext.newPage();

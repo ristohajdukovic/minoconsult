@@ -20,27 +20,18 @@ const home = {
     { label: 'Kontakt', href: '#contact' },
   ],
   cta: {
-    contact: 'Kontakt', book: 'Erstgespräch anfragen', call: 'Anrufen',
-    consultation: 'Erstgespräch anfragen', scroll: 'Scrollen', learnMore: 'Mehr erfahren',
+    book: 'Erstgespräch anfragen', call: 'Anrufen', scroll: 'Scrollen', learnMore: 'Mehr erfahren',
     callAria: 'MINO Consulting anrufen',
   },
   hero: {
-    label: 'Buchhaltung und Steuerberatung · Wien',
-    title: [
-      { text: 'Buchhaltung und ' }, { text: 'Steuerberatung', em: true },
-      { text: ' für Unternehmen in Wien' },
-    ],
-    body: 'MINO Consulting KG unterstützt bei laufender Buchhaltung, Lohnverrechnung, Steuerfragen, Jahresabschluss und dem steuerlichen Start eines Unternehmens. In einem Erstgespräch klären wir, welche Leistung und welche Unterlagen zu Ihrer Situation passen.',
-    imageAlt: '',
+    eyebrow: 'Steuerberatung und Buchhaltung · Wien',
+    title: [{ text: 'Steuerberatung, Buchhaltung und Lohnverrechnung in Wien' }],
+    body: 'MINO Consulting KG unterstützt Unternehmen bei laufender Buchhaltung, Lohnverrechnung, Jahresabschluss und konkreten Steuerfragen. Im Erstgespräch klären wir den Bedarf und die benötigten Unterlagen.',
   },
   value: {
-    statement: 'Wenn Belege fehlen, Fristen näher rücken oder aktuelle Zahlen nicht greifbar sind, wird aus einer laufenden Pflicht schnell ein betriebliches Problem. MINO ordnet mit Ihnen, was vorliegt, was fehlt und welche Leistung benötigt wird.',
-    features: [
-      { icon: 'briefcase', text: 'Laufende Geschäftsfälle, Bankbewegungen und Belege werden für die vereinbarte Buchhaltung vorbereitet und verarbeitet.' },
-      { icon: 'shield', text: 'Bei Steuerfragen werden die konkrete Ausgangslage, vorhandene Unterlagen und maßgebliche Fristen gemeinsam eingeordnet.' },
-      { icon: 'file', text: 'Für Lohnverrechnung und Jahresabschluss hängt ein verlässlicher Ablauf von vollständigen und rechtzeitig übermittelten Angaben ab.' },
-      { icon: 'check', text: 'Bei einer Gründung klären wir steuerliche und buchhalterische Fragen; Rechts- und Notariatsleistungen sind davon getrennt.' },
-    ],
+    eyebrow: 'Wobei wir Sie unterstützen',
+    title: 'Verlässliche Unterstützung für laufende Pflichten und konkrete Fragen',
+    intro: 'MINO unterstützt bei Buchhaltung, Lohnverrechnung, Jahresabschluss, Steuerfragen und dem steuerlichen Start eines Unternehmens.',
   },
   servicesIntro: {
     title: [{ text: 'Leistungen für ' }, { text: 'laufende Pflichten und konkrete Fragen', em: true }],
@@ -48,12 +39,12 @@ const home = {
   },
   services: [
     {
-      id: 'bookkeeping-payroll', title: [{ text: 'Buchhaltung & ' }, { text: 'Lohnverrechnung', em: true }],
-      subtitle: 'Laufende Geschäftsfälle', body: 'Verbuchung laufender Geschäftsfälle, Belegorganisation und Abstimmung offener Fragen. Die Lohnverrechnung wird als eigene Leistung erläutert.',
+      id: 'bookkeeping-payroll', title: [{ text: 'Buchhaltung' }],
+      subtitle: 'Laufende Geschäftsfälle', body: 'Verbuchung laufender Geschäftsfälle, Belegorganisation und Abstimmung offener Fragen.',
       path: '/buchhaltung-wien',
     },
     {
-      id: 'tax-advice', title: [{ text: 'Steuerberatung & Vertretung' }], subtitle: 'Finanzamt & Erklärungen',
+      id: 'tax-advice', title: [{ text: 'Steuerberatung und Vertretung' }], subtitle: 'Finanzamt & Erklärungen',
       body: 'Einordnung von Steuerfragen, Vorbereitung von Erklärungen und Kommunikation mit dem österreichischen Finanzamt im vereinbarten Umfang.', path: '/steuerberatung-wien',
     },
     {
@@ -61,11 +52,11 @@ const home = {
       body: 'Vorbereitung laufender Lohn- und Gehaltsabrechnungen auf Grundlage der rechtzeitig bereitgestellten Stamm- und Änderungsdaten.', path: '/lohnverrechnung-wien',
     },
     {
-      id: 'annual-accounts', title: [{ text: 'Jahresabschluss & Reporting' }], subtitle: 'Abschluss & Auswertung',
+      id: 'annual-accounts', title: [{ text: 'Jahresabschluss und Reporting' }], subtitle: 'Abschluss & Auswertung',
       body: 'Abstimmung der Abschlussunterlagen, Klärung offener Buchhaltungspunkte und Besprechung der Ergebnisse und nächsten Pflichten.', path: '/jahresabschluss-wien',
     },
     {
-      id: 'company-formation', title: [{ text: 'Gründung & Unternehmensberatung' }], subtitle: 'Start in Österreich',
+      id: 'company-formation', title: [{ text: 'Gründung und Unternehmens\u00adberatung' }], subtitle: 'Start in Österreich',
       body: 'Steuerliche Einordnung und Aufbau von Buchhaltungsabläufen vor oder nach dem Start. Rechtliche und notarielle Leistungen sind nicht Teil dieser Beschreibung.', path: '/unternehmensgruendung-wien',
     },
   ],
@@ -89,18 +80,20 @@ const home = {
   },
   localServices: { title: 'Leistungen im Detail', body: 'Jede Seite erklärt Zweck, benötigte Unterlagen, Ablauf und Abgrenzungen der jeweiligen Leistung.', label: 'Leistungsübersicht' },
   about: {
-    badge: 'Über MINO', founderImageAlt: '', principalName: 'Mag. Tomislav Siketic',
-    principalRole: 'Steuerberater', principalRegistration: 'Berufsrechtliche Angaben im Impressum',
-    title: [{ text: 'MINO Consulting KG in ' }, { text: '1170 Wien', em: true }],
-    paragraphs: [
-      'MINO Consulting KG ist unter FN 157894y beim Handelsgericht Wien eingetragen. Die Kanzlei befindet sich in der Geblergasse 95/8, 1170 Wien.',
-      'Auf dieser Website werden Buchhaltung, Lohnverrechnung, Steuerberatung, Jahresabschluss sowie steuerliche und buchhalterische Fragen rund um eine Gründung beschrieben.',
-      'Zuständigkeit, Leistungsumfang und benötigte Unterlagen werden für jede Anfrage gesondert geklärt.',
+    eyebrow: 'IHR ANSPRECHPARTNER',
+    principalName: 'Mag. Tomislav Siketic',
+    principalRole: 'Steuerberater',
+    summary: 'MINO Consulting KG unterstützt bei Buchhaltung, Lohnverrechnung, Jahresabschluss und konkreten Steuer- oder Gründungsfragen.',
+    factsLabel: 'Kanzleiangaben',
+    facts: [
+      'Geblergasse 95/8, 1170 Wien',
+      'Deutsch · Hrvatski',
+      'MINO Consulting KG · FN 157894y · Handelsgericht Wien',
     ],
     legalLinkLabel: 'Berufs- und Unternehmensangaben im Impressum',
   },
   faq: {
-    title: [{ text: 'Häufig gestellte ' }, { text: 'Fragen', em: true }],
+    title: [{ text: 'Häufig gestellte ' }, { text: 'Fragen' }],
     body: 'Antworten zu Unterlagen, Terminanfrage und Leistungsumfang.',
     items: [
       { question: 'Welche Unterlagen braucht MINO Consulting KG für die laufende Buchhaltung?', answer: 'In der Regel genügen Ausgangs- und Eingangsrechnungen, Bankunterlagen, Belege, Kassa-Daten und relevante Verträge. Im Erstgespräch klären wir den konkreten Bedarf und einen effizienten Austausch.' },
@@ -112,7 +105,7 @@ const home = {
     ],
   },
   contact: {
-    title: [{ text: 'Besprechen wir, welche ' }, { text: 'Unterstützung Sie benötigen', em: true }],
+    title: [{ text: 'Besprechen wir, welche ' }, { text: 'Unterstützung Sie benötigen' }],
     body: 'Nennen Sie Thema, Gesprächsformat und Terminwunsch. Die Website bereitet eine E-Mail vor; Sie können auch direkt anrufen.',
     reassurance: 'Ihre Anfrage wird persönlich geprüft. Ein Termin gilt erst nach einer separaten Bestätigung.', button: 'Terminanfrage vorbereiten',
     cards: [
@@ -140,8 +133,9 @@ const home = {
     googleMapsLabel: 'Google Maps', enabled: 'Aktiviert', disabled: 'Deaktiviert', save: 'Auswahl speichern', close: 'Ohne Änderung schließen',
   },
   booking: {
-    title: 'Erstgespräch anfragen', intro: 'Wählen Sie Thema, bevorzugtes Gesprächsformat, Datum und Zeitraum und geben Sie Name und E-Mail-Adresse an. Die Website bereitet daraus eine Nachricht für Ihr E-Mail-Programm vor; sie speichert oder sendet das Formular nicht selbst.',
-    serviceLabel: 'Beratungsthema', modeLabel: 'Format', dateLabel: 'Bevorzugtes Datum', timeLabel: 'Bevorzugter Zeitraum', nameLabel: 'Name', companyLabel: 'Unternehmen (optional)', emailLabel: 'E-Mail', phoneLabel: 'Telefon (optional)', messageLabel: 'Nachricht (optional)',
+    title: 'Erstgespräch anfragen', intro: 'Nennen Sie uns kurz Ihr Anliegen. Wir bereiten eine E-Mail vor, die Sie vor dem Senden prüfen können.',
+    serviceLabel: 'Beratungsthema', modeLabel: 'Bevorzugtes Gesprächsformat', dateLabel: 'Bevorzugtes Datum (optional)', timeLabel: 'Bevorzugter Zeitraum (optional)', nameLabel: 'Name', companyLabel: 'Unternehmen (optional)', emailLabel: 'E-Mail', phoneLabel: 'Telefon (optional)', messageLabel: 'Nachricht (optional)',
+    preferenceNote: 'Datum und Zeitraum sind unverbindliche Wünsche und keine Terminbuchung.',
     messagePlaceholder: 'Kurz beschreiben, wobei Sie Unterstützung benötigen.', submit: 'Anfrage prüfen', sendEmail: 'E-Mail-Anfrage öffnen', callOffice: 'Jetzt anrufen', copySummary: 'Zusammenfassung kopieren', editRequest: 'Angaben bearbeiten', newRequest: 'Neue Anfrage', close: 'Schließen',
     copySuccess: 'Zusammenfassung kopiert.', copyFailure: 'Die Zusammenfassung konnte nicht automatisch kopiert werden. Markieren und kopieren Sie die Angaben oben oder verwenden Sie die E-Mail-Adresse.',
     emailFallback: 'Falls sich Ihr E-Mail-Programm nicht öffnet, bleibt die Zusammenfassung hier sichtbar. Sie können sie kopieren oder direkt an die folgende Adresse senden:',

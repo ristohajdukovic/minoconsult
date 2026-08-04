@@ -95,3 +95,16 @@ The desktop composition, typography, palette, border language, and editorial pro
 - Google Maps iframe accessibility is controlled by Google.
 - With JavaScript completely disabled, the current Vite client-rendered page body does not render; resolving that would require prerendering/SSR and is outside this scoped accessibility pass.
 - The external stock-image and Google Fonts requests remain existing third-party dependencies; this task did not perform the separate image/font privacy-localisation refactor.
+
+## Spacing-system refinement (July 2026)
+
+- Replaced breakpoint-specific section-spacing jumps with bounded fluid semantic tokens.
+- Added a 20–80px fluid page gutter and distinct wide, standard, prose, and narrow containers.
+- Moved the full desktop navigation breakpoint to 1024px so controls and translated labels retain space at tablet widths.
+- Kept the normal and sticky header heights within 4px of one another and synchronized anchor scroll padding with the final header token.
+- Reduced service-item and repeated-section height without reducing control targets or text measures.
+- Limited legal documents to a 48rem reading container and 72-character paragraph measure.
+- Changed the mobile appointment header from sticky to normal flow so enlarged text does not permanently consume the form viewport.
+- Preserved 44px minimum targets for language controls, menus, FAQ controls, choices, and footer navigation.
+- Added structural overflow, gutter, measure, alignment, zoom/reflow, text-spacing, reduced-motion, dialog reachability, and anchor-obscuring checks in `scripts/test-spacing-layout.mjs`.
+- Final validation passed 252 accessibility/responsive checks and 335 spacing/layout checks across the full viewport matrix, including mobile landscape and 200% legal reflow.

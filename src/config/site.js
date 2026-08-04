@@ -1,3 +1,5 @@
+import { customerContent } from './customerContent.js';
+
 export const SITE_NAME = 'MINO Consulting KG';
 export const DEFAULT_LANGUAGE = 'de';
 export const DEVELOPMENT_SITE_URL = 'http://localhost:5173';
@@ -14,18 +16,30 @@ export const OFFICE_COUNTRY = 'AT';
 export const SUPPORTED_LANGUAGES = Object.freeze(['de', 'hr']);
 export const MAP_EXTERNAL_URL = 'https://www.google.com/maps/search/?api=1&query=Geblergasse%2095%2F8%2C%201170%20Wien';
 export const MAP_EMBED_URL = 'https://www.google.com/maps?q=Geblergasse%2095%2F8%2C%201170%20Wien&output=embed';
-export const SOCIAL_IMAGE_PATH = null;
+// Paths remain null until the complete, publication-approved records in
+// customerContent.js are available. Rendering also requires both DE/HR alts.
+export const HERO_IMAGE_PATH = customerContent.media.heroImage.path;
+export const ADVISER_PORTRAIT_PATH = customerContent.media.adviserPortrait.path;
+export const SOCIAL_IMAGE_PATH = customerContent.media.socialImage.path;
 
 export function resolveSiteUrl(env = {}, { production = Boolean(env.PROD) } = {}) {
   const configuredUrl = env.VITE_SITE_URL?.trim();
+  const approvedCustomerDomain = customerContent.productionDomain?.trim();
+  if (approvedCustomerDomain) {
+    const customerUrl = new URL(approvedCustomerDomain);
+    if (customerUrl.protocol !== 'https:' || customerUrl.pathname !== '/' || customerUrl.search || customerUrl.hash) {
+      throw new Error('customerContent.productionDomain must be an HTTPS origin without a path, query or fragment.');
+    }
+  }
+  const resolvedUrl = approvedCustomerDomain || configuredUrl;
 
-  if (!configuredUrl && production) {
+  if (!resolvedUrl && production) {
     throw new Error(
       'Missing VITE_SITE_URL. Set it to the public production origin before building (for example https://example.com).',
     );
   }
 
-  return (configuredUrl || DEVELOPMENT_SITE_URL).replace(/\/+$/, '');
+  return (resolvedUrl || DEVELOPMENT_SITE_URL).replace(/\/+$/, '');
 }
 
 export function absoluteUrl(siteUrl, path) {

@@ -3,7 +3,6 @@ import { FOCUSABLE_SELECTOR, lockBodyScroll } from '../accessibility/dialog.js';
 import Icon from './Icon.jsx';
 import { CONTACT_EMAIL, OFFICE_PHONE_HREF } from '../config/site.js';
 
-const CalendarDays = (props) => <Icon name="calendar" {...props} />;
 const X = (props) => <Icon name="x" {...props} />;
 const Mail = (props) => <Icon name="mail" {...props} />;
 const Phone = (props) => <Icon name="phone" {...props} />;
@@ -100,7 +99,7 @@ export default function BookingModal({ t, language, isOpen, onClose }) {
   const handleSubmit = (event) => {
     event.preventDefault();
     const nextErrors = {};
-    for (const field of ['service', 'date', 'time', 'name', 'email']) {
+    for (const field of ['service', 'name', 'email']) {
       if (!form[field]?.trim()) nextErrors[field] = t.booking.required;
     }
     if (form.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
@@ -119,8 +118,8 @@ export default function BookingModal({ t, language, isOpen, onClose }) {
   const emailBody = [
     `${t.booking.serviceLabel}: ${form.service}`,
     `${t.booking.modeLabel}: ${form.mode}`,
-    `${t.booking.dateLabel}: ${form.date}`,
-    `${t.booking.timeLabel}: ${form.time}`,
+    `${t.booking.dateLabel}: ${form.date || '-'}`,
+    `${t.booking.timeLabel}: ${form.time || '-'}`,
     `${t.booking.nameLabel}: ${form.name}`,
     `${t.booking.companyLabel}: ${form.company || '-'}`,
     `${t.booking.emailLabel}: ${form.email}`,
@@ -162,8 +161,6 @@ export default function BookingModal({ t, language, isOpen, onClose }) {
   };
   const fieldLabels = {
     service: t.booking.serviceLabel,
-    date: t.booking.dateLabel,
-    time: t.booking.timeLabel,
     name: t.booking.nameLabel,
     email: t.booking.emailLabel,
   };
@@ -178,13 +175,9 @@ export default function BookingModal({ t, language, isOpen, onClose }) {
         aria-labelledby="booking-title"
         aria-describedby="booking-description"
       >
-        <div className="booking-dialog-header flex items-start justify-between gap-5 border-b border-forest/50 p-5 sm:p-6">
+        <div className="booking-dialog-header flex items-start justify-between gap-4 border-b border-forest/50 p-4 sm:p-5">
           <div>
-            <small className="tag-pill">
-              <CalendarDays size={14} aria-hidden="true" />
-              {t.cta.book}
-            </small>
-            <h2 ref={titleRef} id="booking-title" className="mt-4" tabIndex="-1">
+            <h2 ref={titleRef} id="booking-title" tabIndex="-1">
               {t.booking.title}
             </h2>
             <p id="booking-description" className="mt-3 max-w-2xl text-forest/70">{t.booking.intro}</p>
@@ -195,7 +188,7 @@ export default function BookingModal({ t, language, isOpen, onClose }) {
         </div>
 
         {submitted ? (
-          <div className="p-5 sm:p-6">
+          <div className="p-4 sm:p-5">
             <h3>{t.booking.successTitle}</h3>
             <p className="mt-3 text-forest/70">{t.booking.successBody}</p>
             <p className="booking-disclaimer">{t.booking.disclaimer}</p>
@@ -203,8 +196,8 @@ export default function BookingModal({ t, language, isOpen, onClose }) {
               {[
                 [t.booking.serviceLabel, form.service],
                 [t.booking.modeLabel, form.mode],
-                [t.booking.dateLabel, form.date],
-                [t.booking.timeLabel, form.time],
+                [t.booking.dateLabel, form.date || '-'],
+                [t.booking.timeLabel, form.time || '-'],
                 [t.booking.nameLabel, form.name],
                 [t.booking.companyLabel, form.company || '-'],
                 [t.booking.emailLabel, form.email],
@@ -243,7 +236,7 @@ export default function BookingModal({ t, language, isOpen, onClose }) {
             <p className="booking-copy-status" role="status" aria-live="polite">{copyMessage}</p>
           </div>
         ) : (
-          <form className="grid gap-5 p-5 sm:p-6" onSubmit={handleSubmit} noValidate>
+          <form className="booking-form" onSubmit={handleSubmit} noValidate>
             {Object.keys(errors).length > 0 && (
               <div
                 ref={errorSummaryRef}
@@ -260,139 +253,129 @@ export default function BookingModal({ t, language, isOpen, onClose }) {
                 </ul>
               </div>
             )}
-            <div className="grid gap-5 lg:grid-cols-[1fr_0.9fr]">
-              <div className="space-y-5">
-                <label className="form-field">
-                  <span>{t.booking.serviceLabel}</span>
-                  <select
-                    id="booking-service"
-                    name="service"
-                    value={form.service}
-                    required
-                    aria-invalid={Boolean(errors.service)}
-                    aria-describedby={errors.service ? 'booking-service-error' : undefined}
-                    onChange={(event) => updateField('service', event.target.value)}
-                  >
-                    {t.booking.services.map((service) => (
-                      <option key={service} value={service}>
-                        {service}
-                      </option>
-                    ))}
-                  </select>
-                  {errors.service && <span className="form-error" id="booking-service-error">{errors.service}</span>}
-                </label>
+            <label className="form-field">
+              <span>{t.booking.serviceLabel}</span>
+              <select
+                id="booking-service"
+                name="service"
+                value={form.service}
+                required
+                aria-invalid={Boolean(errors.service)}
+                aria-describedby={errors.service ? 'booking-service-error' : undefined}
+                onChange={(event) => updateField('service', event.target.value)}
+              >
+                {t.booking.services.map((service) => (
+                  <option key={service} value={service}>{service}</option>
+                ))}
+              </select>
+              {errors.service && <span className="form-error" id="booking-service-error">{errors.service}</span>}
+            </label>
 
-                <fieldset>
-                  <legend className="form-label">{t.booking.modeLabel}</legend>
-                  <div className="grid gap-2 sm:grid-cols-3">
-                    {t.booking.modes.map((mode) => (
+            <div className="booking-field-pair">
+              <label className="form-field">
+                <span>{t.booking.nameLabel}</span>
+                <input
+                  id="booking-name"
+                  name="name"
+                  autoComplete="name"
+                  value={form.name}
+                  required
+                  aria-invalid={Boolean(errors.name)}
+                  aria-describedby={errors.name ? 'booking-name-error' : undefined}
+                  onChange={(event) => updateField('name', event.target.value)}
+                />
+                {errors.name && <span className="form-error" id="booking-name-error">{errors.name}</span>}
+              </label>
+              <label className="form-field">
+                <span>{t.booking.companyLabel}</span>
+                <input
+                  id="booking-company"
+                  name="organization"
+                  autoComplete="organization"
+                  value={form.company}
+                  onChange={(event) => updateField('company', event.target.value)}
+                />
+              </label>
+            </div>
+
+            <div className="booking-field-pair">
+              <label className="form-field">
+                <span>{t.booking.emailLabel}</span>
+                <input
+                  id="booking-email"
+                  name="email"
+                  type="email"
+                  autoComplete="email"
+                  inputMode="email"
+                  value={form.email}
+                  required
+                  aria-invalid={Boolean(errors.email)}
+                  aria-describedby={errors.email ? 'booking-email-error' : undefined}
+                  onChange={(event) => updateField('email', event.target.value)}
+                />
+                {errors.email && <span className="form-error" id="booking-email-error">{errors.email}</span>}
+              </label>
+              <label className="form-field">
+                <span>{t.booking.phoneLabel}</span>
+                <input
+                  id="booking-phone"
+                  name="tel"
+                  type="tel"
+                  autoComplete="tel"
+                  inputMode="tel"
+                  value={form.phone}
+                  onChange={(event) => updateField('phone', event.target.value)}
+                />
+              </label>
+            </div>
+
+            <fieldset id="booking-mode">
+              <legend className="form-label">{t.booking.modeLabel}</legend>
+              <div className="grid gap-2 sm:grid-cols-3">
+                {t.booking.modes.map((mode) => (
+                  <button
+                    key={mode}
+                    type="button"
+                    className={`choice-button ${form.mode === mode ? 'is-active' : ''}`}
+                    aria-pressed={form.mode === mode}
+                    onClick={() => updateField('mode', mode)}
+                  >
+                    {mode}
+                  </button>
+                ))}
+              </div>
+            </fieldset>
+
+            <div className="booking-preference-group">
+              <p>{t.booking.preferenceNote}</p>
+              <div className="booking-field-pair">
+                <label className="form-field">
+                  <span>{t.booking.dateLabel}</span>
+                  <input
+                    id="booking-date"
+                    name="date"
+                    type="date"
+                    min={today}
+                    value={form.date}
+                    onChange={(event) => updateField('date', event.target.value)}
+                  />
+                </label>
+                <fieldset id="booking-time">
+                  <legend className="form-label">{t.booking.timeLabel}</legend>
+                  <div className="grid grid-cols-2 gap-2">
+                    {t.booking.periods.map((slot) => (
                       <button
-                        key={mode}
+                        key={slot}
                         type="button"
-                        className={`choice-button ${form.mode === mode ? 'is-active' : ''}`}
-                        aria-pressed={form.mode === mode}
-                        onClick={() => updateField('mode', mode)}
+                        className={`choice-button ${form.time === slot ? 'is-active' : ''}`}
+                        aria-pressed={form.time === slot}
+                        onClick={() => updateField('time', slot)}
                       >
-                        {mode}
+                        {slot}
                       </button>
                     ))}
                   </div>
                 </fieldset>
-
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <label className="form-field">
-                    <span>{t.booking.dateLabel}</span>
-                    <input
-                      id="booking-date"
-                      name="date"
-                      type="date"
-                      min={today}
-                      value={form.date}
-                      required
-                      aria-invalid={Boolean(errors.date)}
-                      aria-describedby={errors.date ? 'booking-date-error' : undefined}
-                      onChange={(event) => updateField('date', event.target.value)}
-                    />
-                    {errors.date && <span className="form-error" id="booking-date-error">{errors.date}</span>}
-                  </label>
-                  <fieldset
-                    id="booking-time"
-                    aria-required="true"
-                    aria-invalid={Boolean(errors.time)}
-                    aria-describedby={errors.time ? 'booking-time-error' : undefined}
-                  >
-                    <legend className="form-label">{t.booking.timeLabel}</legend>
-                    <div className="grid grid-cols-2 gap-2">
-                      {t.booking.periods.map((slot) => (
-                        <button
-                          key={slot}
-                          type="button"
-                          className={`choice-button ${form.time === slot ? 'is-active' : ''}`}
-                          aria-pressed={form.time === slot}
-                          onClick={() => updateField('time', slot)}
-                        >
-                          {slot}
-                        </button>
-                      ))}
-                    </div>
-                    {errors.time && <span className="form-error" id="booking-time-error">{errors.time}</span>}
-                  </fieldset>
-                </div>
-              </div>
-
-              <div className="grid gap-4">
-                <label className="form-field">
-                  <span>{t.booking.nameLabel}</span>
-                  <input
-                    id="booking-name"
-                    name="name"
-                    autoComplete="name"
-                    value={form.name}
-                    required
-                    aria-invalid={Boolean(errors.name)}
-                    aria-describedby={errors.name ? 'booking-name-error' : undefined}
-                    onChange={(event) => updateField('name', event.target.value)}
-                  />
-                  {errors.name && <span className="form-error" id="booking-name-error">{errors.name}</span>}
-                </label>
-                <label className="form-field">
-                  <span>{t.booking.companyLabel}</span>
-                  <input
-                    id="booking-company"
-                    name="organization"
-                    autoComplete="organization"
-                    value={form.company}
-                    onChange={(event) => updateField('company', event.target.value)}
-                  />
-                </label>
-                <label className="form-field">
-                  <span>{t.booking.emailLabel}</span>
-                  <input
-                    id="booking-email"
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    inputMode="email"
-                    value={form.email}
-                    required
-                    aria-invalid={Boolean(errors.email)}
-                    aria-describedby={errors.email ? 'booking-email-error' : undefined}
-                    onChange={(event) => updateField('email', event.target.value)}
-                  />
-                  {errors.email && <span className="form-error" id="booking-email-error">{errors.email}</span>}
-                </label>
-                <label className="form-field">
-                  <span>{t.booking.phoneLabel}</span>
-                  <input
-                    id="booking-phone"
-                    name="tel"
-                    type="tel"
-                    autoComplete="tel"
-                    inputMode="tel"
-                    value={form.phone}
-                    onChange={(event) => updateField('phone', event.target.value)}
-                  />
-                </label>
               </div>
             </div>
 

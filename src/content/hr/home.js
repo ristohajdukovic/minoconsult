@@ -19,31 +19,25 @@ const home = {
     { label: 'Kontakt', href: '#contact' },
   ],
   cta: {
-    contact: 'Kontakt', book: 'Zatražite prvi razgovor', call: 'Nazovite nas',
-    consultation: 'Zatražite prvi razgovor', scroll: 'Dalje', learnMore: 'Saznajte više',
+    book: 'Zatražite prvi razgovor', call: 'Nazovite nas', scroll: 'Dalje', learnMore: 'Saznajte više',
     callAria: 'Nazovite MINO Consulting',
   },
   hero: {
-    label: 'Knjigovodstvo i porezno savjetovanje · Beč',
-    title: [{ text: 'Knjigovodstvo i ' }, { text: 'porezno savjetovanje', em: true }, { text: ' za poduzeća u Beču' }],
-    body: 'MINO Consulting KG pruža podršku pri tekućem knjigovodstvu, obračunu plaća, poreznim pitanjima, godišnjem obračunu te poreznom i knjigovodstvenom početku poslovanja. Na prvom razgovoru utvrđujemo koja usluga i dokumentacija odgovaraju vašoj situaciji.',
-    imageAlt: '',
+    eyebrow: 'Porezno savjetovanje i knjigovodstvo · Beč',
+    title: [{ text: 'Porezno savjetovanje, knjigovodstvo i obračun plaća u Beču' }],
+    body: 'MINO Consulting KG pruža podršku poduzećima pri tekućem knjigovodstvu, obračunu plaća, godišnjem obračunu i konkretnim poreznim pitanjima. Na prvom razgovoru utvrđujemo potrebe i potrebnu dokumentaciju.',
   },
   value: {
-    statement: 'Kada nedostaju dokumenti, približavaju se rokovi ili aktualni podaci nisu dostupni, redovita obveza brzo postaje poslovni problem. S MINO-m utvrđujete što postoji, što nedostaje i koja je usluga potrebna.',
-    features: [
-      { icon: 'briefcase', text: 'Tekući poslovni događaji, bankovne transakcije i dokumenti pripremaju se i obrađuju u okviru dogovorenog knjigovodstva.' },
-      { icon: 'shield', text: 'Kod poreznih pitanja zajedno se razmatraju konkretna situacija, raspoloživa dokumentacija i mjerodavni rokovi.' },
-      { icon: 'file', text: 'Za obračun plaća i godišnji obračun važni su potpuni podaci dostavljeni u dogovorenom roku.' },
-      { icon: 'check', text: 'Kod osnivanja razjašnjavamo porezna i knjigovodstvena pitanja; pravne i javnobilježničke usluge odvojene su od toga.' },
-    ],
+    eyebrow: 'Gdje MINO pruža podršku',
+    title: 'Podrška za redovite obveze i konkretna pitanja',
+    intro: 'MINO pruža podršku pri knjigovodstvu, obračunu plaća, godišnjem obračunu, poreznim pitanjima te poreznom početku poslovanja.',
   },
   servicesIntro: {
     title: [{ text: 'Usluge za ' }, { text: 'redovite obveze i konkretna pitanja', em: true }],
     body: 'Pregledi pokazuju gdje MINO može pružiti podršku. Stvarni opseg dogovara se prema vašoj dokumentaciji i poslovnoj situaciji.',
   },
   services: [
-    { id: 'bookkeeping-payroll', title: [{ text: 'Knjigovodstvo' }], subtitle: 'Tekući poslovni događaji', body: 'Knjiženje tekućih poslovnih događaja, organizacija dokumentacije i usklađivanje otvorenih pitanja. Obračun plaća objašnjen je kao zasebna usluga.', path: '/hr/knjigovodstvo-bec' },
+    { id: 'bookkeeping-payroll', title: [{ text: 'Knjigovodstvo' }], subtitle: 'Tekući poslovni događaji', body: 'Knjiženje tekućih poslovnih događaja, organizacija dokumentacije i usklađivanje otvorenih pitanja.', path: '/hr/knjigovodstvo-bec' },
     { id: 'tax-advice', title: [{ text: 'Porezno savjetovanje i zastupanje' }], subtitle: 'Finanzamt i prijave', body: 'Razmatranje poreznih pitanja, priprema prijava i komunikacija s austrijskom poreznom upravom (Finanzamt) u dogovorenom opsegu.', path: '/hr/porezni-savjetnik-bec' },
     { id: 'payroll', title: [{ text: 'Obračun plaća' }], subtitle: 'Podaci o zaposlenicima i obračun', body: 'Priprema redovitih obračuna plaća na temelju pravodobno dostavljenih matičnih podataka i mjesečnih promjena.', path: '/hr/obracun-placa-bec' },
     { id: 'annual-accounts', title: [{ text: 'Godišnji obračun i izvještavanje' }], subtitle: 'Završni račun i rezultat', body: 'Usklađivanje dokumentacije, razjašnjenje otvorenih knjigovodstvenih pitanja te razgovor o rezultatima i sljedećim obvezama.', path: '/hr/godisnji-obracun-bec' },
@@ -69,18 +63,20 @@ const home = {
   },
   localServices: { title: 'Detalji usluga', body: 'Svaka stranica objašnjava svrhu, potrebnu dokumentaciju, postupak i granice pojedine usluge.', label: 'Pregled usluga' },
   about: {
-    badge: 'O MINO', founderImageAlt: '', principalName: 'Mag. Tomislav Siketic',
-    principalRole: 'Porezni savjetnik', principalRegistration: 'Strukovni podaci u impresumu',
-    title: [{ text: 'MINO Consulting KG u ' }, { text: '1170 Beču', em: true }],
-    paragraphs: [
-      'MINO Consulting KG upisan je pod brojem FN 157894y pri Trgovačkom sudu u Beču. Ured se nalazi na adresi Geblergasse 95/8, 1170 Beč.',
-      'Na ovoj web-stranici opisane su usluge knjigovodstva, obračuna plaća, poreznog savjetovanja, godišnjeg obračuna te porezna i knjigovodstvena pitanja pri osnivanju.',
-      'Odgovornost, opseg usluge i potrebna dokumentacija utvrđuju se zasebno za svaki upit.',
+    eyebrow: 'VAŠ POREZNI SAVJETNIK',
+    principalName: 'Mag. Tomislav Siketic',
+    principalRole: 'Porezni savjetnik',
+    summary: 'MINO Consulting KG pruža podršku pri knjigovodstvu, obračunu plaća, godišnjem obračunu te konkretnim poreznim pitanjima ili pitanjima pri osnivanju.',
+    factsLabel: 'Podaci o uredu',
+    facts: [
+      'Geblergasse 95/8, 1170 Beč',
+      'Deutsch · Hrvatski',
+      'MINO Consulting KG · FN 157894y · Handelsgericht Wien',
     ],
     legalLinkLabel: 'Strukovni podaci i podaci o društvu u impresumu',
   },
   faq: {
-    title: [{ text: 'Česta ' }, { text: 'pitanja', em: true }],
+    title: [{ text: 'Česta ' }, { text: 'pitanja' }],
     body: 'Odgovori o dokumentaciji, upitu za termin i opsegu usluga.',
     items: [
       { question: 'Koju dokumentaciju MINO Consulting KG treba za tekuće knjigovodstvo?', answer: 'Najčešće su potrebni izlazni i ulazni računi, bankovni izvodi, blagajnički podaci i relevantni ugovori. Na prvom razgovoru dogovaramo konkretan opseg.' },
@@ -92,7 +88,7 @@ const home = {
     ],
   },
   contact: {
-    title: [{ text: 'Razgovarajmo o ' }, { text: 'podršci koja vam je potrebna', em: true }],
+    title: [{ text: 'Razgovarajmo o ' }, { text: 'podršci koja vam je potrebna' }],
     body: 'Navedite temu, oblik razgovora i termin. Web-stranica priprema e-poruku; možete i izravno nazvati.',
     reassurance: 'Vaš se upit osobno pregledava. Termin vrijedi tek nakon zasebne potvrde.', button: 'Pripremite upit za termin',
     cards: [
@@ -120,8 +116,9 @@ const home = {
     googleMapsLabel: 'Google Maps', enabled: 'Omogućeno', disabled: 'Onemogućeno', save: 'Spremi odabir', close: 'Zatvori bez promjene',
   },
   booking: {
-    title: 'Zatražite prvi razgovor', intro: 'Odaberite temu, željeni oblik razgovora, datum i razdoblje te unesite ime i adresu e-pošte. Web-stranica iz tih podataka priprema poruku za vaš program e-pošte; obrazac sama ne sprema niti šalje.',
-    serviceLabel: 'Tema savjetovanja', modeLabel: 'Oblik', dateLabel: 'Željeni datum', timeLabel: 'Željeno vrijeme', nameLabel: 'Ime i prezime', companyLabel: 'Tvrtka (neobavezno)', emailLabel: 'E-pošta', phoneLabel: 'Telefon (neobavezno)', messageLabel: 'Poruka (neobavezno)',
+    title: 'Zatražite prvi razgovor', intro: 'Ukratko nam opišite svoj upit. Pripremit ćemo e-poruku koju možete provjeriti prije slanja.',
+    serviceLabel: 'Tema savjetovanja', modeLabel: 'Željeni oblik razgovora', dateLabel: 'Željeni datum (neobavezno)', timeLabel: 'Željeno razdoblje (neobavezno)', nameLabel: 'Ime i prezime', companyLabel: 'Tvrtka (neobavezno)', emailLabel: 'E-pošta', phoneLabel: 'Telefon (neobavezno)', messageLabel: 'Poruka (neobavezno)',
+    preferenceNote: 'Datum i razdoblje samo su neobvezujuće želje, a ne rezervacija termina.',
     messagePlaceholder: 'Ukratko opišite gdje vam je potrebna podrška.', submit: 'Pregledajte upit', sendEmail: 'Otvori upit u e-pošti', callOffice: 'Nazovite sada', copySummary: 'Kopiraj sažetak', editRequest: 'Uredi podatke', newRequest: 'Novi upit', close: 'Zatvori',
     copySuccess: 'Sažetak je kopiran.', copyFailure: 'Sažetak se nije mogao automatski kopirati. Označite i kopirajte gore navedene podatke ili upotrijebite adresu e-pošte.',
     emailFallback: 'Ako se program za e-poštu ne otvori, sažetak ostaje vidljiv ovdje. Možete ga kopirati ili poslati izravno na sljedeću adresu:',

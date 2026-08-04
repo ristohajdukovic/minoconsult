@@ -78,11 +78,6 @@ export default function ConsentControlledMap({ content }) {
 
   return (
     <div className="map-consent-placeholder">
-      <div className="map-placeholder-mark" aria-hidden="true">
-        <span />
-        <span />
-        <span />
-      </div>
       <div className="map-placeholder-copy">
         <h3>{content.title}</h3>
         <p>{content.explanation}</p>

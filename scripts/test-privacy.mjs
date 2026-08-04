@@ -130,25 +130,32 @@ try {
   await bookingOpener.click();
   const bookingDialog = page.getByRole('dialog', { name: 'Erstgespräch anfragen' });
   await bookingDialog.waitFor();
-  check(await bookingDialog.getByText('Bevorzugter Zeitraum', { exact: true }).count() === 1, 'Appointment interface labels periods as preferences');
+  check(await bookingDialog.getByText('Nennen Sie uns kurz Ihr Anliegen. Wir bereiten eine E-Mail vor, die Sie vor dem Senden prüfen können.', { exact: true }).count() === 1, 'German inquiry dialog uses the concise email-preparation introduction');
+  check(await bookingDialog.getByText('Bevorzugtes Datum (optional)', { exact: true }).count() === 1 && await bookingDialog.getByText('Bevorzugter Zeitraum (optional)', { exact: true }).count() === 1, 'Appointment interface clearly labels date and period as optional preferences');
+  check(await bookingDialog.getByText('Datum und Zeitraum sind unverbindliche Wünsche und keine Terminbuchung.', { exact: true }).count() === 1, 'Appointment interface explains that preferences are not a booking');
+  check(await bookingDialog.evaluate((dialog) => {
+    const ids = ['booking-service', 'booking-name', 'booking-company', 'booking-email', 'booking-phone', 'booking-mode', 'booking-date', 'booking-time', 'booking-message'];
+    const nodes = ids.map((id) => dialog.querySelector(`#${id}`));
+    return nodes.every(Boolean) && nodes.every((node, index) => index === 0 || Boolean(nodes[index - 1].compareDocumentPosition(node) & Node.DOCUMENT_POSITION_FOLLOWING));
+  }), 'Inquiry fields follow the intended service, identity, contact, format/preferences and message order');
   check(await bookingDialog.getByRole('button', { name: '08:00–10:00' }).count() === 1, 'Appointment interface uses consultation periods');
   check(await bookingDialog.getByRole('button', { name: /08:30|11:30|14:30|15:30/ }).count() === 0, 'Appointment interface contains no simulated exact availability slots');
   check(await bookingDialog.getByText('Der gewünschte Termin ist erst nach einer Bestätigung durch MINO Consulting KG verbindlich.', { exact: true }).count() === 1, 'Confirmation disclaimer is visible before the email action');
 
-  await bookingDialog.locator('#booking-date').fill('2026-08-01');
+  await bookingDialog.locator('#booking-date').fill('2026-12-01');
   await bookingDialog.getByRole('button', { name: '08:00–10:00' }).click();
-  await bookingDialog.locator('#booking-name').fill('Test Person');
-  await bookingDialog.locator('#booking-company').fill('Test KG');
-  await bookingDialog.locator('#booking-email').fill('test@example.com');
-  await bookingDialog.locator('#booking-phone').fill('+43 1 234 56');
-  await bookingDialog.locator('#booking-message').fill('Frage zur Buchhaltung');
+  await bookingDialog.locator('#booking-name').fill('Synthetic Person');
+  await bookingDialog.locator('#booking-company').fill('Synthetic KG');
+  await bookingDialog.locator('#booking-email').fill('inquiry@example.invalid');
+  await bookingDialog.locator('#booking-phone').fill('+43 000 000');
+  await bookingDialog.locator('#booking-message').fill('Synthetische Frage zur Buchhaltung');
   check(await page.evaluate(() => Object.keys(localStorage).length === 0), 'Appointment form data is not stored in local storage');
   await bookingDialog.getByRole('button', { name: 'Anfrage prüfen' }).click();
   check(await bookingDialog.getByRole('heading', { name: 'Ihre Terminanfrage wurde vorbereitet.' }).count() === 1, 'German appointment success state uses the required request wording');
   const emailHref = await bookingDialog.getByRole('link', { name: /E-Mail-Anfrage öffnen/ }).getAttribute('href');
   const decodedEmailHref = decodeURIComponent(emailHref);
-  check(decodedEmailHref.includes('Test Person') && decodedEmailHref.includes('Test KG') && decodedEmailHref.includes('Frage zur Buchhaltung'), 'Prepared email contains all entered form details');
-  check(decodedEmailHref.includes('Bevorzugter Zeitraum: 08:00–10:00') && decodedEmailHref.includes('erst nach einer Bestätigung'), 'Prepared email contains localized period and disclaimer wording');
+  check(decodedEmailHref.includes('Synthetic Person') && decodedEmailHref.includes('Synthetic KG') && decodedEmailHref.includes('Synthetische Frage zur Buchhaltung'), 'Prepared email contains all synthetic form details');
+  check(decodedEmailHref.includes('Bevorzugter Zeitraum (optional): 08:00–10:00') && decodedEmailHref.includes('erst nach einer Bestätigung'), 'Prepared email contains localized preference and disclaimer wording');
   await bookingDialog.getByRole('button', { name: 'Zusammenfassung kopieren' }).click();
   await bookingDialog.getByRole('status').filter({ hasText: 'Zusammenfassung kopiert.' }).waitFor();
   check(await bookingDialog.getByRole('status').textContent() === 'Zusammenfassung kopiert.', 'Copy-summary action announces localized success');
@@ -162,6 +169,66 @@ try {
   await bookingDialog.getByRole('status').filter({ hasText: 'Die Zusammenfassung konnte nicht automatisch kopiert werden.' }).waitFor();
   check((await bookingDialog.getByRole('status').textContent()).startsWith('Die Zusammenfassung konnte nicht automatisch kopiert werden.'), 'Clipboard failure provides a localized fallback message');
   check(await page.evaluate(() => Object.keys(localStorage).length === 0), 'Copying or preparing an appointment request stores no form data');
+  await page.keyboard.press('Escape');
+
+  await page.setViewportSize({ width: 1440, height: 900 });
+  const verifyBookingTrigger = async (trigger, label) => {
+    await trigger.scrollIntoViewIfNeeded();
+    await trigger.focus();
+    await page.keyboard.press('Enter');
+    const openedDialog = page.getByRole('dialog');
+    await openedDialog.waitFor();
+    check(await openedDialog.locator('#booking-title').count() === 1, `${label} opens the inquiry dialog`);
+    await page.keyboard.press('Escape');
+    await openedDialog.waitFor({ state: 'detached' });
+    await page.waitForFunction((element) => document.activeElement === element, await trigger.elementHandle());
+    check(await trigger.evaluate((element) => document.activeElement === element), `${label} restores focus to its opener`);
+  };
+
+  await goto(page, '/');
+  await verifyBookingTrigger(page.locator('[data-booking-trigger="header"]'), 'Primary header trigger');
+  await verifyBookingTrigger(page.locator('[data-booking-trigger="home-hero"]'), 'Homepage hero trigger');
+  await verifyBookingTrigger(page.locator('[data-booking-trigger="footer"]'), 'Footer trigger');
+  await page.evaluate(() => window.scrollTo(0, document.querySelector('#services').offsetTop + 700));
+  await page.waitForFunction(() => document.querySelector('.delayed-sticky-header')?.getAttribute('aria-hidden') === 'false');
+  await verifyBookingTrigger(page.locator('[data-booking-trigger="sticky-header"]'), 'Delayed sticky-header trigger');
+
+  await goto(page, '/steuerberatung-wien');
+  await verifyBookingTrigger(page.locator('[data-booking-trigger="service-hero"]'), 'Service-hero trigger');
+  await verifyBookingTrigger(page.locator('[data-booking-trigger="service-cta"]'), 'Service closing CTA trigger');
+
+  await goto(page, '/');
+  const keyboardOpener = page.locator('[data-booking-trigger="home-hero"]');
+  await keyboardOpener.focus();
+  await page.keyboard.press('Enter');
+  const keyboardDialog = page.getByRole('dialog');
+  await keyboardDialog.waitFor();
+  for (const [selector, value] of [
+    ['#booking-name', 'Keyboard Synthetic'],
+    ['#booking-company', 'Keyboard Synthetic KG'],
+    ['#booking-email', 'keyboard@example.invalid'],
+    ['#booking-phone', '+43 000 001'],
+    ['#booking-message', 'Synthetischer Tastaturtest'],
+  ]) {
+    await keyboardDialog.locator(selector).focus();
+    await page.keyboard.type(value);
+  }
+  check(await keyboardDialog.locator('.booking-trust-item').getAttribute('href') === '/minoconsult/datenschutzerklaerung', 'Keyboard flow retains the direct privacy link');
+  await keyboardDialog.getByRole('button', { name: 'Anfrage prüfen' }).focus();
+  await page.keyboard.press('Enter');
+  await keyboardDialog.getByRole('heading', { name: 'Ihre Terminanfrage wurde vorbereitet.' }).waitFor();
+  const keyboardEmailHref = decodeURIComponent(await keyboardDialog.getByRole('link', { name: /E-Mail-Anfrage öffnen/ }).getAttribute('href'));
+  check(keyboardEmailHref.includes('Keyboard Synthetic') && keyboardEmailHref.includes('Bevorzugtes Datum (optional): -') && keyboardEmailHref.includes('Bevorzugter Zeitraum (optional): -'), 'Keyboard-only completion preserves blank optional preferences in the prepared email');
+  await page.keyboard.press('Escape');
+
+  await goto(page, '/hr/');
+  const croatianOpener = page.locator('[data-booking-trigger="home-hero"]');
+  await croatianOpener.click();
+  const croatianDialog = page.getByRole('dialog', { name: 'Zatražite prvi razgovor' });
+  await croatianDialog.waitFor();
+  check(await croatianDialog.getByText('Ukratko nam opišite svoj upit. Pripremit ćemo e-poruku koju možete provjeriti prije slanja.', { exact: true }).count() === 1, 'Croatian dialog uses the equivalent concise email-preparation introduction');
+  check(await croatianDialog.getByText('Željeni datum (neobavezno)', { exact: true }).count() === 1 && await croatianDialog.getByText('Željeno razdoblje (neobavezno)', { exact: true }).count() === 1, 'Croatian dialog labels both appointment preferences as optional');
+  check(await croatianDialog.getByRole('button', { name: 'Pregledajte upit' }).count() === 1, 'Croatian dialog retains the email-based review action');
   await page.keyboard.press('Escape');
 
   for (const [path, settingsLabel] of [
@@ -185,6 +252,8 @@ try {
   const indexHtml = await readFile(resolve('dist', 'index.html'), 'utf8');
   check(/(?:src|href)="\/minoconsult\/assets\//.test(indexHtml), 'Production assets resolve from the GitHub Pages project path');
   check(!/<iframe\b[^>]*google\.com\/maps/i.test(indexHtml), 'Initial generated HTML contains no Google Maps iframe');
+  const futureIntegrationNotes = await readFile(resolve('FUTURE_INQUIRY_INTEGRATIONS.md'), 'utf8');
+  check(/Direct form delivery/.test(futureIntegrationNotes) && /Availability-based booking/.test(futureIntegrationNotes) && /No provider has been selected/.test(futureIntegrationNotes), 'Future inquiry integrations are documented without selecting a provider');
 
   const generatedFiles = await collectFiles(resolve('dist'));
   const generatedText = (await Promise.all(generatedFiles

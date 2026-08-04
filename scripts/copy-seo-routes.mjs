@@ -14,6 +14,7 @@ import {
   OFFICE_POSTAL_CODE,
   OFFICE_STREET,
   resolveSiteUrl,
+  SOCIAL_IMAGE_PATH,
   SITE_NAME,
 } from '../src/config/site.js';
 
@@ -45,6 +46,11 @@ function upsertMeta(html, attribute, key, content) {
   const tag = `<meta ${attribute}="${key}" content="${escapeHtml(content)}" />`;
   const pattern = new RegExp(`<meta\\s+${attribute}="${key}"[\\s\\S]*?>`, 'i');
   return pattern.test(html) ? html.replace(pattern, tag) : html.replace(/<\/head>/i, `    ${tag}\n  </head>`);
+}
+
+function removeMeta(html, attribute, key) {
+  const pattern = new RegExp(`\\s*<meta\\s+${attribute}="${key}"[\\s\\S]*?>`, 'gi');
+  return html.replace(pattern, '');
 }
 
 function upsertCanonical(html, href) {
@@ -170,7 +176,16 @@ function applyPageMetadata(baseHtml, page) {
   html = upsertMeta(html, 'property', 'og:site_name', SITE_NAME);
   html = upsertMeta(html, 'property', 'og:locale', locale);
   html = upsertMeta(html, 'property', 'og:locale:alternate', alternateLocale);
-  html = upsertMeta(html, 'name', 'twitter:card', 'summary_large_image');
+  if (SOCIAL_IMAGE_PATH) {
+    const socialImageUrl = absoluteUrl(siteUrl, SOCIAL_IMAGE_PATH);
+    html = upsertMeta(html, 'property', 'og:image', socialImageUrl);
+    html = upsertMeta(html, 'name', 'twitter:image', socialImageUrl);
+    html = upsertMeta(html, 'name', 'twitter:card', 'summary_large_image');
+  } else {
+    html = removeMeta(html, 'property', 'og:image');
+    html = removeMeta(html, 'name', 'twitter:image');
+    html = upsertMeta(html, 'name', 'twitter:card', 'summary');
+  }
   html = upsertMeta(html, 'name', 'twitter:title', page.title);
   html = upsertMeta(html, 'name', 'twitter:description', page.metaDescription);
   html = upsertCanonical(html, canonical);
@@ -233,4 +248,8 @@ await writeFile(
     : `User-agent: *\nAllow: /\n\nSitemap: ${absoluteUrl(siteUrl, '/sitemap.xml')}\n`,
 );
 
-if (isPreviewBuild) await rm(resolve(distDir, 'CNAME'), { force: true });
+if (isPreviewBuild || usesProjectPages) {
+  await rm(resolve(distDir, 'CNAME'), { force: true });
+} else {
+  await writeFile(resolve(distDir, 'CNAME'), `${new URL(siteUrl).hostname}\n`);
+}

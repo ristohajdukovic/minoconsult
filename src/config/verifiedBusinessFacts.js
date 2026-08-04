@@ -32,15 +32,19 @@ export const verifiedBusinessFacts = Object.freeze({
 export function getPublicTrustFacts(language) {
   const facts = language === 'hr'
     ? [
-      { label: 'Sjedište ureda', value: verifiedBusinessFacts.officeAddress },
-      { label: 'Trgovački registar', value: verifiedBusinessFacts.commercialRegisterNumber },
-      { label: 'Jezici web-stranice', value: 'Deutsch · Hrvatski' },
+      { label: 'Lokacija ureda', value: 'Ured u 1170 Beču' },
+      { label: 'Strukovni naziv', value: `${verifiedBusinessFacts.principalNameAsCurrentlyPublished} · Porezni savjetnik` },
+      verifiedBusinessFacts.consultationLanguages?.length
+        ? { label: 'Savjetovanje', value: 'Deutsch · Hrvatski' }
+        : null,
     ]
     : [
-      { label: 'Kanzleistandort', value: verifiedBusinessFacts.officeAddress },
-      { label: 'Firmenbuch', value: verifiedBusinessFacts.commercialRegisterNumber },
-      { label: 'Website-Sprachen', value: 'Deutsch · Hrvatski' },
+      { label: 'Standort', value: 'Kanzlei in 1170 Wien' },
+      { label: 'Berufsbezeichnung', value: `${verifiedBusinessFacts.principalNameAsCurrentlyPublished} · ${verifiedBusinessFacts.professionalTitle}` },
+      verifiedBusinessFacts.consultationLanguages?.length
+        ? { label: 'Beratung', value: 'Deutsch · Hrvatski' }
+        : null,
     ];
 
-  return facts.filter((fact) => fact.value != null && fact.value !== '');
+  return facts.filter((fact) => fact?.value != null && fact.value !== '');
 }

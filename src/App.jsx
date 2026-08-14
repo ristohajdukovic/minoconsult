@@ -23,7 +23,7 @@ import {
   getApprovedProfessionalRegistration,
   getApprovedTargetClientCopy,
 } from './config/customerContent.js';
-import { getPublicTrustFacts, verifiedBusinessFacts } from './config/verifiedBusinessFacts.js';
+import { getCredentialFacts, getPublicTrustFacts, verifiedBusinessFacts } from './config/verifiedBusinessFacts.js';
 import Icon from './components/Icon.jsx';
 import { FOCUSABLE_SELECTOR, lockBodyScroll } from './accessibility/dialog.js';
 import ConsentControlledMap from './privacy/ConsentControlledMap.jsx';
@@ -41,7 +41,6 @@ const ArrowRight = createIcon('arrow-right');
 const ArrowUpRight = createIcon('arrow-up-right');
 const BriefcaseBusiness = createIcon('briefcase');
 const CheckCircle2 = createIcon('check');
-const ChevronsDown = createIcon('chevrons-down');
 const Clock3 = createIcon('clock');
 const FileText = createIcon('file');
 const Mail = createIcon('mail');
@@ -184,6 +183,32 @@ function RichText({ parts }) {
         part.em ? <em key={`${part.text}-${index}`}>{part.text}</em> : <React.Fragment key={`${part.text}-${index}`}>{part.text}</React.Fragment>,
       )}
     </>
+  );
+}
+
+function SectionHeading({ as: Tag = 'h2', lead, emphasis, className }) {
+  return (
+    <Tag className={className}>
+      {lead}
+      <em>{emphasis}</em>
+    </Tag>
+  );
+}
+
+function ImageSlot({ src, alt, width, height, className = '', ...imgProps }) {
+  if (!src) {
+    return <div className={`image-slot image-slot-placeholder ${className}`} aria-hidden="true" />;
+  }
+
+  return (
+    <img
+      className={`image-slot ${className}`}
+      src={src}
+      alt={alt}
+      width={width}
+      height={height}
+      {...imgProps}
+    />
   );
 }
 
@@ -442,6 +467,9 @@ function Header({ t, page, onBook, routePath, isInert = false }) {
               {t.cta.book}
             </button>
           </div>
+          <button className="button-primary mobile-cta-pill sm:hidden" type="button" onClick={onBook} data-booking-trigger="header-mobile">
+            {t.cta.mobileBook}
+          </button>
           <button
             ref={buttonRef}
             className="hamburger-button lg:hidden"
@@ -522,6 +550,9 @@ function DelayedStickyHeader({ t, page, onBook, isVisible, routePath }) {
               {t.cta.book}
             </button>
           </div>
+          <button className="button-primary mobile-cta-pill sm:hidden" type="button" onClick={onBook} data-booking-trigger="sticky-header-mobile">
+            {t.cta.mobileBook}
+          </button>
           <button
             ref={buttonRef}
             className="hamburger-button lg:hidden"
@@ -653,33 +684,16 @@ function HeroVisual({ t, className = '' }) {
 
   return (
     <div className={className}>
-      <div className="hero-image-frame" data-media={hasApprovedHeroImage ? 'photography' : 'brand'}>
-        {hasApprovedHeroImage ? (
-          <img
-            className="hero-photo w-full rounded-t-md object-cover"
-            src={`${import.meta.env.BASE_URL}${approvedHeroImage.path.replace(/^\//, '')}`}
-            alt={approvedHeroImage.alt}
-            width={approvedHeroImage.width}
-            height={approvedHeroImage.height}
-            fetchPriority="high"
-            sizes="(min-width: 1024px) 46vw, 100vw"
-            onError={() => setImageUnavailable(true)}
-          />
-        ) : (
-          <div className="hero-brand-fallback" aria-hidden="true">
-            <img
-              src={`${import.meta.env.BASE_URL}brand/mino-logo.svg`}
-              alt=""
-              width="344"
-              height="143"
-            />
-          </div>
-        )}
-        <a className="scroll-badge" href="#value">
-          {t.cta.scroll}
-          <ChevronsDown size={15} aria-hidden="true" />
-        </a>
-      </div>
+      <ImageSlot
+        className="hero-visual-slot"
+        src={hasApprovedHeroImage ? `${import.meta.env.BASE_URL}${approvedHeroImage.path.replace(/^\//, '')}` : null}
+        alt={hasApprovedHeroImage ? approvedHeroImage.alt : ''}
+        width={approvedHeroImage?.width}
+        height={approvedHeroImage?.height}
+        fetchPriority="high"
+        sizes="(min-width: 1024px) 46vw, 100vw"
+        onError={() => setImageUnavailable(true)}
+      />
     </div>
   );
 }
@@ -693,9 +707,7 @@ function Hero({ t, onBook }) {
       <div className="section-shell hero-layout">
         <div className="hero-copy">
           <p className="hero-eyebrow">{t.hero.eyebrow}</p>
-          <h1>
-            <RichText parts={t.hero.title} />
-          </h1>
+          <h1>{t.hero.title}</h1>
           <p className="mt-4 max-w-lg text-forest/75 sm:mt-5"><LocalizedText text={t.hero.body} language={t.language} /></p>
 
           <div className="hero-actions" data-hero-cta>
@@ -711,6 +723,8 @@ function Hero({ t, onBook }) {
             </a>
           </div>
 
+          {/* TODO: remove this note once the hosted-form migration lands and appointment booking no longer relies on a locally prepared email. */}
+          <p className="hero-note">{t.hero.note}</p>
         </div>
 
         <HeroVisual t={t} className="hero-visual relative" />
@@ -719,31 +733,47 @@ function Hero({ t, onBook }) {
   );
 }
 
-function VerifiedFactsStrip({ language }) {
-  const facts = getPublicTrustFacts(language);
-  if (facts.length === 0) return null;
+const CREDENTIAL_MARQUEE_PX_PER_SECOND = 60;
+const CREDENTIAL_MARQUEE_MIN_SECONDS = 14;
 
+function CredentialMarqueeRow({ facts, language, duplicate }) {
   return (
-    <section className="verified-facts-section" aria-label={language === 'hr' ? 'Provjereni podaci' : 'Verifizierte Angaben'}>
-      <dl className="section-shell verified-facts-list">
-        {facts.map((fact) => (
-          <div key={fact.label} className="verified-fact">
-            <dt>{fact.label}</dt>
-            <dd>{fact.value}</dd>
-          </div>
-        ))}
-      </dl>
-    </section>
+    <ul className="credential-marquee-row" aria-hidden={duplicate || undefined}>
+      {facts.map((fact, index) => (
+        <li key={fact.label} className="credential-marquee-item">
+          {index > 0 && <span className="credential-marquee-divider" aria-hidden="true">•</span>}
+          <span className="credential-marquee-label"><LocalizedText text={fact.label} language={language} /></span>
+          <span className="credential-marquee-inline-sep" aria-hidden="true"> · </span>
+          <span className="credential-marquee-value"><LocalizedText text={fact.value} language={language} /></span>
+        </li>
+      ))}
+    </ul>
   );
 }
 
-function ValueProposition({ t }) {
+function CredentialBand({ language }) {
+  const facts = [...getPublicTrustFacts(language), ...getCredentialFacts(language)];
+  const trackRef = useRef(null);
+
+  useLayoutEffect(() => {
+    const track = trackRef.current;
+    if (!track) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+    const singleSetWidth = track.scrollWidth / 2;
+    const duration = Math.max(singleSetWidth / CREDENTIAL_MARQUEE_PX_PER_SECOND, CREDENTIAL_MARQUEE_MIN_SECONDS);
+    track.style.setProperty('--credential-marquee-duration', `${duration.toFixed(1)}s`);
+  }, [language, facts.length]);
+
+  if (facts.length === 0) return null;
+
   return (
-    <section id="value" className="value-section section-surface-light">
-      <div className="section-shell value-section-shell">
-        <small>{t.value.eyebrow}</small>
-        <h2>{t.value.title}</h2>
-        <p><LocalizedText text={t.value.intro} language={t.language} /></p>
+    <section className="credential-band" aria-label={language === 'hr' ? 'Vjerodajnice' : 'Kanzleiangaben'}>
+      <div className="credential-marquee" tabIndex={0}>
+        <div className="credential-marquee-track" ref={trackRef}>
+          <CredentialMarqueeRow facts={facts} language={language} duplicate={false} />
+          <CredentialMarqueeRow facts={facts} language={language} duplicate />
+        </div>
       </div>
     </section>
   );
@@ -755,32 +785,31 @@ function Services({ t, language }) {
     .filter((page) => !primaryPaths.has(page.path));
 
   return (
-    <section id="services" className="services-section section-surface-warm">
+    <section id="services" className="services-section section-surface-cream">
       <div className="section-shell services-shell">
         <div className="services-intro">
-          <h2>
-            <RichText parts={t.servicesIntro.title} />
-          </h2>
+          <SectionHeading lead={t.servicesIntro.title.lead} emphasis={t.servicesIntro.title.emphasis} />
           <p>{t.servicesIntro.body}</p>
         </div>
 
-        <div className="service-grid">
+        <div className="service-list">
           {t.services.map((service) => {
-            const title = service.title.map((part) => part.text).join('');
+            const headingId = `service-${service.id}-heading`;
             return (
-              <article key={service.id} className="service-card">
+              <a
+                key={service.id}
+                className="service-row"
+                href={getRouteHref(service.path)}
+                aria-labelledby={headingId}
+              >
                 <small>{service.subtitle}</small>
-                <h3><RichText parts={service.title} /></h3>
+                <h3 id={headingId}><RichText parts={service.title} /></h3>
                 <p><LocalizedText text={service.body} language={language} /></p>
-                <a
-                  className="service-card-link"
-                  href={getRouteHref(service.path)}
-                  aria-label={`${t.cta.learnMore}: ${title}`}
-                >
+                <span className="service-row-cta" aria-hidden="true">
                   {t.cta.learnMore}
                   <ArrowRight size={16} aria-hidden="true" />
-                </a>
-              </article>
+                </span>
+              </a>
             );
           })}
         </div>
@@ -801,42 +830,20 @@ function Services({ t, language }) {
   );
 }
 
-function WorkingProcess({ t }) {
-  if (!t.process?.steps?.length) return null;
-
-  return (
-    <section className="section-spacious section-surface-light">
-      <div className="section-shell">
-        <div className="max-w-3xl reveal">
-          <small>{t.process.label}</small>
-          <h2 className="mt-4">{t.process.title}</h2>
-          <p className="mt-5 text-forest/70">{t.process.body}</p>
-        </div>
-        <ol className="seo-process-list">
-          {t.process.steps.map((step, index) => (
-            <li key={step.title} className="seo-process-item reveal">
-              <span>{String(index + 1).padStart(2, '0')}</span>
-              <div>
-                <h3>{step.title}</h3>
-                <p>{step.body}</p>
-              </div>
-            </li>
-          ))}
-        </ol>
-      </div>
-    </section>
-  );
-}
-
 function ClientFitSection({ t }) {
   const clientFit = getApprovedTargetClientCopy(t.language) ?? t.clientFit;
   if (!clientFit?.cards?.length) return null;
+  const isApprovedOverride = typeof clientFit.title === 'string';
 
   return (
     <section className="section-spacious section-surface-cream">
       <div className="section-shell">
         <div className="mx-auto max-w-3xl text-center reveal">
-          <h2>{clientFit.title}</h2>
+          {isApprovedOverride ? (
+            <h2>{clientFit.title}</h2>
+          ) : (
+            <SectionHeading lead={clientFit.title.lead} emphasis={clientFit.title.emphasis} className="text-center" />
+          )}
           <p className="mt-4">{clientFit.body}</p>
         </div>
 
@@ -861,34 +868,17 @@ function AdviserVisual({ t }) {
   useEffect(() => setImageUnavailable(false), [approvedPortrait?.path]);
 
   return (
-    <div className="adviser-visual" data-media={hasApprovedPortrait ? 'portrait' : 'brand'}>
-      {hasApprovedPortrait ? (
-        <img
-          className="adviser-portrait"
-          src={`${import.meta.env.BASE_URL}${approvedPortrait.path.replace(/^\//, '')}`}
-          alt={approvedPortrait.alt}
-          width={approvedPortrait.width}
-          height={approvedPortrait.height}
-          loading="lazy"
-          decoding="async"
-          sizes="(min-width: 1024px) 36vw, 100vw"
-          onError={() => setImageUnavailable(true)}
-        />
-      ) : (
-        <div className="adviser-identity-panel">
-          <img
-            src={`${import.meta.env.BASE_URL}brand/mino-logo.svg`}
-            alt=""
-            width="344"
-            height="143"
-          />
-          <div>
-            <p className="adviser-identity-name">{t.about.principalName}</p>
-            <p className="adviser-identity-role">{t.about.principalRole}</p>
-          </div>
-        </div>
-      )}
-    </div>
+    <ImageSlot
+      className="adviser-visual"
+      src={hasApprovedPortrait ? `${import.meta.env.BASE_URL}${approvedPortrait.path.replace(/^\//, '')}` : null}
+      alt={hasApprovedPortrait ? approvedPortrait.alt : ''}
+      width={approvedPortrait?.width}
+      height={approvedPortrait?.height}
+      loading="lazy"
+      decoding="async"
+      sizes="(min-width: 1024px) 36vw, 100vw"
+      onError={() => setImageUnavailable(true)}
+    />
   );
 }
 
@@ -974,12 +964,10 @@ function FaqAccordion({ items, language, idPrefix = 'faq' }) {
 
 function FaqSection({ t }) {
   return (
-      <section id="faq" className="section-spacious section-surface-cream">
+      <section id="faq" className="section-spacious section-surface-warm">
         <div className="section-shell faq-layout">
           <div className="faq-intro reveal">
-            <h2>
-              <RichText parts={t.faq.title} />
-            </h2>
+            <SectionHeading lead={t.faq.title.lead} emphasis={t.faq.title.emphasis} />
             <p className="mt-5 text-forest/70">{t.faq.body}</p>
           </div>
 
@@ -1223,7 +1211,7 @@ function Contact({ t, onBook, onPrivacySettings, routePath }) {
             <div className="negative-footer__content">
               <div className="footer-contact-top reveal">
                 <div>
-                  <h2><RichText parts={t.contact.title} /></h2>
+                  <SectionHeading lead={t.contact.title.lead} emphasis={t.contact.title.emphasis} />
                   <p className="footer-contact-copy">{t.contact.body}</p>
                   <p className="footer-contact-copy">{t.contact.reassurance}</p>
                 </div>
@@ -1303,6 +1291,39 @@ function Contact({ t, onBook, onPrivacySettings, routePath }) {
 }
 
 
+const PRELOADER_SESSION_KEY = 'mino_preloader_shown';
+const PRELOADER_DURATION_MS = 850;
+
+function SessionPreloader() {
+  const [visible, setVisible] = useState(() => {
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false;
+    try {
+      return sessionStorage.getItem(PRELOADER_SESSION_KEY) !== 'true';
+    } catch {
+      return false;
+    }
+  });
+
+  useEffect(() => {
+    if (!visible) return undefined;
+    try {
+      sessionStorage.setItem(PRELOADER_SESSION_KEY, 'true');
+    } catch {
+      // Storage unavailable (e.g. blocked cookies) - the timer below still removes the overlay.
+    }
+    const timer = window.setTimeout(() => setVisible(false), PRELOADER_DURATION_MS);
+    return () => window.clearTimeout(timer);
+  }, [visible]);
+
+  if (!visible) return null;
+
+  return (
+    <div className="preloader" aria-hidden="true">
+      <div className="preloader-panel" />
+    </div>
+  );
+}
+
 export default function App() {
   const [bookingOpen, setBookingOpen] = useState(false);
   const [privacySettingsOpen, setPrivacySettingsOpen] = useState(false);
@@ -1342,7 +1363,7 @@ export default function App() {
 
   useEffect(() => {
     const locale = page.language === 'de' ? 'de_AT' : 'hr_HR';
-    document.documentElement.lang = page.language;
+    document.documentElement.lang = page.language === 'de' ? 'de-AT' : 'hr';
     document.title = page.title ?? page.pageTitle;
     setMetaContent('meta[name="description"]', page.metaDescription);
     setMetaContent('meta[name="robots"]', 'index, follow');
@@ -1372,6 +1393,7 @@ export default function App() {
 
   return (
     <div className="relative min-h-screen overflow-x-clip bg-white text-forest">
+      <SessionPreloader />
       <div
         className="site-shell relative z-10"
         aria-hidden={modalOpen || undefined}
@@ -1400,12 +1422,10 @@ export default function App() {
           ) : (
             <>
               <Hero t={t} onBook={openBooking} />
-              <VerifiedFactsStrip language={page.language} />
-              <ValueProposition t={t} />
+              <CredentialBand language={page.language} />
               <Services t={t} language={page.language} />
-              <WorkingProcess t={t} />
-              <ClientFitSection t={t} />
               <About t={t} />
+              <ClientFitSection t={t} />
               <FaqSection t={t} />
             </>
           )}

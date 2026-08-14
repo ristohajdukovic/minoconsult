@@ -66,13 +66,13 @@ try {
     await page.goto(pageUrl('/'), { waitUntil: 'domcontentloaded' });
     const shellLeft = await page.locator('.hero-copy').evaluate((element) => element.getBoundingClientRect().left);
     check(shellLeft >= 19.5, `Homepage retains the minimum gutter at ${width}px`);
-    const serviceHeadingsInside = await page.locator('.service-card h3').evaluateAll((headings) => headings.every((heading) => {
+    const serviceHeadingsInside = await page.locator('.service-row h3').evaluateAll((headings) => headings.every((heading) => {
       const rect = heading.getBoundingClientRect();
       return rect.left >= -1 && rect.right <= document.documentElement.clientWidth + 1 && heading.scrollWidth <= heading.clientWidth + 1;
     }));
     check(serviceHeadingsInside, `German service headings fit at ${width}px`);
-    const serviceColumnCount = await page.locator('.service-grid').evaluate((grid) => getComputedStyle(grid).gridTemplateColumns.split(' ').length);
-    check(serviceColumnCount === (width >= 768 ? 2 : 1), `Homepage service grid uses the expected column count at ${width}px`);
+    const serviceColumnCount = await page.locator('.service-row').first().evaluate((row) => getComputedStyle(row).gridTemplateColumns.split(' ').length);
+    check(serviceColumnCount === (width >= 1024 ? 2 : 1), `Homepage service row uses the expected column count at ${width}px`);
     const heroInside = await page.locator('.hero-copy').evaluate((element) => element.scrollWidth <= element.clientWidth + 1);
     check(heroInside, `Hero copy fits at ${width}px`);
 
@@ -88,7 +88,7 @@ try {
     }
 
     await page.goto(pageUrl('/hr/'), { waitUntil: 'domcontentloaded' });
-    const croatianHeadingsInside = await page.locator('.service-card h3').evaluateAll((headings) => headings.every((heading) => heading.scrollWidth <= heading.clientWidth + 1));
+    const croatianHeadingsInside = await page.locator('.service-row h3').evaluateAll((headings) => headings.every((heading) => heading.scrollWidth <= heading.clientWidth + 1));
     check(croatianHeadingsInside, `Croatian service headings fit at ${width}px`);
     await context.close();
   }
@@ -98,13 +98,13 @@ try {
   await desktopPage.goto(pageUrl('/'), { waitUntil: 'domcontentloaded' });
   const alignment = await desktopPage.evaluate(() => {
     const left = (selector) => document.querySelector(selector)?.getBoundingClientRect().left;
-    const values = [left('.brand-logo'), left('.hero-copy'), left('#value .section-shell > *'), left('#contact .negative-footer__content')];
+    const values = [left('.brand-logo'), left('.hero-copy'), left('#services .services-intro'), left('#contact .negative-footer__content')];
     return Math.max(...values) - Math.min(...values);
   });
   check(alignment <= 1, 'Major container left edges remain aligned at 1440px');
   const measures = await desktopPage.locator('main p').evaluateAll((paragraphs) => paragraphs.map((paragraph) => paragraph.getBoundingClientRect().width));
   check(Math.max(...measures) <= 770, 'Body prose remains within the configured readable measure');
-  const sectionPaddings = await desktopPage.locator('#value, #services, #about, #faq').evaluateAll((sections) => sections.map((section) => Number.parseFloat(getComputedStyle(section).paddingTop)));
+  const sectionPaddings = await desktopPage.locator('#services, #about, #faq').evaluateAll((sections) => sections.map((section) => Number.parseFloat(getComputedStyle(section).paddingTop)));
   check(sectionPaddings.every((padding) => padding >= 56 && padding <= 152.5), 'Major section spacing remains within semantic-token ranges');
   const targetSizes = await desktopPage.locator('.button-primary, .button-secondary, .hamburger-button, .language-switcher a, .faq-trigger, .choice-button').evaluateAll((elements) => elements.filter((element) => getComputedStyle(element).display !== 'none').map((element) => element.getBoundingClientRect().height));
   check(targetSizes.every((height) => height >= 44), 'Major controls meet the 44px practical target size');

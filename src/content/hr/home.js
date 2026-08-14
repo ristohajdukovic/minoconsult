@@ -19,21 +19,17 @@ const home = {
     { label: 'Kontakt', href: '#contact' },
   ],
   cta: {
-    book: 'Zatražite prvi razgovor', call: 'Nazovite nas', scroll: 'Dalje', learnMore: 'Saznajte više',
+    book: 'Zatražite prvi razgovor', mobileBook: 'Upit', call: 'Nazovite nas', learnMore: 'Saznajte više',
     callAria: 'Nazovite MINO Consulting',
   },
   hero: {
-    eyebrow: 'Porezno savjetovanje i knjigovodstvo · Beč',
-    title: [{ text: 'Porezno savjetovanje, knjigovodstvo i obračun plaća u Beču' }],
+    eyebrow: 'Porezno savjetovanje u Beču · od 1997.',
+    title: 'Porezno savjetovanje i knjigovodstvo u Beču',
     body: 'MINO Consulting KG pruža podršku poduzećima pri tekućem knjigovodstvu, obračunu plaća, godišnjem obračunu i konkretnim poreznim pitanjima. Na prvom razgovoru utvrđujemo potrebe i potrebnu dokumentaciju.',
-  },
-  value: {
-    eyebrow: 'Gdje MINO pruža podršku',
-    title: 'Podrška za redovite obveze i konkretna pitanja',
-    intro: 'MINO pruža podršku pri knjigovodstvu, obračunu plaća, godišnjem obračunu, poreznim pitanjima te poreznom početku poslovanja.',
+    note: 'Upit za termin samo otvara vaš vlastiti program za e-poštu i još ne rezervira termin. Termin postaje obvezujuć tek nakon zasebne potvrde društva MINO Consulting KG.',
   },
   servicesIntro: {
-    title: [{ text: 'Usluge za ' }, { text: 'redovite obveze i konkretna pitanja', em: true }],
+    title: { lead: 'Usluge za ', emphasis: 'redovite obveze i konkretna pitanja' },
     body: 'Pregledi pokazuju gdje MINO može pružiti podršku. Stvarni opseg dogovara se prema vašoj dokumentaciji i poslovnoj situaciji.',
   },
   services: [
@@ -43,25 +39,15 @@ const home = {
     { id: 'annual-accounts', title: [{ text: 'Godišnji obračun i izvještavanje' }], subtitle: 'Završni račun i rezultat', body: 'Usklađivanje dokumentacije, razjašnjenje otvorenih knjigovodstvenih pitanja te razgovor o rezultatima i sljedećim obvezama.', path: '/hr/godisnji-obracun-bec' },
     { id: 'company-formation', title: [{ text: 'Osnivanje tvrtke' }], subtitle: 'Početak u Austriji', body: 'Porezno razmatranje i uspostava knjigovodstvenih postupaka prije ili nakon početka. Pravne i javnobilježničke usluge nisu dio ovog opisa.', path: '/hr/osnivanje-tvrtke-bec' },
   ],
-  process: {
-    label: 'Od upita do razgovora',
-    title: 'Kako funkcionira upit za termin',
-    body: 'Web-stranica priprema podatke za vaš program e-pošte i ne rezervira termin.',
-    steps: [
-      { title: 'Pripremite upit', body: 'Navodite temu, oblik i termin te otvarate pripremljenu e-poruku. Možete i nazvati.' },
-      { title: 'Pričekajte potvrdu', body: 'Termin je obvezujući tek nakon zasebne potvrde društva MINO Consulting KG.' },
-      { title: 'Razjasnite potrebe', body: 'U razgovoru se utvrđuju početna situacija, potrebna dokumentacija i mogući opseg usluge.' },
-    ],
-  },
   clientFit: {
-    title: 'Kada prvi razgovor može biti koristan', body: 'Ove situacije odgovaraju uslugama opisanima na web-stranici. Može li MINO preuzeti konkretan angažman, utvrđuje se tek nakon pregleda upita.',
+    title: { lead: 'Kada prvi razgovor može biti ', emphasis: 'koristan' }, body: 'Ove situacije odgovaraju uslugama opisanima na web-stranici. Može li MINO preuzeti konkretan angažman, utvrđuje se tek nakon pregleda upita.',
     cards: [
       { title: 'Organizacija tekuće dokumentacije', body: 'Dokumente, bankovne transakcije ili otvorena knjigovodstvena pitanja treba uključiti u dogovoreni postupak.' },
       { title: 'Obračun zaposlenika', body: 'Za redovit obračun plaća potrebno je potpuno i pravodobno objediniti matične podatke i mjesečne promjene.' },
       { title: 'Priprema osnivanja ili promjene savjetnika', body: 'Porezna pitanja i buduće knjigovodstvo treba razjasniti prije početka ili moguće primopredaje.' },
     ],
   },
-  localServices: { title: 'Detalji usluga', body: 'Svaka stranica objašnjava svrhu, potrebnu dokumentaciju, postupak i granice pojedine usluge.', label: 'Pregled usluga' },
+  localServices: { title: 'Detalji usluga', body: 'Svaka stranica objašnjava svrhu, potrebnu dokumentaciju, postupak i granice pojedine usluge.', label: 'Porezno savjetovanje za poduzetnike' },
   about: {
     eyebrow: 'VAŠ POREZNI SAVJETNIK',
     principalName: 'Mag. Tomislav Siketic',
@@ -76,7 +62,7 @@ const home = {
     legalLinkLabel: 'Strukovni podaci i podaci o društvu u impresumu',
   },
   faq: {
-    title: [{ text: 'Česta ' }, { text: 'pitanja' }],
+    title: { lead: 'Česta ', emphasis: 'pitanja' },
     body: 'Odgovori o dokumentaciji, upitu za termin i opsegu usluga.',
     items: [
       { question: 'Koju dokumentaciju MINO Consulting KG treba za tekuće knjigovodstvo?', answer: 'Najčešće su potrebni izlazni i ulazni računi, bankovni izvodi, blagajnički podaci i relevantni ugovori. Na prvom razgovoru dogovaramo konkretan opseg.' },
@@ -88,7 +74,7 @@ const home = {
     ],
   },
   contact: {
-    title: [{ text: 'Razgovarajmo o ' }, { text: 'podršci koja vam je potrebna' }],
+    title: { lead: 'Razgovarajmo o ', emphasis: 'podršci koja vam je potrebna' },
     body: 'Navedite temu, oblik razgovora i termin. Web-stranica priprema e-poruku; možete i izravno nazvati.',
     reassurance: 'Vaš se upit osobno pregledava. Termin vrijedi tek nakon zasebne potvrde.', button: 'Pripremite upit za termin',
     cards: [

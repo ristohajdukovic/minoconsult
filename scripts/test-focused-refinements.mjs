@@ -56,23 +56,21 @@ try {
 
   for (const language of [
     {
-      path: '/', heroEyebrow: 'Steuerberatung und Buchhaltung · Wien',
-      heroTitle: 'Steuerberatung, Buchhaltung und Lohnverrechnung in Wien',
+      path: '/', heroEyebrow: 'Steuerberatung in Wien · seit 1997',
+      heroTitle: 'Steuerberatung und Buchhaltung in Wien',
       heroBody: 'MINO Consulting KG unterstützt Unternehmen bei laufender Buchhaltung, Lohnverrechnung, Jahresabschluss und konkreten Steuerfragen. Im Erstgespräch klären wir den Bedarf und die benötigten Unterlagen.',
       aboutEyebrow: 'IHR ANSPRECHPARTNER', role: 'Steuerberater',
       aboutSummary: 'MINO Consulting KG unterstützt bei Buchhaltung, Lohnverrechnung, Jahresabschluss und konkreten Steuer- oder Gründungsfragen.',
       legalPath: '/minoconsult/impressum',
-      valueTitle: 'Verlässliche Unterstützung für laufende Pflichten und konkrete Fragen',
       secondaryPath: '/minoconsult/steuerberatung-gruender-wien',
     },
     {
-      path: '/hr/', heroEyebrow: 'Porezno savjetovanje i knjigovodstvo · Beč',
-      heroTitle: 'Porezno savjetovanje, knjigovodstvo i obračun plaća u Beču',
+      path: '/hr/', heroEyebrow: 'Porezno savjetovanje u Beču · od 1997.',
+      heroTitle: 'Porezno savjetovanje i knjigovodstvo u Beču',
       heroBody: 'MINO Consulting KG pruža podršku poduzećima pri tekućem knjigovodstvu, obračunu plaća, godišnjem obračunu i konkretnim poreznim pitanjima. Na prvom razgovoru utvrđujemo potrebe i potrebnu dokumentaciju.',
       aboutEyebrow: 'VAŠ POREZNI SAVJETNIK', role: 'Porezni savjetnik',
       aboutSummary: 'MINO Consulting KG pruža podršku pri knjigovodstvu, obračunu plaća, godišnjem obračunu te konkretnim poreznim pitanjima ili pitanjima pri osnivanju.',
       legalPath: '/minoconsult/hr/impressum',
-      valueTitle: 'Podrška za redovite obveze i konkretna pitanja',
       secondaryPath: '/minoconsult/hr/porezno-savjetovanje-poduzetnici-bec',
     },
   ]) {
@@ -83,29 +81,21 @@ try {
     check(await hero.getByText(language.heroBody, { exact: true }).count() === 1, `${language.path} hero uses the approved supporting copy`);
     check(await hero.getByRole('button', { name: language.path === '/' ? 'Erstgespräch anfragen' : 'Zatražite prvi razgovor' }).count() === 1, `${language.path} hero retains its primary inquiry CTA`);
     check((await hero.locator('a[href^="tel:"]').getAttribute('href')) === 'tel:+43190680200', `${language.path} hero call CTA retains the office phone link`);
-    check(await hero.locator('.hero-image-frame[data-media="brand"] .hero-brand-fallback img').count() === 1, `${language.path} hero renders the intentional brand fallback`);
-    check(await hero.locator('.hero-brand-fallback img').getAttribute('alt') === '', `${language.path} decorative hero fallback uses empty alt text`);
-    check((await hero.locator('.hero-brand-fallback img').getAttribute('src')) === '/minoconsult/brand/mino-logo.svg', `${language.path} hero fallback reuses the approved complete logo`);
+    check(await hero.locator('.hero-visual-slot.image-slot-placeholder').count() === 1, `${language.path} hero renders the neutral tonal placeholder while photography is pending`);
+    check(await hero.locator('.hero-visual-slot img').count() === 0, `${language.path} hero placeholder does not stand in the logo for missing photography`);
     check(await hero.locator('img[src*="mino-office-consultation-placeholder"]').count() === 0, `${language.path} hero no longer renders the consultation placeholder`);
     check(await hero.locator('.hero-copy').evaluate((copy) => Boolean(copy.compareDocumentPosition(document.querySelector('.hero-visual')) & Node.DOCUMENT_POSITION_FOLLOWING)), `${language.path} mobile DOM order keeps copy and CTAs before fallback art`);
 
-    const value = mobilePage.locator('#value');
-    check(await value.getByRole('heading', { name: language.valueTitle }).count() === 1, `${language.path} uses the compact localized value heading`);
-    check(await value.locator('.value-highlight-word').count() === 0, `${language.path} value copy is not split into animated word spans`);
     const services = mobilePage.locator('#services');
-    check(await services.locator('.service-card').count() === 5, `${language.path} renders five primary service cards`);
+    check(await services.locator('.service-row').count() === 5, `${language.path} renders five primary service rows`);
     check(await services.locator('.service-number-rail, .service-editorial-mobile-number').count() === 0, `${language.path} renders no giant service numbers`);
     check(await services.locator('.service-secondary-nav a').count() === 1, `${language.path} keeps only the missing service destination in the secondary row`);
     check(new URL(await services.locator('.service-secondary-nav a').getAttribute('href'), 'http://localhost').pathname === language.secondaryPath, `${language.path} secondary row retains the founder-specific service route`);
 
-    const facts = mobilePage.locator('.verified-facts-section');
-    check(await facts.evaluate((element) => getComputedStyle(element).display === 'none' && element.getBoundingClientRect().height === 0), `${language.path} facts are fully hidden at 390px`);
-    check(await facts.locator('a,button,input,select,textarea,[tabindex]:not([tabindex="-1"])').count() === 0, `${language.path} hidden facts contain no focusable controls`);
-    check(await mobilePage.evaluate(() => {
-      const heroBottom = document.querySelector('#top').getBoundingClientRect().bottom;
-      const nextTop = document.querySelector('#value').getBoundingClientRect().top;
-      return Math.abs(nextTop - heroBottom) <= 1;
-    }), `${language.path} hidden facts leave no layout gap`);
+    const facts = mobilePage.locator('.credential-band');
+    check(await facts.evaluate((element) => getComputedStyle(element).display !== 'none' && element.getBoundingClientRect().height > 0), `${language.path} unified credential band is visible at 390px`);
+    check(await facts.locator('.credential-marquee-row:not([aria-hidden]) .credential-marquee-item').count() === 6, `${language.path} unified credential band exposes all six fields once at 390px`);
+    check(await facts.locator('.credential-marquee-row[aria-hidden]').count() === 1, `${language.path} unified credential band renders exactly one aria-hidden duplicate row for the marquee loop`);
 
     const about = mobilePage.locator('#about');
     check(await about.locator('.about-eyebrow').getByText(language.aboutEyebrow, { exact: true }).count() === 1, `${language.path} About uses the localized adviser eyebrow`);
@@ -116,9 +106,8 @@ try {
     check(await about.locator('.about-facts').filter({ hasText: 'Deutsch · Hrvatski' }).count() === 1, `${language.path} About retains the verified languages`);
     check(await about.locator('.about-facts').filter({ hasText: 'FN 157894y' }).count() === 1, `${language.path} About retains the verified register number`);
     check((await about.locator('.about-legal-link').getAttribute('href')) === language.legalPath, `${language.path} About retains the localized Impressum link`);
-    check(await about.locator('.adviser-visual[data-media="brand"] .adviser-identity-panel').count() === 1, `${language.path} missing portrait renders the intentional identity panel`);
-    check((await about.locator('.adviser-identity-panel img').getAttribute('src')) === '/minoconsult/brand/mino-logo.svg', `${language.path} adviser fallback reuses the approved wordmark`);
-    check(await about.locator('.adviser-identity-panel img').getAttribute('alt') === '', `${language.path} fallback wordmark is decorative beside visible identity text`);
+    check(await about.locator('.adviser-visual.image-slot-placeholder').count() === 1, `${language.path} missing portrait renders the neutral tonal placeholder`);
+    check(await about.locator('.adviser-visual img').count() === 0, `${language.path} adviser placeholder does not stand in the logo for the missing portrait`);
     check(await about.locator('img[src*="/images/team/"]').count() === 0, `${language.path} About makes no team-image request while portrait configuration is empty`);
     check(await about.locator('.founder-placeholder, .tag-pill').count() === 0, `${language.path} About removes placeholder and badge decoration wrappers`);
   }
@@ -127,10 +116,11 @@ try {
   const desktopContext = await browser.newContext({ viewport: { width: 1024, height: 768 }, reducedMotion: 'reduce' });
   const desktopPage = await desktopContext.newPage();
   await openPage(desktopPage, '/');
-  check(await desktopPage.locator('.verified-facts-section').evaluate((element) => getComputedStyle(element).display !== 'none' && element.getBoundingClientRect().height > 0), 'Verified facts remain visible at 1024px');
-  check(await desktopPage.locator('.verified-fact').count() === 2, 'Trust strip exposes only currently verified customer-facing facts');
-  check(await desktopPage.locator('.verified-fact').filter({ hasText: 'Kanzlei in 1170 Wien' }).count() === 1, 'Trust strip shows the verified Vienna office location');
-  check(await desktopPage.locator('.verified-fact').filter({ hasText: 'Mag. Tomislav Siketic · Steuerberater' }).count() === 1, 'Trust strip shows the published principal and professional title');
+  check(await desktopPage.locator('.credential-band').evaluate((element) => getComputedStyle(element).display !== 'none' && element.getBoundingClientRect().height > 0), 'Unified credential band remains visible at 1024px');
+  const visibleCredentialItems = desktopPage.locator('.credential-marquee-row:not([aria-hidden]) .credential-marquee-item');
+  check(await visibleCredentialItems.count() === 6, 'Unified credential band exposes all six verified facts once (excluding the aria-hidden marquee duplicate)');
+  check(await visibleCredentialItems.filter({ hasText: 'Kanzlei in 1170 Wien' }).count() === 1, 'Credential band shows the verified Vienna office location');
+  check(await visibleCredentialItems.filter({ hasText: 'Mag. Tomislav Siketic · Steuerberater' }).count() === 1, 'Credential band shows the published principal and professional title');
   const accentStyles = await desktopPage.evaluate(() => ({
     accentToken: getComputedStyle(document.documentElement).getPropertyValue('--color-accent').trim().toLowerCase(),
     hoverAccentToken: getComputedStyle(document.documentElement).getPropertyValue('--color-hover-accent').trim().toLowerCase(),
@@ -159,16 +149,16 @@ try {
   const refinementStyles = await desktopPage.evaluate(() => ({
     heroSurface: getComputedStyle(document.querySelector('.hero-section')).backgroundColor,
     heroTexture: getComputedStyle(document.querySelector('.hero-section')).backgroundImage,
-    warmSurface: getComputedStyle(document.querySelector('#services')).backgroundColor,
-    warmTexture: getComputedStyle(document.querySelector('#services')).backgroundImage,
-    lightSurface: getComputedStyle(document.querySelector('#value')).backgroundColor,
+    warmSurface: getComputedStyle(document.querySelector('#faq')).backgroundColor,
+    warmTexture: getComputedStyle(document.querySelector('#faq')).backgroundImage,
+    lightSurface: getComputedStyle(document.querySelector('#about')).backgroundColor,
     mintSurface: getComputedStyle(document.querySelector('.section-surface-cream')).backgroundColor,
     controlShadow: getComputedStyle(document.querySelector('.button-primary')).boxShadow,
     controlShadowToken: getComputedStyle(document.documentElement).getPropertyValue('--shadow-control').trim(),
     panelShadowToken: getComputedStyle(document.documentElement).getPropertyValue('--shadow-panel').trim(),
     sectionTab: getComputedStyle(document.querySelector('.section-spacious'), '::after').content,
     sectionBracket: getComputedStyle(document.querySelector('.section-spacious > .section-shell'), '::after').content,
-    heroBracket: getComputedStyle(document.querySelector('.hero-image-frame'), '::before').content,
+    heroBracket: getComputedStyle(document.querySelector('.hero-visual-slot'), '::before').content,
   }));
   check(refinementStyles.heroSurface === 'rgb(244, 240, 231)' && refinementStyles.heroTexture === 'none', 'Hero uses a solid off-white surface without texture');
   check(refinementStyles.warmSurface === 'rgb(244, 240, 231)' && refinementStyles.warmTexture === 'none', 'Warm sections use the shared solid off-white surface');
@@ -178,7 +168,7 @@ try {
   check([refinementStyles.sectionTab, refinementStyles.sectionBracket, refinementStyles.heroBracket].every((content) => content === 'none'), 'Decorative section tabs and corner brackets are removed');
   check(await desktopPage.locator('.architect-grid, .tag-pill, .footer-accent-line, .map-placeholder-mark').count() === 0, 'Template grid, filled pills, accent stroke and pseudo-map drawing are absent');
   check(await desktopPage.locator('.section-eyebrow svg').count() === 0, 'Eyebrows are text-only');
-  check(await desktopPage.locator('#services h2 em').count() === 1 && await desktopPage.locator('#faq h2 em, #contact h2 em').count() === 0, 'Italic emphasis is reserved for one selected homepage heading');
+  check(await desktopPage.locator('#services h2 em, #faq h2 em, #contact h2 em').count() >= 3, 'Italic emphasis is applied consistently via the shared heading component');
   await desktopPage.locator('[data-hero-cta] button').click();
   const bookingDialog = desktopPage.getByRole('dialog');
   await bookingDialog.waitFor();
@@ -276,8 +266,8 @@ try {
     for (const path of ['/', '/hr/']) {
       await openPage(page, path);
       check(!(await hasHorizontalOverflow(page)), `${path} has no horizontal overflow at ${width}x${height}`);
-      const factsVisible = await page.locator('.verified-facts-section').evaluate((element) => getComputedStyle(element).display !== 'none');
-      check(factsVisible === (width >= 640), `${path} facts visibility is correct at ${width}px`);
+      const factsVisible = await page.locator('.credential-band').evaluate((element) => getComputedStyle(element).display !== 'none');
+      check(factsVisible, `${path} unified credential band is visible at ${width}px`);
       if (width >= 1024) {
         const firstViewportFits = await page.evaluate(() => {
           const headerHeight = document.querySelector('.site-header').getBoundingClientRect().height;

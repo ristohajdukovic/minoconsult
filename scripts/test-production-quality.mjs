@@ -67,7 +67,8 @@ try {
     check(Boolean(response?.ok()), `${route.path} responds through direct navigation`);
     await page.locator('main h1').waitFor();
     check(await page.locator('main h1').count() === 1, `${route.path} has one runtime H1`);
-    check(await page.locator('html').getAttribute('lang') === route.language, `${route.path} has the expected runtime language`);
+    const expectedLang = route.language === 'de' ? 'de-AT' : 'hr';
+    check(await page.locator('html').getAttribute('lang') === expectedLang, `${route.path} has the expected runtime language`);
     check(await page.locator('meta[name="twitter:card"]').getAttribute('content') === (SOCIAL_IMAGE_PATH ? 'summary_large_image' : 'summary'), `${route.path} runtime social-card type matches social-image availability`);
     check(await page.locator('meta[property="og:image"]').count() === (SOCIAL_IMAGE_PATH ? 1 : 0), `${route.path} runtime Open Graph image is conditional`);
     check(await page.locator('meta[name="twitter:image"]').count() === (SOCIAL_IMAGE_PATH ? 1 : 0), `${route.path} runtime Twitter image is conditional`);
@@ -90,16 +91,16 @@ try {
   if (HERO_IMAGE_PATH) {
     check(heroImages.length === 1 && heroImages[0].loading !== 'lazy' && Boolean(heroImages[0].alt), 'Approved hero photography is eager and has meaningful alt text');
   } else {
-    const heroFallback = page.locator('.hero-brand-fallback img');
-    check(heroImages.length === 0 && await heroFallback.count() === 1 && await heroFallback.getAttribute('alt') === '', 'Missing photography uses the decorative local brand fallback');
+    const heroFallback = page.locator('.hero-visual-slot.image-slot-placeholder');
+    check(heroImages.length === 0 && await heroFallback.count() === 1 && await page.locator('.hero-visual-slot img').count() === 0, 'Missing photography uses the neutral tonal placeholder, never the logo');
     check(!imageDetails.some((image) => image.src?.includes('mino-office-consultation-placeholder')), 'Consultation placeholder is absent from the runtime image set');
   }
   const adviserImages = imageDetails.filter((image) => image.src?.includes('/images/team/'));
   if (ADVISER_PORTRAIT_PATH) {
     check(adviserImages.length === 1 && adviserImages[0].loading === 'lazy' && Boolean(adviserImages[0].alt), 'Approved adviser portrait is lazy-loaded with meaningful alt text');
   } else {
-    const adviserFallback = page.locator('.adviser-identity-panel img');
-    check(adviserImages.length === 0 && await adviserFallback.count() === 1 && await adviserFallback.getAttribute('alt') === '', 'Missing adviser portrait uses the local identity-panel fallback');
+    const adviserFallback = page.locator('.adviser-visual.image-slot-placeholder');
+    check(adviserImages.length === 0 && await adviserFallback.count() === 1 && await page.locator('.adviser-visual img').count() === 0, 'Missing adviser portrait uses the neutral tonal placeholder, never the logo');
   }
 
   await page.evaluate(() => localStorage.setItem('mino_privacy_preferences_v1', '{malformed'));

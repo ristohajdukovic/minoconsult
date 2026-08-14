@@ -20,21 +20,17 @@ const home = {
     { label: 'Kontakt', href: '#contact' },
   ],
   cta: {
-    book: 'Erstgespräch anfragen', call: 'Anrufen', scroll: 'Scrollen', learnMore: 'Mehr erfahren',
+    book: 'Erstgespräch anfragen', mobileBook: 'Anfragen', call: 'Anrufen', learnMore: 'Mehr erfahren',
     callAria: 'MINO Consulting anrufen',
   },
   hero: {
-    eyebrow: 'Steuerberatung und Buchhaltung · Wien',
-    title: [{ text: 'Steuerberatung, Buchhaltung und Lohnverrechnung in Wien' }],
+    eyebrow: 'Steuerberatung in Wien · seit 1997',
+    title: 'Steuerberatung und Buchhaltung in Wien',
     body: 'MINO Consulting KG unterstützt Unternehmen bei laufender Buchhaltung, Lohnverrechnung, Jahresabschluss und konkreten Steuerfragen. Im Erstgespräch klären wir den Bedarf und die benötigten Unterlagen.',
-  },
-  value: {
-    eyebrow: 'Wobei wir Sie unterstützen',
-    title: 'Verlässliche Unterstützung für laufende Pflichten und konkrete Fragen',
-    intro: 'MINO unterstützt bei Buchhaltung, Lohnverrechnung, Jahresabschluss, Steuerfragen und dem steuerlichen Start eines Unternehmens.',
+    note: 'Die Terminanfrage öffnet lediglich Ihr eigenes E-Mail-Programm und reserviert noch keinen Termin. Verbindlich wird der Termin erst nach gesonderter Bestätigung durch MINO Consulting KG.',
   },
   servicesIntro: {
-    title: [{ text: 'Leistungen für ' }, { text: 'laufende Pflichten und konkrete Fragen', em: true }],
+    title: { lead: 'Leistungen für ', emphasis: 'laufende Pflichten und konkrete Fragen' },
     body: 'Die Übersichten zeigen, wobei MINO unterstützen kann. Der tatsächliche Umfang wird anhand Ihrer Unterlagen und Ihrer betrieblichen Situation vereinbart.',
   },
   services: [
@@ -60,25 +56,15 @@ const home = {
       body: 'Steuerliche Einordnung und Aufbau von Buchhaltungsabläufen vor oder nach dem Start. Rechtliche und notarielle Leistungen sind nicht Teil dieser Beschreibung.', path: '/unternehmensgruendung-wien',
     },
   ],
-  process: {
-    label: 'Von der Anfrage zum Gespräch',
-    title: 'So funktioniert die Terminanfrage',
-    body: 'Die Website bereitet Ihre Angaben für Ihr eigenes E-Mail-Programm vor und reserviert keinen Termin.',
-    steps: [
-      { title: 'Anfrage vorbereiten', body: 'Sie nennen Thema, Gesprächsformat und Terminwunsch und öffnen die vorbereitete E-Mail. Alternativ können Sie anrufen.' },
-      { title: 'Bestätigung abwarten', body: 'Der Termin ist erst verbindlich, nachdem MINO Consulting KG ihn separat bestätigt hat.' },
-      { title: 'Bedarf besprechen', body: 'Im Gespräch werden Ausgangslage, benötigte Unterlagen und ein möglicher Leistungsumfang geklärt.' },
-    ],
-  },
   clientFit: {
-    title: 'Wann ein Erstgespräch sinnvoll sein kann', body: 'Diese Situationen entsprechen den auf der Website beschriebenen Leistungen. Ob MINO den konkreten Auftrag übernehmen kann, wird erst nach Prüfung der Anfrage geklärt.',
+    title: { lead: 'Wann ein Erstgespräch ', emphasis: 'sinnvoll sein kann' }, body: 'Diese Situationen entsprechen den auf der Website beschriebenen Leistungen. Ob MINO den konkreten Auftrag übernehmen kann, wird erst nach Prüfung der Anfrage geklärt.',
     cards: [
       { title: 'Laufende Unterlagen ordnen', body: 'Belege, Bankbewegungen oder offene Buchhaltungspunkte sollen in einen vereinbarten Arbeitsablauf gebracht werden.' },
       { title: 'Mitarbeiter abrechnen', body: 'Für die laufende Lohnverrechnung müssen Stamm- und Monatsdaten vollständig und fristgerecht zusammengeführt werden.' },
       { title: 'Gründung oder Wechsel vorbereiten', body: 'Steuerliche Fragen und das künftige Buchhaltungssetup sollen vor dem Start oder einer möglichen Übergabe geklärt werden.' },
     ],
   },
-  localServices: { title: 'Leistungen im Detail', body: 'Jede Seite erklärt Zweck, benötigte Unterlagen, Ablauf und Abgrenzungen der jeweiligen Leistung.', label: 'Leistungsübersicht' },
+  localServices: { title: 'Leistungen im Detail', body: 'Jede Seite erklärt Zweck, benötigte Unterlagen, Ablauf und Abgrenzungen der jeweiligen Leistung.', label: 'Steuerberatung für Gründer' },
   about: {
     eyebrow: 'IHR ANSPRECHPARTNER',
     principalName: 'Mag. Tomislav Siketic',
@@ -93,7 +79,7 @@ const home = {
     legalLinkLabel: 'Berufs- und Unternehmensangaben im Impressum',
   },
   faq: {
-    title: [{ text: 'Häufig gestellte ' }, { text: 'Fragen' }],
+    title: { lead: 'Häufig gestellte ', emphasis: 'Fragen' },
     body: 'Antworten zu Unterlagen, Terminanfrage und Leistungsumfang.',
     items: [
       { question: 'Welche Unterlagen braucht MINO Consulting KG für die laufende Buchhaltung?', answer: 'In der Regel genügen Ausgangs- und Eingangsrechnungen, Bankunterlagen, Belege, Kassa-Daten und relevante Verträge. Im Erstgespräch klären wir den konkreten Bedarf und einen effizienten Austausch.' },
@@ -105,7 +91,7 @@ const home = {
     ],
   },
   contact: {
-    title: [{ text: 'Besprechen wir, welche ' }, { text: 'Unterstützung Sie benötigen' }],
+    title: { lead: 'Besprechen wir, welche ', emphasis: 'Unterstützung Sie benötigen' },
     body: 'Nennen Sie Thema, Gesprächsformat und Terminwunsch. Die Website bereitet eine E-Mail vor; Sie können auch direkt anrufen.',
     reassurance: 'Ihre Anfrage wird persönlich geprüft. Ein Termin gilt erst nach einer separaten Bestätigung.', button: 'Terminanfrage vorbereiten',
     cards: [

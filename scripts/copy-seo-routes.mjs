@@ -123,7 +123,9 @@ function structuredDataForPage(page) {
 
 function plainHeading(page) {
   if (page.h1) return page.h1;
-  return page.hero?.title?.map((part) => part.text).join('') ?? SITE_NAME;
+  const heroTitle = page.hero?.title;
+  if (typeof heroTitle === 'string') return heroTitle;
+  return heroTitle?.map((part) => part.text).join('') ?? SITE_NAME;
 }
 
 function staticFallbackForPage(page) {

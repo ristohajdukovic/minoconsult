@@ -144,7 +144,7 @@ try {
   await goto(page, '/hr/');
   check(await page.locator('html').getAttribute('lang') === 'hr', 'Croatian homepage uses lang=hr');
   await goto(page, '/');
-  check(await page.locator('html').getAttribute('lang') === 'de', 'German homepage uses lang=de');
+  check(await page.locator('html').getAttribute('lang') === 'de-AT', 'German homepage uses lang=de-AT');
 
   for (const route of allPages) {
     await goto(page, route.path);

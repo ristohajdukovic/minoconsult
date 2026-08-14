@@ -16,5 +16,6 @@ The spacing validator reports repeated or high-risk values. The following except
 | Decorative one-pixel rules and 0.625rem markers | non-scale dimensions | Stroke and marker geometry, not content spacing | Yes |
 | `.reveal` | 22px transform | Animation offset only; normal flow is unchanged and reduced motion removes it | Yes |
 | `public/404.html` inline tokens | self-contained values | The 404 document must work without the React/CSS bundle | Yes; keep synchronized with `SPACING_SYSTEM.md` |
+| `.verified-fact`, `.credential-fact` desktop padding | 0.35rem block padding | Shared hairline meta-bar geometry; the credential band intentionally reuses the verified-facts strip's vertical rhythm | Yes |
 
 No primary mobile content gutter below 20px, large negative content margin, or fixed text-container height is approved.

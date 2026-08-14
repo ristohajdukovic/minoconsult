@@ -9,7 +9,7 @@ import {
   getApprovedProfessionalRegistration,
   getApprovedTargetClientCopy,
 } from '../src/config/customerContent.js';
-import { getPublicTrustFacts, verifiedBusinessFacts } from '../src/config/verifiedBusinessFacts.js';
+import { getCredentialFacts, getPublicTrustFacts, verifiedBusinessFacts } from '../src/config/verifiedBusinessFacts.js';
 
 const checks = [];
 const failures = [];
@@ -50,7 +50,7 @@ for (const language of ['de', 'hr']) {
   const trustFacts = getPublicTrustFacts(language);
   check(trustFacts.length > 0 && trustFacts.every((fact) => fact.label && fact.value), `${language} trust strip has no empty item`);
   const home = homeContentByLanguage[language];
-  check(Boolean(home.hero.eyebrow && home.hero.title?.length === 1 && home.hero.body), `${language} hero uses the direct factual hierarchy`);
+  check(Boolean(home.hero.eyebrow && typeof home.hero.title === 'string' && home.hero.body && home.hero.note), `${language} hero uses the direct factual hierarchy`);
   check(!HERO_IMAGE_PATH || Boolean(getApprovedImage('heroImage', language)?.alt), `${language} approved hero photography requires localized alt text`);
   check(Boolean(home.about.eyebrow && home.about.principalName && home.about.principalRole && home.about.summary), `${language} About section uses the concise adviser hierarchy`);
   check(home.about.facts.length === 3 && home.about.facts.some((fact) => fact.includes(OFFICE_ADDRESS.split(', 1170')[0])), `${language} About section retains the verified office details`);
@@ -69,8 +69,9 @@ for (const language of ['de', 'hr']) {
   check(/Anfrage prüfen|Pregledajte upit/.test(home.booking.submit), `${language} appointment action remains an email review step`);
   check(!/(automatisch gesendet|automatski poslan)/i.test(stringsIn(home.booking).join(' ')), `${language} booking copy never claims automatic transmission`);
   check(!/(Termin jetzt buchen|Jetzt buchen)/i.test(stringsIn(home.cta).join(' ')), `${language} CTA does not imply a confirmed booking`);
-  check(Boolean(home.value.eyebrow && home.value.title && home.value.intro), `${language} compact value section has an eyebrow, heading and introduction`);
-  check(home.value.statement == null && home.value.features == null, `${language} home no longer contains the animated manifesto structure`);
+  const credentialFacts = getCredentialFacts(language);
+  check(credentialFacts.length === 4 && credentialFacts.every((fact) => fact.label && fact.value), `${language} credential band has four populated facts`);
+  check(home.value == null, `${language} home no longer contains the duplicated intro/value section`);
   check(home.services.length === 5 && new Set(home.services.map((service) => service.path)).size === 5, `${language} homepage has five distinct primary service destinations`);
   check(home.services.every((service) => service.body.split(/[.!?]+/).filter(Boolean).length <= 2), `${language} homepage service descriptions use no more than two sentences`);
   const bookkeepingCopy = stringsIn(home.services[0]).join(' ');
@@ -113,7 +114,7 @@ check(verifiedBusinessFacts.consultationLanguages !== null || !getPublicTrustFac
 check(verifiedBusinessFacts.googleRating === null && verifiedBusinessFacts.googleReviewCount === null, 'No fake review rating or count is configured');
 check(verifiedBusinessFacts.acceptsNewClients === null, 'Unknown client-acceptance status remains unknown');
 check(verifiedBusinessFacts.freeInitialConsultation === null, 'Unknown free-consultation status remains unknown');
-check(!/1997/.test(marketingText), 'No unverified 1997 experience claim appears in marketing content');
+check(!/1997/.test(marketingText) || verifiedBusinessFacts.registeredSince?.startsWith('1997'), 'Any 1997 experience claim in marketing content is backed by the verified commercial register date');
 check(!/(Antwort (?:innerhalb|in) \d|odgovor (?:u|unutar) \d)/i.test(marketingText), 'No unverified response time appears in marketing content');
 check(!/(poreski savetnik|savetnik|preduzeće|izveštaj)/i.test(marketingPages.filter((page) => page.language === 'hr').flatMap(stringsIn).join(' ')), 'Croatian content contains no prohibited Serbian ekavian forms');
 
